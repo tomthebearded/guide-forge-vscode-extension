@@ -11,27 +11,35 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
         webviewView.webview.options = { enableScripts: true };
 
         webviewView.webview.html = this.getHtml(webviewView.webview);
+
+        webviewView.webview.onDidReceiveMessage((message) => {
+            console.log('[Van Code] message from webview:', message);
+        });
     }
 
     private getHtml(webview: vscode.Webview): string {
         const nonce = getNonce();
         return `<!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8" />
-                    <meta name="viewport" content="width=device-width,  initial-scale=1.0" />
-                    <meta http-equiv="Content-Security-Policy" content="default-src     'none'; style-src ${ webview.cspSource } 'unsafe-inline'    script-src 'nonce-${ nonce }';" />
-                    <title>Van Code</title>
-                </head>
-                <body>
-                    <h3>Van Code</h3>
-                    <p>The control panel will grow here.</p>
-                    <button id="ping">Say hello to the extension</button>
-                    <script nonce="${ nonce }">   
-                        const vscode = acquireVsCodeApi(); // → the object for postMessage back to the extension; call once per webview 
-                        document.getElementById('ping').addEventListener('click', () => { vscode.postMessage({ type: 'ping', text: 'hello from the webview' });});
-                </body>
-                </html>`;
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
+  <title>Van Code</title>
+</head>
+<body>
+  <h3>Van Code</h3>
+  <p>The control panel will grow here.</p>
+  <button id="ping">Say hello to the extension</button>
+  <script nonce="${nonce}">
+    const vscode = acquireVsCodeApi();
+    document.getElementById('ping').addEventListener('click', () => {
+      vscode.postMessage({ type: 'ping', text: 'hello from the webview' });
+    });
+  </script>
+</body>
+</html>`;
     }
 }
 
