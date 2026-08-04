@@ -38,7 +38,7 @@ This step creates **one new file**: `src/storage/sets.ts`.
    load-bearing — step 06 imports it).
 2. Paste the code below.
 3. Notes on what's load-bearing:
-   - The `globalState` key **`'liveRecolor.savedSets'`** — read and write must use the same constant, or saved
+   - The `globalState` key **`'vanCode.savedSets'`** — read and write must use the same constant, or saved
      sets vanish. It's kept in one `const KEY`.
    - The `SavedSet` interface fields — the provider builds this exact shape (step 06) and export/import serialize
      it verbatim.
@@ -61,7 +61,7 @@ export interface SavedSet {
   semantic: SemanticColors;
 }
 
-const KEY = 'liveRecolor.savedSets';
+const KEY = 'vanCode.savedSets';
 
 export function listSets(ctx: vscode.ExtensionContext): SavedSet[] {
   return ctx.globalState.get<SavedSet[]>(KEY, []);
@@ -98,7 +98,7 @@ export async function importSets(ctx: vscode.ExtensionContext, json: string): Pr
   reload the window (**Developer: Reload Window**), and it's still under "My sets".
 
 ## If it breaks
-- **`Cannot find module 'vscode'`** → you created the file outside the `live-recolor` project, or deps aren't
+- **`Cannot find module 'vscode'`** → you created the file outside the `van-code` project, or deps aren't
   installed; run `npm install` in the project root.
 - **Type error on `ctx.globalState.get<SavedSet[]>(KEY, [])`** → confirm you imported `vscode` and typed the
   parameter as `vscode.ExtensionContext`.

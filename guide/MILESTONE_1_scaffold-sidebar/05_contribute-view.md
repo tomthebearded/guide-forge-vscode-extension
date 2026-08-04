@@ -14,7 +14,7 @@ fills the panel comes in steps 06–07.
 > 🧠 **New concept — contribution points & the manifest.** VS Code reads your `package.json` at startup to learn
 > your extension's *static* capabilities — it doesn't run your code to find them. `contributes.viewsContainers`
 > adds the Activity-Bar button; `contributes.views` adds a view inside a named container. The two are linked by the
-> **container id** (`liveRecolor`): the key under `views` must equal the container's `id`. Docs:
+> **container id** (`vanCode`): the key under `views` must equal the container's `id`. Docs:
 > [Contribution Points](https://code.visualstudio.com/api/references/contribution-points).
 
 > ⚠️ **The #1 "nothing happens" trap.** The view entry **must** include `"type": "webview"`. Omit it and VS Code
@@ -34,8 +34,8 @@ This step edits **one file**: `package.json` (at the project root).
    generator wrote it. Confirm only that `engines.vscode` reads `^1.128.0` (it will, if you scaffolded on a current
    VS Code).
 
-**Load-bearing values** in the block below (must match later steps): container id `liveRecolor`, view id
-`liveRecolor.panel`, icon path `media/icon.svg`, `"type": "webview"`. **Cosmetic** (rename freely): both `title`
+**Load-bearing values** in the block below (must match later steps): container id `vanCode`, view id
+`vanCode.panel`, icon path `media/icon.svg`, `"type": "webview"`. **Cosmetic** (rename freely): both `title`
 and `name` display strings.
 
 ## Code
@@ -45,17 +45,17 @@ The `contributes` block to put in `package.json` (replacing the generated one):
   "viewsContainers": {
     "activitybar": [
       {
-        "id": "liveRecolor",
-        "title": "Live Recolor",
+        "id": "vanCode",
+        "title": "Van Code",
         "icon": "media/icon.svg"
       }
     ]
   },
   "views": {
-    "liveRecolor": [
+    "vanCode": [
       {
-        "id": "liveRecolor.panel",
-        "name": "Live Recolor",
+        "id": "vanCode.panel",
+        "name": "Van Code",
         "type": "webview"
       }
     ]
@@ -71,7 +71,7 @@ The `contributes` block to put in `package.json` (replacing the generated one):
 
 ## Done when (this step)
 - The **palette icon** appears in the EDH's Activity Bar.
-- Clicking it opens a side panel titled **LIVE RECOLOR** that is **empty** (or shows a "There is no data provider
+- Clicking it opens a side panel titled **VAN CODE** that is **empty** (or shows a "There is no data provider
   registered…" style message). **Empty is correct here** — the provider that fills it is the next step.
 
 ## If it breaks

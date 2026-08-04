@@ -1,4 +1,4 @@
-# Decision log — Live Recolor (VS Code extension)
+# Decision log — Van Code (VS Code extension)
 
 > Why the guide is the way it is. Each entry: the decision, the reasoning, and what it rules out.
 > Seeded from the plan's Phase 0 interview and Phase 0.5 web check; append-only (supersede, don't delete).

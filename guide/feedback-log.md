@@ -1,4 +1,4 @@
-# Feedback log — Live Recolor (VS Code extension)
+# Feedback log — Van Code (VS Code extension)
 
 > Append-only field log of friction readers hit while following this guide. Its purpose is to improve the
 > guide **and** the GuideForge method over time — so entries are captured even when the guide is not (yet)

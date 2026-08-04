@@ -37,7 +37,7 @@ in HSL and painful in RGB.
 > [W3C — contrast (minimum)](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html).
 
 ## Do this
-**Before you start:** [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md) is green and the `live-recolor` project compiles. The Node color check at the end of this step reuses the Node 24 + `tsc` you set up in [M1/01](../MILESTONE_1_scaffold-sidebar/01_prerequisites.md) — no new install needed.
+**Before you start:** [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md) is green and the `van-code` project compiles. The Node color check at the end of this step reuses the Node 24 + `tsc` you set up in [M1/01](../MILESTONE_1_scaffold-sidebar/01_prerequisites.md) — no new install needed.
 
 This step creates **one file**: `src/engine/color.ts`.
 

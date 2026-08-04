@@ -28,7 +28,7 @@ pre-split into `{ section, key }`, ready for step 02 to consume.
 > `Workspace`, open a folder first. Verified against the current API — see [stack.md](../foundation/stack.md#verified-api-facts-steps-must-honor-exact-spelling--load-bearing).
 
 ## Do this
-**Before you start:** [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) is green — the `live-recolor` project is open in VS Code and `src/panel/` exists (this step's folder sits beside it). Dependencies are already installed from M1's scaffold.
+**Before you start:** [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) is green — the `van-code` project is open in VS Code and `src/panel/` exists (this step's folder sits beside it). Dependencies are already installed from M1's scaffold.
 
 This step creates **one file**: `src/theme/settings.ts`.
 
@@ -68,7 +68,7 @@ export const TARGET = vscode.ConfigurationTarget.Global;
 - Nothing is observable in the editor yet — this file only *declares* constants; step 02 is the first to use them.
 
 ## If it breaks
-- **`Cannot find module 'vscode'`** → you're editing outside the `live-recolor` project, or dependencies didn't
+- **`Cannot find module 'vscode'`** → you're editing outside the `van-code` project, or dependencies didn't
   install. Run `npm install` in the project root (`@types/vscode` is already a devDependency).
 - **Red squiggle on `vscode.ConfigurationTarget.Global`** → a typo in the enum name; it's `ConfigurationTarget`
   (capital C, capital T) with member `Global`. Autocomplete after `vscode.` confirms the spelling.

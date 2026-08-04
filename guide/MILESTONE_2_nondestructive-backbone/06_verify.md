@@ -12,7 +12,7 @@ the non-destructive backbone matters.)*
 
 1. **Build + launch** — the project compiles with no errors; press <kbd>F5</kbd> → an **[Extension Development Host]**
    window opens with no error notification.
-2. **Panel + buttons** — click the Live Recolor icon in the EDH's Activity Bar → the panel shows **"Live Recolor"**
+2. **Panel + buttons** — click the Van Code icon in the EDH's Activity Bar → the panel shows **"Van Code"**
    and three buttons: **Apply demo (red status bar)**, **Revert**, **Reset**.
 3. **Apply (live + written)** — click **Apply demo**:
    - The EDH's **status bar turns crimson** (`#e11d48`) with **white** text, immediately, with no reload.
@@ -137,7 +137,7 @@ import { ThemeHistory } from '../theme/history';
 import { applyChrome } from '../theme/apply';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'liveRecolor.panel';
+  public static readonly viewType = 'vanCode.panel';
 
   constructor(private readonly history: ThemeHistory) {}
 
@@ -176,10 +176,10 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
-  <title>Live Recolor</title>
+  <title>Van Code</title>
 </head>
 <body>
-  <h3>Live Recolor</h3>
+  <h3>Van Code</h3>
   <button id="apply">Apply demo (red status bar)</button>
   <button id="revert">Revert</button>
   <button id="reset">Reset</button>

@@ -7,17 +7,17 @@ Do these in order; each pairs an action with the **exact** result you should see
 1. **Toolchain** — in the project terminal:
    - `node --version` → `v24.*`
    - `code --version` → first line `1.128.*`
-2. **Project exists** — the Explorer shows `live-recolor/` with `package.json`, `src/extension.ts`,
-   `src/panel/ThemePanelProvider.ts`, and `media/icon.svg`. `package.json` `"name"` is `live-recolor`.
+2. **Project exists** — the Explorer shows `van-code/` with `package.json`, `src/extension.ts`,
+   `src/panel/ThemePanelProvider.ts`, and `media/icon.svg`. `package.json` `"name"` is `van-code`.
 3. **Dev loop** — press <kbd>F5</kbd> → a window titled **[Extension Development Host]** opens with no error
    notification.
 4. **Activity-Bar icon** — the EDH's Activity Bar shows the **palette icon**.
-5. **Panel renders** — clicking it opens a panel showing **"Live Recolor"** and **"The control panel will grow
+5. **Panel renders** — clicking it opens a panel showing **"Van Code"** and **"The control panel will grow
    here."**, plus a button **"Say hello to the extension"**.
 6. **Message round-trip** — with the **first window's Debug Console** open (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Y</kbd>),
    click the button → this line appears:
    ```
-   [Live Recolor] message from webview: { type: 'ping', text: 'hello from the webview' }
+   [Van Code] message from webview: { type: 'ping', text: 'hello from the webview' }
    ```
 
 If all six pass, M1 is done: you have a runnable extension with an interactive sidebar panel wired to the extension
@@ -34,9 +34,9 @@ These are the files **we created or modified**. Generator-created files we didn'
 > them.** The only parts we authored are `engines.vscode` (confirm) and the whole `contributes` block.
 ```jsonc
 {
-  "name": "live-recolor",
-  "displayName": "Live Recolor",
-  "description": "Live-recolor the whole editor from a sidebar panel.",
+  "name": "van-code",
+  "displayName": "Van Code",
+  "description": "Recolor the whole editor from a sidebar panel",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.128.0"
@@ -50,17 +50,17 @@ These are the files **we created or modified**. Generator-created files we didn'
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "liveRecolor",
-          "title": "Live Recolor",
+          "id": "vanCode",
+          "title": "Van Code",
           "icon": "media/icon.svg"
         }
       ]
     },
     "views": {
-      "liveRecolor": [
+      "vanCode": [
         {
-          "id": "liveRecolor.panel",
-          "name": "Live Recolor",
+          "id": "vanCode.panel",
+          "name": "Van Code",
           "type": "webview"
         }
       ]
@@ -110,7 +110,7 @@ import * as vscode from 'vscode';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
   // Must match the view id declared in package.json (contributes.views).
-  public static readonly viewType = 'liveRecolor.panel';
+  public static readonly viewType = 'vanCode.panel';
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -125,7 +125,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
 
     // Listen for messages the webview sends (see the <script> in getHtml).
     webviewView.webview.onDidReceiveMessage((message) => {
-      console.log('[Live Recolor] message from webview:', message);
+      console.log('[Van Code] message from webview:', message);
     });
   }
 
@@ -138,10 +138,10 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
-  <title>Live Recolor</title>
+  <title>Van Code</title>
 </head>
 <body>
-  <h3>Live Recolor</h3>
+  <h3>Van Code</h3>
   <p>The control panel will grow here.</p>
   <button id="ping">Say hello to the extension</button>
   <script nonce="${nonce}">
@@ -176,7 +176,7 @@ function getNonce(): string {
 | Symptom | Usual cause | Fix |
 |---------|-------------|-----|
 | No Activity-Bar icon | `media/icon.svg` missing, or JSON invalid | Check the file exists; fix red squiggles in `package.json` |
-| Panel opens but stays blank / "no data provider" | `"type": "webview"` missing, or `viewType` ≠ view `id` | Both must be `liveRecolor.panel`; add `"type": "webview"`; restart EDH |
+| Panel opens but stays blank / "no data provider" | `"type": "webview"` missing, or `viewType` ≠ view `id` | Both must be `vanCode.panel`; add `"type": "webview"`; restart EDH |
 | Webview blank, CSP error in webview dev tools | nonce/`script-src` mismatch | Use the same `${nonce}` in the CSP and on `<script>` |
 | `acquireVsCodeApi is not defined` | `enableScripts: true` not set | Set it in `resolveWebviewView` |
 | Button click logs nothing | Watching the EDH console, not the **first window's** Debug Console | Open Debug Console in the F5 window |

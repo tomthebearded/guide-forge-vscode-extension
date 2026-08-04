@@ -7,9 +7,9 @@ Stand up a real VS Code extension and give it a home in the editor: an **icon in
 in the panel sends a message the extension receives. Nothing is recolored yet; this milestone builds the surface
 everything later hangs off.
 
-**Observable end state:** press <kbd>F5</kbd> → a second VS Code window opens → the Live Recolor icon is in its
+**Observable end state:** press <kbd>F5</kbd> → a second VS Code window opens → the Van Code icon is in its
 Activity Bar → clicking it opens a panel that renders our HTML → clicking the panel's button prints
-`[Live Recolor] message from webview: { type: 'ping', text: 'hello from the webview' }` in the Debug Console of
+`[Van Code] message from webview: { type: 'ping', text: 'hello from the webview' }` in the Debug Console of
 the *first* window.
 
 ## Scope discipline (what this milestone deliberately does NOT do)
@@ -27,13 +27,13 @@ None — this is the first milestone. You need Node 24 LTS and VS Code installed
 ## Load-bearing names (must match exactly, everywhere)
 | Name | Value | What breaks if it drifts |
 |------|-------|--------------------------|
-| Extension / package name | `live-recolor` | the `.vsix` filename (M5) and the extension id |
-| View Container id | `liveRecolor` | the `contributes.views` key must equal this, or the view has no home |
-| View id | `liveRecolor.panel` | the provider's `viewType` must equal this, or the provider never attaches |
+| Extension / package name | `van-code` | the `.vsix` filename (M5) and the extension id |
+| View Container id | `vanCode` | the `contributes.views` key must equal this, or the view has no home |
+| View id | `vanCode.panel` | the provider's `viewType` must equal this, or the provider never attaches |
 | Icon path | `media/icon.svg` | a missing/renamed path = no Activity-Bar icon |
 | Provider file | `src/panel/ThemePanelProvider.ts` | import path in `extension.ts` |
 
-*(Cosmetic — rename freely: the display titles "Live Recolor", the description text, the SVG artwork, the button label.)*
+*(Cosmetic — rename freely: the display titles "Van Code", the description text, the SVG artwork, the button label.)*
 
 ## Steps at a glance (grouped into sittings)
 **Sitting 1 — Scaffold and run the empty extension (01–03)** — prove the dev loop works before touching anything.
@@ -64,12 +64,12 @@ None — this is the first milestone. You need Node 24 LTS and VS Code installed
 
 ## Done-when gate (aggregated — the real test)
 - [ ] `node --version` prints `v24.*` and `code --version` prints `1.128.*` (or your pinned line). → step 01
-- [ ] `npx … yo code` produced a `live-recolor/` folder that opens in VS Code with no errors. → step 02
+- [ ] `npx … yo code` produced a `van-code/` folder that opens in VS Code with no errors. → step 02
 - [ ] <kbd>F5</kbd> opens the Extension Development Host and the generated **Hello World** command shows its notification. → step 03
-- [ ] After the contribution edit, the **Live Recolor icon appears** in the Extension Development Host's Activity Bar. → step 05
+- [ ] After the contribution edit, the **Van Code icon appears** in the Extension Development Host's Activity Bar. → step 05
 - [ ] Clicking the icon opens a panel that renders **"The control panel will grow here."** → step 07
 - [ ] The panel shows a **"Say hello to the extension"** button. → step 08
-- [ ] Clicking the button prints `[Live Recolor] message from webview: { type: 'ping', text: 'hello from the webview' }` in the **Debug Console** of the first window. → step 09
+- [ ] Clicking the button prints `[Van Code] message from webview: { type: 'ping', text: 'hello from the webview' }` in the **Debug Console** of the first window. → step 09
 
 ## Handoff
 ### Recap
@@ -77,12 +77,12 @@ You scaffolded a TypeScript extension, gave it an Activity-Bar container + a Web
 two-way messaging between the webview and the extension host.
 
 ### Done so far (cumulative)
-- A runnable VS Code extension `live-recolor` with a working F5 dev loop.
+- A runnable VS Code extension `van-code` with a working F5 dev loop.
 - A sidebar panel (Webview View) that renders our own HTML.
 - A verified webview→extension message channel.
 
 ### Artifacts now in the project
-- `live-recolor/` (scaffolded project) — with, modified/added by us: `package.json` (contributions),
+- `van-code/` (scaffolded project) — with, modified/added by us: `package.json` (contributions),
   `src/extension.ts` (provider registration), `src/panel/ThemePanelProvider.ts` (the panel), `media/icon.svg`.
 - Generator-created and left as-is: `tsconfig.json`, `.vscode/launch.json` + `tasks.json`, ESLint config,
   `src/test/`, `.vscodeignore`, `.gitignore`.

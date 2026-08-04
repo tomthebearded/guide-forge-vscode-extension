@@ -46,14 +46,14 @@ export function deactivate(): void {}
 ```
 
 ## Done when (this step)
-- Clicking the Live Recolor icon in the EDH opens the panel and it renders:
-  - a heading **"Live Recolor"**, and
+- Clicking the Van Code icon in the EDH opens the panel and it renders:
+  - a heading **"Van Code"**, and
   - the line **"The control panel will grow here."**
 - No error notification appears.
 
 ## If it breaks
 - **Panel still empty / "no data provider"** → the `viewType` string and the `package.json` view `id` don't match.
-  Both must be exactly `liveRecolor.panel`. (Restart the EDH after fixing — contribution changes need a reload.)
+  Both must be exactly `vanCode.panel`. (Restart the EDH after fixing — contribution changes need a reload.)
 - **`Cannot find name 'ThemePanelProvider'`** → the import path is wrong; it must be `./panel/ThemePanelProvider`
   (no `.ts` extension), matching the file from step 06.
 - **Nothing changed after F5** → you may be looking at a stale EDH; stop debugging (<kbd>Shift</kbd>+<kbd>F5</kbd>)

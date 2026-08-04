@@ -38,7 +38,7 @@ This step edits **one file** (`package.json`) then runs two commands.
    "publisher": "example",
    "repository": {
      "type": "git",
-     "url": "https://github.com/example/live-recolor"
+     "url": "https://github.com/example/van-code"
    },
    ```
 3. Save.
@@ -48,15 +48,15 @@ This step edits **one file** (`package.json`) then runs two commands.
    vsce package
    ```
 5. `vsce package` runs `vscode:prepublish` (→ `npm run compile`) first, then zips the extension. Expected final
-   line: **`Packaged: …\live-recolor\live-recolor-0.0.1.vsix`**. The file appears in the project root.
+   line: **`Packaged: …\van-code\van-code-0.0.1.vsix`**. The file appears in the project root.
 
-**Load-bearing:** the **presence** of `publisher`; the emitted filename `live-recolor-0.0.1.vsix` is derived from
-`name` (`live-recolor`) + `version` (`0.0.1`) — both already fixed since M1. The `publisher` value and the
+**Load-bearing:** the **presence** of `publisher`; the emitted filename `van-code-0.0.1.vsix` is derived from
+`name` (`van-code`) + `version` (`0.0.1`) — both already fixed since M1. The `publisher` value and the
 `repository` URL are cosmetic.
 
 ## Done when (this step)
-- `vsce package` completes and prints a line ending in **`live-recolor-0.0.1.vsix`**.
-- The file **`live-recolor-0.0.1.vsix`** exists in the project root (`Get-ChildItem *.vsix` lists it).
+- `vsce package` completes and prints a line ending in **`van-code-0.0.1.vsix`**.
+- The file **`van-code-0.0.1.vsix`** exists in the project root (`Get-ChildItem *.vsix` lists it).
 - Optional install check: Command Palette → **Extensions: Install from VSIX…** → pick the file → it installs with
   no error (uninstall afterward if you don't want two copies during F5 dev).
 

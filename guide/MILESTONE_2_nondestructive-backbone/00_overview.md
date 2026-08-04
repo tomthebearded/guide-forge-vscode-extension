@@ -7,7 +7,7 @@ net that makes every write reversible. You build the **single write path** (`src
 settings, one function that writes them, and a **history** that snapshots before every write. Then you wire the
 panel to it with three buttons: **Apply demo** (turns the status bar crimson), **Revert**, **Reset**.
 
-**Observable end state:** press <kbd>F5</kbd> → open the Live Recolor panel → click **Apply demo** → the status
+**Observable end state:** press <kbd>F5</kbd> → open the Van Code panel → click **Apply demo** → the status
 bar turns `#e11d48` with white text **live, no reload**, and your User `settings.json` grows a
 `"workbench.colorCustomizations"` block. Click **Revert** → the status bar returns to exactly its prior state.
 Click **Reset** → the whole `workbench.colorCustomizations` key vanishes from `settings.json`.
@@ -22,7 +22,7 @@ Click **Reset** → the whole `workbench.colorCustomizations` key vanishes from 
   engine arrives in **M3**.
 
 ## Prerequisite
-**M1 green.** You need the runnable `live-recolor` extension from M1: the Activity-Bar panel renders and the
+**M1 green.** You need the runnable `van-code` extension from M1: the Activity-Bar panel renders and the
 webview→extension message channel works (M1's step-10 gate). If F5 doesn't open a panel yet, finish
 [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) first.
 
@@ -69,7 +69,7 @@ webview→extension message channel works (M1's step-10 gate). If F5 doesn't ope
 Each check pairs an action with the **exact** observable result. Full walkthrough + settings.json diffs in [step 06](06_verify.md).
 - [ ] The three files exist and compile: `src/theme/settings.ts`, `src/theme/apply.ts`, `src/theme/history.ts`. → steps 01–03
 - [ ] `src/extension.ts` creates one `ThemeHistory` and passes it into `new ThemePanelProvider(history)`; the project compiles with no errors. → steps 04–05
-- [ ] <kbd>F5</kbd> → the Live Recolor panel shows three buttons: **Apply demo (red status bar)**, **Revert**, **Reset**. → step 05
+- [ ] <kbd>F5</kbd> → the Van Code panel shows three buttons: **Apply demo (red status bar)**, **Revert**, **Reset**. → step 05
 - [ ] Click **Apply demo** → the EDH's status bar turns `#e11d48` (crimson) with `#ffffff` text **live**, and its User `settings.json` gains `"workbench.colorCustomizations": { "statusBar.background": "#e11d48", "statusBar.foreground": "#ffffff" }`. → step 06
 - [ ] Click **Revert** → the status bar returns to exactly its prior state; the key returns to its prior value (or is removed if you had none before). → step 06
 - [ ] Click **Reset** → the entire `"workbench.colorCustomizations"` key is **removed** from `settings.json` (not left as `{}`). → step 06
@@ -80,7 +80,7 @@ You built the single write path — a settings module, one apply function, and a
 panel's three buttons to it. One workbench color now applies live and is fully reversible.
 
 ### Done so far (cumulative)
-- A runnable `live-recolor` extension with a sidebar Webview panel and a working webview↔extension message channel. *(M1)*
+- A runnable `van-code` extension with a sidebar Webview panel and a working webview↔extension message channel. *(M1)*
 - The **non-destructive write backbone** (`src/theme/settings.ts` + `apply.ts` + `history.ts`): snapshot-before-write,
   Revert, Reset — the single settings write path. *(M2)*
 - A panel that **applies / reverts / resets one workbench color** live. *(M2)*

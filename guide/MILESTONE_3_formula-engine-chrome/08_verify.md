@@ -28,7 +28,7 @@ the rest run in the Extension Development Host.
    ```
    (20 workbench keys; Midnight forces `editor.background` to pure black.)
 
-3. **Panel dropdowns** — press <kbd>F5</kbd>, open the Live Recolor panel. It shows a **Starter** dropdown with 5
+3. **Panel dropdowns** — press <kbd>F5</kbd>, open the Van Code panel. It shows a **Starter** dropdown with 5
    options (Deep Sea, Ember, Grove, Orchid, Graphite) and a **Style** dropdown with 9 options (Neon … Monochrome +
    Accent), above **Apply / Revert / Reset**.
 
@@ -427,7 +427,7 @@ import { GENERATIVE, profileById } from '../engine/profiles';
 import { generate } from '../engine/generate';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'liveRecolor.panel';
+  public static readonly viewType = 'vanCode.panel';
 
   constructor(private readonly history: ThemeHistory) {}
 
@@ -468,10 +468,10 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
-  <title>Live Recolor</title>
+  <title>Van Code</title>
 </head>
 <body>
-  <h3>Live Recolor</h3>
+  <h3>Van Code</h3>
   <p><label>Starter <select id="combo">${comboOpts}</select></label></p>
   <p><label>Style <select id="profile">${profOpts}</select></label></p>
   <button id="apply">Apply</button>

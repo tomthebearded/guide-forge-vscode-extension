@@ -55,7 +55,7 @@ import { GENERATIVE, profileById } from '../engine/profiles';
 import { generate } from '../engine/generate';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'liveRecolor.panel';
+  public static readonly viewType = 'vanCode.panel';
 
   constructor(private readonly history: ThemeHistory) {}
 
@@ -96,10 +96,10 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
-  <title>Live Recolor</title>
+  <title>Van Code</title>
 </head>
 <body>
-  <h3>Live Recolor</h3>
+  <h3>Van Code</h3>
   <p><label>Starter <select id="combo">${comboOpts}</select></label></p>
   <p><label>Style <select id="profile">${profOpts}</select></label></p>
   <button id="apply">Apply</button>
@@ -131,7 +131,7 @@ function getNonce(): string {
 
 ## Done when (this step)
 - The file compiles with no errors and `src/extension.ts` is still the M2 version (`new ThemePanelProvider(history)`).
-- Press <kbd>F5</kbd>, open the Live Recolor panel: it shows a **Starter** dropdown (5 options) and a **Style**
+- Press <kbd>F5</kbd>, open the Van Code panel: it shows a **Starter** dropdown (5 options) and a **Style**
   dropdown (9 options) above **Apply / Revert / Reset**.
 - Pick **Deep Sea** + **Neon** (or click **Apply**): the editor background, sidebar, activity bar, status bar, tabs,
   and panels all recolor to a coordinated dark-teal theme **live**, no reload.

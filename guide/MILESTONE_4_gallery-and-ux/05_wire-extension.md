@@ -42,7 +42,7 @@ It's the only place that line occurs, so the anchor is unambiguous. (The complet
 - `src/extension.ts` has the one-line change above and the whole project **compiles with zero errors** (the step-04 error
   in `extension.ts` is gone).
 - The extension is now fully wired: pressing <kbd>F5</kbd> and opening the panel should render the gallery. Prove
-  it fully in step 06 — but a quick smoke test: F5, open Live Recolor, and confirm you see chip rows rather than a
+  it fully in step 06 — but a quick smoke test: F5, open Van Code, and confirm you see chip rows rather than a
   blank panel or the old dropdowns.
 
 ## If it breaks

@@ -1,4 +1,4 @@
-# PLAN — Live Recolor: a VS Code extension that recolors the whole editor
+# PLAN — Van Code: a VS Code extension that recolors the whole editor
 
 > **Stage-1 deliverable** (GuideForge `/plan-guide`). This is the plan the guide will be drafted from — the
 > whole guide, in one drafting pass, after approval. It is **not** the guide. Nothing here is scaffolded yet except this file.
@@ -165,7 +165,7 @@ The **reality-check gate is M4** — the first point the extension is genuinely 
 | **M2** | Non-destructive backbone | One workbench color applies live; snapshot + Revert + Reset work | M1 | Click "make status bar red" → it changes live; **Revert** restores exactly; **Reset** removes the customization entirely |
 | **M3** | Color-formula engine (chrome) | A seed color → a full coordinated **chrome** palette, via any of the **9 generative profiles**, applied live | M2 | Pick a starter combo + a generative profile → all chrome recolors coherently and live; Revert restores |
 | **M4** ⭐ *reality-check gate* | Preset gallery + panel UX | The full gallery (5 combos × 9 generative + **4 signature presets**) → full chrome theme live, with **swatch preview** + **contrast readout**, Revert/Reset | M3 | Every combo/style in the gallery yields a coherent live chrome theme; swatches + contrast ratio show; **stop and actually use it** |
-| **M5** | Tokens, persistence, packaging | Syntax + semantic tokens recolor too; **Save** named sets; **import/export** JSON; **per-language token scoping**; a built **`.vsix`** | M4 | Tokens recolor; a saved set survives reload; export→import round-trips; a language-scoped token set applies to one language only; `vsce package` emits `live-recolor-x.y.z.vsix` |
+| **M5** | Tokens, persistence, packaging | Syntax + semantic tokens recolor too; **Save** named sets; **import/export** JSON; **per-language token scoping**; a built **`.vsix`** | M4 | Tokens recolor; a saved set survives reload; export→import round-trips; a language-scoped token set applies to one language only; `vsce package` emits `van-code-x.y.z.vsix` |
 
 ### Sittings (natural pause points inside the big milestones)
 - **M3** — (a) color utilities: hex↔HSL, lighten/darken, mix, contrast ratio; (b) the `StyleProfile` type + registry
@@ -256,7 +256,7 @@ examples/vscode-extension/
 The extension source the guide builds (created *inside* the steps, not scaffolded now) will live under the reader's
 own workspace, structured per `conventions.md`:
 ```
-live-recolor/
+van-code/
   package.json  tsconfig.json  .vscodeignore
   src/
     extension.ts                    ← activation + provider registration + command wiring (adapter)

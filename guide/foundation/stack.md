@@ -1,4 +1,4 @@
-# Verified stack — Live Recolor (VS Code extension)
+# Verified stack — Van Code (VS Code extension)
 
 > Pinned versions and official docs for this guide, verified online on **2026-07-10**.
 > Every milestone uses these exact versions. If you're following this later, re-check the "Latest stable"
@@ -22,7 +22,7 @@ npx --package yo --package generator-code -- yo code
 # Inside the generated folder, the dev loop is F5 in VS Code (Extension Development Host).
 # Packaging (M5) — the command name is still `vsce` even though the package is scoped:
 npm install -g @vscode/vsce   # or: npx @vscode/vsce package
-vsce package                  # emits live-recolor-<version>.vsix
+vsce package                  # emits van-code-<version>.vsix
 ```
 
 ## Version notes

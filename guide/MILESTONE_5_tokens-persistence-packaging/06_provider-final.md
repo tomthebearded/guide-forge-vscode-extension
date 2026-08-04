@@ -53,7 +53,7 @@ regions that changed from M4.
    class header + constructor with:
    ```ts
    export class ThemePanelProvider implements vscode.WebviewViewProvider {
-     public static readonly viewType = 'liveRecolor.panel';
+     public static readonly viewType = 'vanCode.panel';
 
      private view?: vscode.WebviewView;
      private last?: { comboId: string; profileId: string; variant?: string };
@@ -128,7 +128,7 @@ regions that changed from M4.
            if (!uris?.length) return;
            const bytes = await vscode.workspace.fs.readFile(uris[0]);
            const count = await importSets(this.context, Buffer.from(bytes).toString('utf8'));
-           void vscode.window.showInformationMessage(`Live Recolor: imported ${count} set(s).`);
+           void vscode.window.showInformationMessage(`Van Code: imported ${count} set(s).`);
            this.post({ type: 'savedSets', savedSets: listSets(this.context).map((s) => s.name) });
            break;
          }
@@ -151,7 +151,7 @@ the language through. The `m.name` set-naming and the info-message text are cosm
 
 ## Done when (this step)
 - Both files match the checkpoint version; the project compiles clean.
-- Press <kbd>F5</kbd> (or restart the EDH) and open the Live Recolor panel. It still renders (M4's webview is
+- Press <kbd>F5</kbd> (or restart the EDH) and open the Van Code panel. It still renders (M4's webview is
   unchanged until step 07), and **applying a combo + style now recolors code tokens too** — open any `.ts`/`.js`
   file in the EDH and pick a theme: keywords/strings/comments/types change color live, on top of the chrome.
 - Save/Export/Import buttons don't exist in the UI yet — step 07 adds them. The handlers are ready and waiting.

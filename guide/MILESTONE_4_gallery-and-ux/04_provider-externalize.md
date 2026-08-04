@@ -58,7 +58,7 @@ checkpoint too — don't re-type it).
    import { contrastRatio } from '../engine/color';
 
    export class ThemePanelProvider implements vscode.WebviewViewProvider {
-     public static readonly viewType = 'liveRecolor.panel';
+     public static readonly viewType = 'vanCode.panel';
 
      private view?: vscode.WebviewView;
 
@@ -136,7 +136,7 @@ checkpoint too — don't re-type it).
      <meta http-equiv="Content-Security-Policy"
        content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';" />
      <link href="${styleUri}" rel="stylesheet" />
-     <title>Live Recolor</title>
+     <title>Van Code</title>
    </head>
    <body>
      <div id="app"></div>

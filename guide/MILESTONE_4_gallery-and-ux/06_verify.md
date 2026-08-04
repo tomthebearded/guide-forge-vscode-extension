@@ -16,7 +16,7 @@ verifications (no F5 needed); 3–8 run in the Extension Development Host.
    ```
    → prints `#0f380f #c4cfa1` (dmg dark green, light olive).
 3. **Launch** — press <kbd>F5</kbd> → the **[Extension Development Host]** opens with no error notification; click
-   the Live Recolor palette icon in its Activity Bar.
+   the Van Code palette icon in its Activity Bar.
 4. **Gallery renders** — the panel shows a **"Starter combination"** row with **5** combo chips
    (Deep Sea, Ember, Grove, Orchid, Graphite) and a **"Style"** row with **13** style chips (the 9 generative +
    Game Boy, 16-bit, Synthwave, Terminal / CRT). **No dropdowns.** One chip in each row is highlighted (the
@@ -42,7 +42,7 @@ verifications (no F5 needed); 3–8 run in the Extension Development Host.
 If all eight pass, M4's mechanics are done.
 
 ## ⭐ Reality check — stop building and use it
-This is the milestone the whole ladder was pointing at: the first time Live Recolor is a **tool**, not a demo. Before
+This is the milestone the whole ladder was pointing at: the first time Van Code is a **tool**, not a demo. Before
 you touch M5, **actually use it.**
 
 1. Leave the Extension Development Host open as your editor for a real task — read some code, edit a file — for at
@@ -359,7 +359,7 @@ import { generate } from '../engine/generate';
 import { contrastRatio } from '../engine/color';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'liveRecolor.panel';
+  public static readonly viewType = 'vanCode.panel';
 
   private view?: vscode.WebviewView;
 
@@ -422,7 +422,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';" />
   <link href="${styleUri}" rel="stylesheet" />
-  <title>Live Recolor</title>
+  <title>Van Code</title>
 </head>
 <body>
   <div id="app"></div>

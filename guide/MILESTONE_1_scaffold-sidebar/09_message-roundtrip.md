@@ -25,16 +25,16 @@ listener inside `resolveWebviewView`. Everything else stays byte-for-byte as in 
 ```ts
     // ADDED THIS STEP — listen for messages the webview sends (see the <script> in getHtml).
     webviewView.webview.onDidReceiveMessage((message) => {
-      console.log('[Live Recolor] message from webview:', message);
+      console.log('[Van Code] message from webview:', message);
     });
 ```
 
 Then:
 1. Save (it recompiles).
 2. Press <kbd>F5</kbd> to relaunch the EDH with the new build.
-3. In the **first** window (the `live-recolor` one), open the **Debug Console**: **View → Debug Console** (or
+3. In the **first** window (the `van-code` one), open the **Debug Console**: **View → Debug Console** (or
    <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Y</kbd>).
-4. In the **EDH**, open the Live Recolor panel and click **"Say hello to the extension"**.
+4. In the **EDH**, open the Van Code panel and click **"Say hello to the extension"**.
 5. Watch the Debug Console in the first window.
 
 *(The complete `src/panel/ThemePanelProvider.ts` after this step is shown whole in [10_verify.md](10_verify.md).)*
@@ -42,7 +42,7 @@ Then:
 ## Done when (this step)
 - Clicking the button prints this line in the **first window's Debug Console**:
   ```
-  [Live Recolor] message from webview: { type: 'ping', text: 'hello from the webview' }
+  [Van Code] message from webview: { type: 'ping', text: 'hello from the webview' }
   ```
   (The object may render with slightly different spacing/quoting depending on VS Code's console formatting; the
   `type` and `text` values must match exactly.)

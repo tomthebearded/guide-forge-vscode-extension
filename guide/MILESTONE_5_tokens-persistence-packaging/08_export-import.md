@@ -36,7 +36,7 @@ case 'import': {
   if (!uris?.length) return;
   const bytes = await vscode.workspace.fs.readFile(uris[0]);
   const count = await importSets(this.context, Buffer.from(bytes).toString('utf8'));
-  void vscode.window.showInformationMessage(`Live Recolor: imported ${count} set(s).`);
+  void vscode.window.showInformationMessage(`Van Code: imported ${count} set(s).`);
   this.post({ type: 'savedSets', savedSets: listSets(this.context).map((s) => s.name) });
   break;
 }
@@ -63,13 +63,13 @@ count for the confirmation toast. The final `post({ type: 'savedSets', … })` r
 
 No code changes. Run the round-trip in the Extension Development Host:
 
-1. Press <kbd>F5</kbd> and open the Live Recolor panel. Create a set: pick a combo + style, type a name (e.g.
+1. Press <kbd>F5</kbd> and open the Van Code panel. Create a set: pick a combo + style, type a name (e.g.
    `my-neon`) in the set-name box, click **Save set…**. Confirm it shows under **My sets**.
 2. Click **Export**. A new editor tab opens containing a JSON **array** with your set(s) — each object has `name`,
    `comboId`, `profileId`, optional `variant`, and the frozen `chrome`/`tokens`/`semantic` maps.
 3. Save that tab to disk (<kbd>Ctrl</kbd>+<kbd>S</kbd>) as e.g. `my-sets.json`.
 4. Delete the set from **My sets** (click its ✕) so the list is empty.
-5. Click **Import**, pick `my-sets.json` in the dialog. A notification reads **"Live Recolor: imported 1 set(s)."**
+5. Click **Import**, pick `my-sets.json` in the dialog. A notification reads **"Van Code: imported 1 set(s)."**
    and the set **reappears** under My sets.
 6. Click the set's name in My sets → it applies (chrome + tokens recolor). Round-trip complete.
 

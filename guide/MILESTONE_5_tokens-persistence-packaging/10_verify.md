@@ -41,7 +41,7 @@ result you should see. Open a real `.ts` or `.js` file in the EDH first so you c
 - Click **Export** → **Expected:** a JSON tab opens with an **array** containing `deep-neon` (name + comboId +
   profileId + frozen chrome/tokens/semantic). Save it as `sets.json`.
 - Delete `deep-neon` from My sets (its ✕), then click **Import** and pick `sets.json`.
-- **Expected:** toast **"Live Recolor: imported 1 set(s)."** and `deep-neon` reappears under My sets, identical.
+- **Expected:** toast **"Van Code: imported 1 set(s)."** and `deep-neon` reappears under My sets, identical.
 
 ### 5. Per-language scoping — one language only, chrome untouched
 - Type `typescript` into the **Per-language (tokens only)** box, then pick a combo/style (this applies scoped).
@@ -52,7 +52,7 @@ result you should see. Open a real `.ts` or `.js` file in the EDH first so you c
 
 ### 6. Package the `.vsix`
 - In the project-root terminal: `vsce package`.
-- **Expected:** final line ends with **`live-recolor-0.0.1.vsix`**, and the file exists in the project root
+- **Expected:** final line ends with **`van-code-0.0.1.vsix`**, and the file exists in the project root
   (`Get-ChildItem *.vsix`).
 
 If all six pass, **M5 is done — and so is the build.**
@@ -283,7 +283,7 @@ export interface SavedSet {
   semantic: SemanticColors;
 }
 
-const KEY = 'liveRecolor.savedSets';
+const KEY = 'vanCode.savedSets';
 
 export function listSets(ctx: vscode.ExtensionContext): SavedSet[] {
   return ctx.globalState.get<SavedSet[]>(KEY, []);
@@ -326,7 +326,7 @@ import { contrastRatio } from '../engine/color';
 import { listSets, saveSet, deleteSet, exportSets, importSets, SavedSet } from '../storage/sets';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'liveRecolor.panel';
+  public static readonly viewType = 'vanCode.panel';
 
   private view?: vscode.WebviewView;
   private last?: { comboId: string; profileId: string; variant?: string };
@@ -409,7 +409,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
         if (!uris?.length) return;
         const bytes = await vscode.workspace.fs.readFile(uris[0]);
         const count = await importSets(this.context, Buffer.from(bytes).toString('utf8'));
-        void vscode.window.showInformationMessage(`Live Recolor: imported ${count} set(s).`);
+        void vscode.window.showInformationMessage(`Van Code: imported ${count} set(s).`);
         this.post({ type: 'savedSets', savedSets: listSets(this.context).map((s) => s.name) });
         break;
       }
@@ -428,7 +428,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';" />
   <link href="${styleUri}" rel="stylesheet" />
-  <title>Live Recolor</title>
+  <title>Van Code</title>
 </head>
 <body>
   <div id="app"></div>
@@ -602,14 +602,14 @@ export function deactivate(): void {}
 ### `package.json`
 ```jsonc
 {
-  "name": "live-recolor",
-  "displayName": "Live Recolor",
-  "description": "Live-recolor the whole editor from a sidebar panel.",
+  "name": "van-code",
+  "displayName": "Van Code",
+  "description": "Recolor the whole editor from a sidebar panel",
   "version": "0.0.1",
   "publisher": "example",
   "repository": {
     "type": "git",
-    "url": "https://github.com/example/live-recolor"
+    "url": "https://github.com/example/van-code"
   },
   "engines": {
     "vscode": "^1.128.0"
@@ -623,17 +623,17 @@ export function deactivate(): void {}
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "liveRecolor",
-          "title": "Live Recolor",
+          "id": "vanCode",
+          "title": "Van Code",
           "icon": "media/icon.svg"
         }
       ]
     },
     "views": {
-      "liveRecolor": [
+      "vanCode": [
         {
-          "id": "liveRecolor.panel",
-          "name": "Live Recolor",
+          "id": "vanCode.panel",
+          "name": "Van Code",
           "type": "webview"
         }
       ]
@@ -685,7 +685,7 @@ Over five milestones you built a complete, installable VS Code extension from an
   contrast readout — the reality-check gate where the tool became genuinely usable.
 - **M5** — syntax + semantic **token** recoloring, **saved sets** persisted in `globalState`, **JSON import/export**,
   **per-language token scoping** (and the taught reason chrome can't be scoped), and a packaged
-  **`live-recolor-0.0.1.vsix`**.
+  **`van-code-0.0.1.vsix`**.
 
 The architecture held the whole way: a pure engine you can unit-test in plain Node, a thin adapter that owns every
 side effect, and a single choke point for settings writes that kept "non-destructive" honest even as the surface

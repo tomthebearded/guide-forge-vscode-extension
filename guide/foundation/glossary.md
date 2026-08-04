@@ -1,4 +1,4 @@
-# Glossary — Live Recolor (VS Code extension)
+# Glossary — Van Code (VS Code extension)
 
 > Terms the guide introduces, defined in plain language. Ordered alphabetically. Each step defines a term
 > inline on first use, then links here. Terms are seeded from the plan; step links are filled as milestones draft.

@@ -8,7 +8,7 @@ then applies it live through the M2 backbone. By the end, the panel has two drop
 the whole editor's *chrome* (background, sidebar, activity bar, status bar, tabs, panels) recolors coherently, live,
 and revertibly.
 
-**Observable end state:** press <kbd>F5</kbd> → open the Live Recolor panel → it now shows a **Starter** dropdown
+**Observable end state:** press <kbd>F5</kbd> → open the Van Code panel → it now shows a **Starter** dropdown
 and a **Style** dropdown → pick **Deep Sea** + **Neon** → every chrome surface recolors at once to a coordinated
 dark-teal theme → open your `settings.json` and `workbench.colorCustomizations` now holds **20 keys** → switch the
 Style dropdown to **Midnight / OLED** → the background snaps to pure black live → click **Revert** → the prior
@@ -95,7 +95,7 @@ generative profiles, and the palette → workbench-chrome mapping — then wired
 backbone so a combo + style choice recolors the whole editor chrome live and revertibly.
 
 ### Done so far (cumulative)
-- A runnable `live-recolor` extension with an Activity-Bar sidebar panel and verified webview↔extension messaging (M1).
+- A runnable `van-code` extension with an Activity-Bar sidebar panel and verified webview↔extension messaging (M1).
 - The non-destructive backbone: `theme/settings.ts`, `theme/apply.ts` (`applyChrome`), `theme/history.ts` (snapshot / Revert / Reset), all writes through one path (M2).
 - **New in M3:** a pure `src/engine/` (`color.ts`, `types.ts`, `combos.ts`, `profiles.ts`, `generate.ts`) — HSL + WCAG math, 5 combos, 9 generative profiles, and full chrome generation — wired to the panel via two dropdowns.
 

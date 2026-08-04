@@ -9,7 +9,7 @@ out of the provider string into real **`media/webview/main.js` + `styles.css`** 
 as clickable **chips**; and add the two accepted UX extras — a **palette swatch preview** and a **live WCAG
 contrast readout**. Revert/Reset stay wired throughout. Still **chrome only**.
 
-**Observable end state:** press <kbd>F5</kbd> → open the Live Recolor panel → it shows a row of **combo chips**
+**Observable end state:** press <kbd>F5</kbd> → open the Van Code panel → it shows a row of **combo chips**
 and a row of **13 style chips**. Click **Deep Sea** then **Neon** → the whole editor chrome recolors live, an
 **8-swatch strip** appears, and a badge reads something like `text/bg contrast 12.3:1 AAA`. Click **Game Boy** →
 the green DMG palette applies and a **variant row** (dmg / pocket / light) appears. **Revert** steps back through
@@ -120,7 +120,7 @@ all still non-destructive.
 code text too (syntax + semantic tokens), **Save** named sets that survive reload, **export/import** as JSON,
 **scope tokens per language**, and build the shippable **`.vsix`**. Done-when: tokens recolor, a saved set
 survives a reload, export→import round-trips, a language-scoped set touches one language only, and `vsce package`
-emits `live-recolor-0.0.1.vsix`.
+emits `van-code-0.0.1.vsix`.
 
 ---
 > Core · milestone 4 of 5 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-persistence-packaging/00_overview.md)

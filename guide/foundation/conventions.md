@@ -1,4 +1,4 @@
-# Conventions — Live Recolor (VS Code extension)
+# Conventions — Van Code (VS Code extension)
 
 > The rules every step in this guide follows. If a step seems to contradict one of these, the convention
 > wins — fix the step.

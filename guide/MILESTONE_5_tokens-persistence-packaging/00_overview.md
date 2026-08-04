@@ -13,7 +13,7 @@ recolors live (keywords/strings/comments/types), not just the chrome. Type a nam
 appears under **My sets** and is still there after you reload the window. **Export** opens a JSON document you can
 save to disk; **Import** reads it back and merges. Type `typescript` into the language box and apply → only `.ts`
 token colors change, the chrome stays as it was. Run `vsce package` in the terminal → it emits
-`live-recolor-0.0.1.vsix` in the project root.
+`van-code-0.0.1.vsix` in the project root.
 
 ## Scope discipline (what this milestone deliberately does NOT do)
 - **No Marketplace publishing.** Packaging a local `.vsix` is the finish line; `vsce publish` (accounts, tokens,
@@ -36,10 +36,10 @@ path. If M4's Done-when gate doesn't pass, fix that first — M5 edits those exa
 |------|-------|--------------------------|
 | Token setting id | `editor.tokenColorCustomizations` | syntax tokens never recolor |
 | Semantic setting id | `editor.semanticTokenColorCustomizations` | semantic tokens never recolor |
-| globalState key | `liveRecolor.savedSets` | saved sets don't persist / can't be read back |
+| globalState key | `vanCode.savedSets` | saved sets don't persist / can't be read back |
 | Message types | `save`, `applySet`, `delete`, `export`, `import` (+ `languageId` on `apply`) | webview buttons do nothing |
 | Language-override 4th arg | `update(key, value, Global, true)` | scoping writes globally instead of per-language |
-| `.vsix` filename | `live-recolor-0.0.1.vsix` | (derived from `name`+`version`) the verify gate checks it |
+| `.vsix` filename | `van-code-0.0.1.vsix` | (derived from `name`+`version`) the verify gate checks it |
 | `publisher` **presence** | any lowercase id (we use `example`) | `vsce package` **errors** without it |
 
 *(Cosmetic — rename freely: the `publisher` value itself, the set-name text, the button labels, the JSON display.)*
@@ -85,7 +85,7 @@ path. If M4's Done-when gate doesn't pass, fix that first — M5 edits those exa
 - [ ] **Save set…** with a name → it appears under **My sets** and **survives a window reload**. → steps 05–07, 10
 - [ ] **Export** opens a JSON doc; saving it and **Import**ing it back round-trips (My sets merged/unchanged). → step 08, 10
 - [ ] Typing `typescript` in the language box + apply changes **only `.ts`** token colors; chrome unchanged. → steps 03, 07, 10
-- [ ] `vsce package` emits **`live-recolor-0.0.1.vsix`** in the project root with no errors. → steps 09, 10
+- [ ] `vsce package` emits **`van-code-0.0.1.vsix`** in the project root with no errors. → steps 09, 10
 
 ## Handoff
 ### Recap
@@ -94,18 +94,18 @@ You extended the pure engine to emit token + semantic colors, wrote them through
 tokens-only language-scoping limit, and packaged the whole thing into an installable `.vsix`.
 
 ### Done so far (cumulative)
-- A runnable VS Code extension `live-recolor` with a sidebar Webview panel and two-way messaging (M1).
+- A runnable VS Code extension `van-code` with a sidebar Webview panel and two-way messaging (M1).
 - A non-destructive backbone: snapshot-before-write, Revert, Reset (M2).
 - A pure color engine: hex↔HSL math, WCAG contrast, 5 combos, 9 generative + 4 signature profiles (M3–M4).
 - An externalized gallery UI with swatch preview + contrast readout, full chrome recoloring live (M4).
 - **New in M5:** syntax + semantic token recoloring, saved sets via `globalState`, JSON import/export,
-  per-language token scoping, and a packaged `live-recolor-0.0.1.vsix`.
+  per-language token scoping, and a packaged `van-code-0.0.1.vsix`.
 
 ### Artifacts now in the project
 - Extended: `src/engine/types.ts`, `src/engine/generate.ts`, `src/theme/apply.ts`, `src/theme/history.ts`,
   `src/panel/ThemePanelProvider.ts`, `src/extension.ts`, `media/webview/main.js`, `package.json`.
 - New: `src/storage/sets.ts`.
-- Emitted: `live-recolor-0.0.1.vsix` (the packaged extension).
+- Emitted: `van-code-0.0.1.vsix` (the packaged extension).
 
 ### Decisions / open issues
 - Language scoping is tokens-only by VS Code's design (D2) — chrome stays global; this is taught, not a bug.

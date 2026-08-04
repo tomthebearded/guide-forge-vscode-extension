@@ -1,4 +1,4 @@
-# Live Recolor — build a VS Code extension that live-recolors the entire editor
+# Van Code — build a VS Code extension that live-recolors the entire editor
 
 > The front door to this guide. Skim this, then follow the milestones. **Progress lives in
 > [foundation/status.md](foundation/status.md), not here** — this page describes intent; `status.md` states reality.
@@ -29,6 +29,7 @@ full verified table + official docs + check date: **[foundation/stack.md](founda
   [foundation/decision-log.md](foundation/decision-log.md#d4--all-13-styles-taught-in-full-data-driven)
 
 ## Updates
+- 2026-08-04 — Renamed the extension to **Van Code** (identifier `van-code`): display names, package `name`, project folder, view container/view ids (`vanCode`, `vanCode.panel`), `globalState` key (`vanCode.savedSets`), notification strings and the emitted `van-code-0.0.1.vsix` all updated across every milestone. Doc-only rename — no behavior change.
 - 2026-07-21 — Retrofitted to the GuideForge v1.2.0 pedagogy contract: provenance stamp, glossary hygiene (concept headings + deep-links, `acquireVsCodeApi()`→inline comment), code interleaved under its instruction (4.2), existing-file edits shown as fragments (4.3), and "Before you start" starting-state notes (7.1). All milestones flagged for re-verify.
 - 2026-07-13 — fixed: webview double-apply — `render()` no longer calls `apply()`, so each pick makes exactly one history snapshot (M4/03, M5/07 + verifies; M4/M5 flagged for re-verify).
 - 2026-07-10 — M2–M5 drafted in one pass (against a locked code spec). Whole guide now drafted; audit + F5 hand-verification pending.

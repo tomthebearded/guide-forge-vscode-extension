@@ -37,7 +37,7 @@ demo; we swap in the M2 version).
    - **Rewrites** the HTML body: three `<button>`s and an inline nonce'd script that posts one message type per
      button. The CSP + `getNonce()` pattern is unchanged from M1 (script allowed only via the matching nonce).
 3. Save. If the `watch` task is running it recompiles; otherwise run `npm run compile`. The step-04 error is now gone.
-4. Press <kbd>F5</kbd> (or stop the EDH with <kbd>Shift</kbd>+<kbd>F5</kbd> and F5 again) and open the Live Recolor panel.
+4. Press <kbd>F5</kbd> (or stop the EDH with <kbd>Shift</kbd>+<kbd>F5</kbd> and F5 again) and open the Van Code panel.
 
 ## Code
 `src/panel/ThemePanelProvider.ts` *(the M2 version — a near-total rewrite of the M1 provider; the complete file is also in [06_verify.md](06_verify.md))*
@@ -47,7 +47,7 @@ import { ThemeHistory } from '../theme/history';
 import { applyChrome } from '../theme/apply';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'liveRecolor.panel';
+  public static readonly viewType = 'vanCode.panel';
 
   constructor(private readonly history: ThemeHistory) {}
 
@@ -86,10 +86,10 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
-  <title>Live Recolor</title>
+  <title>Van Code</title>
 </head>
 <body>
-  <h3>Live Recolor</h3>
+  <h3>Van Code</h3>
   <button id="apply">Apply demo (red status bar)</button>
   <button id="revert">Revert</button>
   <button id="reset">Reset</button>
@@ -114,7 +114,7 @@ function getNonce(): string {
 
 ## Done when (this step)
 - The project compiles with **no** errors (the step-04 "Expected 0 arguments" error is resolved by the new constructor).
-- In the EDH, opening the Live Recolor panel shows a heading **"Live Recolor"** and three buttons:
+- In the EDH, opening the Van Code panel shows a heading **"Van Code"** and three buttons:
   **Apply demo (red status bar)**, **Revert**, **Reset**.
 - Clicking **Apply demo** turns the EDH's status bar crimson (`#e11d48`) with white text, **live**. (The full
   apply → revert → reset walkthrough, with the `settings.json` diffs, is the milestone gate in [step 06](06_verify.md).)

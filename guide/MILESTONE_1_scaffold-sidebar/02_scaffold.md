@@ -30,32 +30,32 @@ before we change anything.
    | Prompt (by intent) | Answer to type |
    |--------------------|----------------|
    | What type of extension? | **New Extension (TypeScript)** |
-   | Extension name / display name | `Live Recolor` |
-   | Identifier | `live-recolor` |
-   | Description | `Live-recolor the whole editor from a sidebar panel.` *(free — any text)* |
+   | Extension name / display name | `Van Code` |
+   | Identifier | `van-code` |
+   | Description | `Recolor the whole editor from a sidebar panel` *(free — any text)* |
    | Initialize a git repository? | `No` *(free — either works)* |
    | Which bundler to use? | **unbundled** |
    | Which package manager to use? | **npm** |
 
-4. The generator creates a `live-recolor/` folder and installs dependencies. When it finishes, open that folder in
+4. The generator creates a `van-code/` folder and installs dependencies. When it finishes, open that folder in
    VS Code:
    ```powershell
-   code live-recolor
+   code van-code
    ```
-   Open it as the **workspace root** (the window's top folder must be `live-recolor`), not as a sub-folder of a
+   Open it as the **workspace root** (the window's top folder must be `van-code`), not as a sub-folder of a
    bigger project — F5 in step 03 depends on this.
 
 ## Done when (this step)
-- A `live-recolor/` folder exists containing `package.json`, `src/extension.ts`, `tsconfig.json`, and a `.vscode/`
+- A `van-code/` folder exists containing `package.json`, `src/extension.ts`, `tsconfig.json`, and a `.vscode/`
   folder.
 - Opening it in VS Code shows those files in the Explorer with no error notifications.
-- `package.json`'s `"name"` field reads exactly **`live-recolor`**.
+- `package.json`'s `"name"` field reads exactly **`van-code`**.
 
 ## If it breaks
 - **`npx` hangs or errors fetching packages** → check your network/proxy; re-run the command and accept the install
   prompt. Behind a corporate proxy, set `npm config set proxy …` first.
-- **The `"name"` came out different** (e.g. `liverecolor`) → the identifier answer wasn't `live-recolor`. Fix it now:
-  edit `package.json`'s `"name"` to `live-recolor` before continuing, or re-run the generator. This name is
+- **The `"name"` came out different** (e.g. `vancode`) → the identifier answer wasn't `van-code`. Fix it now:
+  edit `package.json`'s `"name"` to `van-code` before continuing, or re-run the generator. This name is
   load-bearing (the `.vsix` in M5 is named from it).
 - **Chose the wrong bundler** → it still works; unbundled just means plain `tsc`. If you picked webpack/esbuild the
   generated scripts differ from this guide's — re-run the generator and choose **unbundled** to stay in step.

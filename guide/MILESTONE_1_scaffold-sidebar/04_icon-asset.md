@@ -7,7 +7,7 @@ in a single theme color, so the icon must be a **monochrome SVG** that paints it
 automatically matches the user's theme (light or dark) instead of being a fixed color.
 
 ## Do this
-1. In the `live-recolor` window's Explorer, create a new folder at the project root named **`media`** (right-click
+1. In the `van-code` window's Explorer, create a new folder at the project root named **`media`** (right-click
    the root → **New Folder** → `media`).
 2. Inside `media`, create a file named **`icon.svg`** (right-click `media` → **New File** → `icon.svg`).
    - The path **`media/icon.svg`** is **load-bearing** — step 05 references it by this exact path. The *artwork*

@@ -1,4 +1,4 @@
-# Audience model — Live Recolor (VS Code extension)
+# Audience model — Van Code (VS Code extension)
 
 > The guide's north star: **match explanation depth to the reader's level on *that specific topic*.**
 > Over-explaining an Expert topic is as harmful as under-explaining a New one. Every step is written against

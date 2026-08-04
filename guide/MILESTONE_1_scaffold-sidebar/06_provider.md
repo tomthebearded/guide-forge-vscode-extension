@@ -27,7 +27,7 @@ This step creates **one file**: `src/panel/ThemePanelProvider.ts`.
 1. In the Explorer, create a folder **`src/panel`**, then a file **`src/panel/ThemePanelProvider.ts`** (this exact
    path is load-bearing — step 07 imports it).
 2. Paste the code below. Notes on what's load-bearing:
-   - `viewType` **must equal** the view id from step 05 — `'liveRecolor.panel'`. If these differ, VS Code never
+   - `viewType` **must equal** the view id from step 05 — `'vanCode.panel'`. If these differ, VS Code never
      connects your provider to the view.
    - The `_context` / `_token` parameters are required by the interface but unused here; the leading underscore is a
      convention marking "intentionally unused".
@@ -40,7 +40,7 @@ import * as vscode from 'vscode';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
   // Must match the view id declared in package.json (contributes.views).
-  public static readonly viewType = 'liveRecolor.panel';
+  public static readonly viewType = 'vanCode.panel';
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -62,10 +62,10 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline';" />
-  <title>Live Recolor</title>
+  <title>Van Code</title>
 </head>
 <body>
-  <h3>Live Recolor</h3>
+  <h3>Van Code</h3>
   <p>The control panel will grow here.</p>
 </body>
 </html>`;
@@ -81,7 +81,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
 ## If it breaks
 - **Red squiggle on `implements vscode.WebviewViewProvider`** → a typo in a method/parameter type name; compare
   against the block above. The types come from `@types/vscode` (already a devDependency).
-- **`Cannot find module 'vscode'`** → you're editing outside the `live-recolor` project, or dependencies didn't
+- **`Cannot find module 'vscode'`** → you're editing outside the `van-code` project, or dependencies didn't
   install; run `npm install` in the project root.
 
 ---

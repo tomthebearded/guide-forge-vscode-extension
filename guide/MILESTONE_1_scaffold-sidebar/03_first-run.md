@@ -15,26 +15,26 @@ The scaffold already includes one working command. Running it **before** we chan
 > [Your First Extension → Debugging](https://code.visualstudio.com/api/get-started/your-first-extension#_debugging-the-extension).
 
 ## Do this
-**Before you start:** the `live-recolor` window from [step 02](02_scaffold.md) is open as the workspace root (you ran `code live-recolor` at the end of that step).
+**Before you start:** the `van-code` window from [step 02](02_scaffold.md) is open as the workspace root (you ran `code van-code` at the end of that step).
 
-1. In the `live-recolor` window, press <kbd>F5</kbd>.
+1. In the `van-code` window, press <kbd>F5</kbd>.
    - The first time, VS Code may ask which debug environment to use — choose **VS Code Extension Development** (the
      scaffold already wrote a launch config named **Run Extension**; if a dropdown appears, pick that).
 2. Wait for a **new VS Code window** to open. Its title bar reads **[Extension Development Host]**. This is the EDH.
 3. In the EDH window, open the Command Palette: **View → Command Palette** (or
    <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>).
 4. Type **`Hello World`** and press <kbd>Enter</kbd> on the **"Hello World"** command.
-5. Confirm a notification appears in the bottom-right of the EDH reading **`Hello World from live-recolor!`**.
+5. Confirm a notification appears in the bottom-right of the EDH reading **`Hello World from Van Code!`**.
 6. Close the EDH window (or press <kbd>Shift</kbd>+<kbd>F5</kbd> in the first window to stop debugging). Leave the
-   `live-recolor` window open — you'll work in it for every remaining step.
+   `van-code` window open — you'll work in it for every remaining step.
 
 ## Done when (this step)
 - <kbd>F5</kbd> opens a window titled **[Extension Development Host]**.
-- Running **Hello World** from its Command Palette shows the notification **`Hello World from live-recolor!`**.
+- Running **Hello World** from its Command Palette shows the notification **`Hello World from Van Code!`**.
 
 ## If it breaks
-- **F5 does nothing / opens a `launch.json` picker with unrelated options** → the `live-recolor` folder isn't the
-  workspace root. Close the folder and reopen it via **File → Open Folder → live-recolor**, then F5 again.
+- **F5 does nothing / opens a `launch.json` picker with unrelated options** → the `van-code` folder isn't the
+  workspace root. Close the folder and reopen it via **File → Open Folder → van-code**, then F5 again.
 - **A red error appears about `out/extension.js` not found** → the compile step didn't run. Open the terminal in the
   first window and run `npm run compile` once, then F5. (F5 normally runs the watch task automatically.)
 - **No "Hello World" command in the palette** → make sure you're typing in the **EDH** window's palette, not the
