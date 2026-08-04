@@ -12,12 +12,25 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "van-code.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vanCode",
+          "title": "Van Code",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "vanCode": [
+        {
+          "id": "vanCode.panel",
+          "name": "Van Code",
+          "type": "webview",
+          "icon": "media/icon.svg"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
