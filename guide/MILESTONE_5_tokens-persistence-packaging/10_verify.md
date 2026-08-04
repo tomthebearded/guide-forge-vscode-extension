@@ -634,6 +634,7 @@ export function deactivate(): void {}
         {
           "id": "vanCode.panel",
           "name": "Van Code",
+          "icon": "media/icon.svg",
           "type": "webview"
         }
       ]

@@ -61,6 +61,7 @@ These are the files **we created or modified**. Generator-created files we didn'
         {
           "id": "vanCode.panel",
           "name": "Van Code",
+          "icon": "media/icon.svg",
           "type": "webview"
         }
       ]

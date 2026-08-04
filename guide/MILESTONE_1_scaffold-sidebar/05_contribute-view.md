@@ -21,6 +21,12 @@ fills the panel comes in steps 06–07.
 > treats the view as an (empty) tree, your provider never attaches, and you get a blank panel with no error. Verified
 > against the current docs — see [stack.md](../foundation/stack.md).
 
+> 🧠 **Why `icon` appears *twice*.** The one on the **container** is the Activity-Bar button you actually click. The
+> one on the **view** is what VS Code falls back to when the view's title can't be shown — e.g. if the user drags
+> the view out into its own Activity-Bar slot. The docs call it optional, but VS Code's bundled `package.json`
+> schema flags a view without it (`Missing property "icon".`), so we set it from the start and point both at the
+> same `media/icon.svg`.
+
 ## Do this
 This step edits **one file**: `package.json` (at the project root).
 
@@ -56,6 +62,7 @@ The `contributes` block to put in `package.json` (replacing the generated one):
       {
         "id": "vanCode.panel",
         "name": "Van Code",
+        "icon": "media/icon.svg",
         "type": "webview"
       }
     ]
@@ -79,6 +86,9 @@ The `contributes` block to put in `package.json` (replacing the generated one):
   Code shows JSON errors as red squiggles in `package.json`; a common one is a missing comma before `"contributes"`.
 - **Panel shows a hard error, not just empty** → check `"type": "webview"` is present and spelled exactly; without
   it VS Code expects a tree data provider.
+- **Squiggle on the view object reading `Missing property "icon".`** → the view entry is missing its own
+  `"icon": "media/icon.svg"` (see the note above — the container's icon doesn't satisfy it). It's a manifest-schema
+  complaint, not a runtime failure: the panel still works, but add the line so `package.json` stays clean.
 - **The old "Hello World" command still shows** in the palette → you left it in `contributes.commands`; make sure you
   replaced the whole `contributes` object with the one above.
 
