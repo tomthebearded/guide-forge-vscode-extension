@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import { ThemePanelProvider } from './panel/ThemePanelProvider';
+import { ThemeHistory } from './theme/history';
 
 export function activate(context: vscode.ExtensionContext): void {
-	const provider = new ThemePanelProvider();
+	const history = new ThemeHistory();
+	const provider = new ThemePanelProvider(history);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(ThemePanelProvider.viewType, provider),
