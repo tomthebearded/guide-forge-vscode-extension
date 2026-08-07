@@ -24,6 +24,8 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
           applyChrome({
             'statusBar.background': '#e11d48',
             'statusBar.foreground': '#ffffff',
+            'statusBar.debuggingBackground': '#e11d48',
+            'statusBar.debuggingForeground': '#ffffff',
           }),
         );
         break;
