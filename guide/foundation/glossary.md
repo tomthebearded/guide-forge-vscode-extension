@@ -56,3 +56,6 @@ A View whose content is an HTML/JS page (a mini web app) rather than a tree; our
 
 ### Workbench color key
 One of VS Code's named themeable UI colors (e.g. `statusBar.background`) settable under `workbench.colorCustomizations`. *(Introduced in M2.)*
+
+### Debugging colors (status bar)
+The alternate keys VS Code paints the status bar with **while a program is being debugged** — `statusBar.debuggingBackground`, `statusBar.debuggingForeground`, `statusBar.debuggingBorder`. They **override** the ordinary `statusBar.background` / `statusBar.foreground`, which matters constantly here because the Extension Development Host (<kbd>F5</kbd>) always has a debug session running. *(Introduced in M2/05.)*

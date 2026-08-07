@@ -1,6 +1,9 @@
 # M2 · Step 05 of 6 — Panel buttons: Apply demo / Revert / Reset
 > Nav: [← Wire extension](04_wire-extension.md) · [Overview](00_overview.md) · [Verify →](06_verify.md)
 
+## Glossary for this step
+- **[Debugging colors (status bar)](../foundation/glossary.md#debugging-colors-status-bar)** — the alternate status-bar color keys (`statusBar.debuggingBackground` / `debuggingForeground` / `debuggingBorder`) VS Code paints with while a program is being debugged; they override the ordinary `statusBar.background` / `statusBar.foreground`.
+
 ## Why / design
 Now the panel drives the backbone. We rewrite the provider so it (1) receives the shared `ThemeHistory` in its
 constructor, (2) renders three buttons, and (3) routes each button's message to the matching history call. This
@@ -8,8 +11,8 @@ closes the loop M1 opened: the webview posts a message, `onDidReceiveMessage` re
 extension *acts* on it by writing a setting through the safe path.
 
 The message protocol is three flat message types, mirroring the three buttons:
-- **`applyDemo`** → `history.apply(() => applyChrome({ 'statusBar.background': '#e11d48', 'statusBar.foreground': '#ffffff' }))`.
-  The `history.apply` wrapper snapshots first, so this is reversible.
+- **`applyDemo`** → `history.apply(() => applyChrome({ …four status-bar keys… }))` (the exact object is in the code
+  below). The `history.apply` wrapper snapshots first, so this is reversible.
 - **`revert`** → `history.revert()`.
 - **`reset`** → `history.reset()`.
 
@@ -17,10 +20,26 @@ Notice the provider never calls `getConfiguration().update(...)` itself — it g
 `ThemeHistory`. That's the single-write-path convention holding: the panel decides *what* to apply; `theme/` decides
 *how* to write it safely.
 
-The demo apply uses the exact hexes `#e11d48` (a crimson red) on `statusBar.background` and `#ffffff` on
-`statusBar.foreground` — both **load-bearing** (the verify gate checks these values in `settings.json`). The message
+The demo apply uses the exact hexes `#e11d48` (a crimson red) on the status bar's **background** keys and `#ffffff` on
+its **foreground** keys — all four **load-bearing** (the verify gate checks these values in `settings.json`). The message
 type strings `applyDemo` / `revert` / `reset` are **load-bearing** too: the webview posts them and `onMessage`'s
 `switch` reads them — a mismatch is a dead button with no error. The button **labels** are cosmetic.
+
+> 🧠 **New concept — the status bar has a *second* set of colors while you're debugging.** VS Code paints the status
+> bar from `statusBar.background` / `statusBar.foreground` normally, but from
+> **`statusBar.debuggingBackground` / `statusBar.debuggingForeground`** *"when a program is being debugged"* — the
+> orange bar you've seen since M1. Those debugging keys **win** while a debug session is active; the ordinary pair is
+> simply not used. Docs: [Status Bar colors](https://code.visualstudio.com/api/references/theme-color#status-bar-colors).
+>
+> This matters here more than it looks: the Extension Development Host **is** a window with an active debug session
+> (that's what <kbd>F5</kbd> starts), so the very window you're told to watch is the one where the ordinary
+> `statusBar.background` is overridden. That's why the demo payload sets **both pairs** — four keys, same two hexes.
+> It's not decoration: without the debugging pair, Apply writes correctly to `settings.json` and you see *nothing*.
+> *(There is a third key, `statusBar.debuggingBorder`; we skip it — it only draws the 1px separator line.)*
+>
+> ⚠️ **Failure note.** If the demo ever seems to do nothing — `settings.json` gains the block, but the EDH's status bar
+> stays orange until you stop the session with <kbd>Shift</kbd>+<kbd>F5</kbd> — you've written the ordinary pair only.
+> Add the two `debugging*` keys. This is a **precedence** problem, not a write problem: the setting landed fine.
 
 ## Do this
 This step **replaces** the whole contents of `src/panel/ThemePanelProvider.ts` (the M1 version rendered the ping
@@ -65,7 +84,14 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
     switch (m.type) {
       case 'applyDemo':
         await this.history.apply(() =>
-          applyChrome({ 'statusBar.background': '#e11d48', 'statusBar.foreground': '#ffffff' }),
+          applyChrome({
+            'statusBar.background': '#e11d48',
+            'statusBar.foreground': '#ffffff',
+            // The debugging pair overrides the pair above while a debug session is active —
+            // and the Extension Development Host always has one. Both, or you see nothing.
+            'statusBar.debuggingBackground': '#e11d48',
+            'statusBar.debuggingForeground': '#ffffff',
+          }),
         );
         break;
       case 'revert':
@@ -116,8 +142,9 @@ function getNonce(): string {
 - The project compiles with **no** errors (the step-04 "Expected 0 arguments" error is resolved by the new constructor).
 - In the EDH, opening the Van Code panel shows a heading **"Van Code"** and three buttons:
   **Apply demo (red status bar)**, **Revert**, **Reset**.
-- Clicking **Apply demo** turns the EDH's status bar crimson (`#e11d48`) with white text, **live**. (The full
-  apply → revert → reset walkthrough, with the `settings.json` diffs, is the milestone gate in [step 06](06_verify.md).)
+- Clicking **Apply demo** turns the EDH's status bar crimson (`#e11d48`) with white text, **live** — *while the debug
+  session is still running*, with the orange debug color replaced. (The full apply → revert → reset walkthrough, with
+  the `settings.json` diffs, is the milestone gate in [step 06](06_verify.md).)
 
 ## If it breaks
 - **Still "Expected 0 arguments, but got 1"** → the constructor line is missing or misplaced; it must be
@@ -125,9 +152,12 @@ function getNonce(): string {
 - **Buttons render but nothing happens on click** → most likely a message-type mismatch (the posted `type` string
   must equal a `case` in `onMessage`), or a CSP/nonce problem (open **Developer: Open Webview Developer Tools** and
   look for a CSP violation — the `script-src 'nonce-…'` and the `<script nonce="…">` must share the same `${nonce}`).
-- **Status bar doesn't change but no error** → confirm `applyChrome` is imported from `../theme/apply` and the demo
-  object uses the exact keys `statusBar.background` / `statusBar.foreground`. Also make sure you relaunched the EDH
-  after compiling (<kbd>Shift</kbd>+<kbd>F5</kbd> then <kbd>F5</kbd>).
+- **`settings.json` gets the block but the status bar stays orange — and only turns crimson once you stop the debug
+  session** → the demo object is missing `statusBar.debuggingBackground` / `statusBar.debuggingForeground`. The EDH is
+  being debugged, so those two override the ordinary pair (see the concept note above). All **four** keys are required.
+- **Status bar doesn't change and `settings.json` doesn't change either** → confirm `applyChrome` is imported from
+  `../theme/apply` and the demo object uses the exact keys above. Also make sure you relaunched the EDH after
+  compiling (<kbd>Shift</kbd>+<kbd>F5</kbd> then <kbd>F5</kbd>).
 - **`acquireVsCodeApi is not defined`** → `enableScripts: true` isn't set in `resolveWebviewView`; confirm it's there.
 
 ---

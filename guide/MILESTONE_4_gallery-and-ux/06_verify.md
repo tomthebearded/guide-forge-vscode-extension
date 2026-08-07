@@ -22,7 +22,9 @@ verifications (no F5 needed); 3–8 run in the Extension Development Host.
    Game Boy, 16-bit, Synthwave, Terminal / CRT). **No dropdowns.** One chip in each row is highlighted (the
    `active` class), and the chrome is already recolored (enforced-on-select applied the defaults on load).
 5. **Generative combo recolors + preview** — click **Deep Sea**, then **Neon**:
-   - The whole editor chrome recolors live (editor background, side bar, activity bar, status bar, tabs).
+   - The whole editor chrome recolors live (editor background, side bar, activity bar, tabs, panels). **Not the
+     status bar** — under <kbd>F5</kbd> it keeps the debug-orange, because `statusBar.debugging*` overrides the key
+     the engine writes (see [M3/06](../MILESTONE_3_formula-engine-chrome/06_generate.md)). Expected, not a defect.
    - A **"Palette"** section shows an **8-swatch strip** (bg, surface, surfaceAlt, text, textMuted, accent1,
      accent2, border) — hover a swatch to see its role + hex in the tooltip.
    - A badge reads roughly **`text/bg contrast 12.3:1 AAA`** (exact number varies; Deep Sea's light text on its dark

@@ -70,7 +70,7 @@ Each check pairs an action with the **exact** observable result. Full walkthroug
 - [ ] The three files exist and compile: `src/theme/settings.ts`, `src/theme/apply.ts`, `src/theme/history.ts`. → steps 01–03
 - [ ] `src/extension.ts` creates one `ThemeHistory` and passes it into `new ThemePanelProvider(history)`; the project compiles with no errors. → steps 04–05
 - [ ] <kbd>F5</kbd> → the Van Code panel shows three buttons: **Apply demo (red status bar)**, **Revert**, **Reset**. → step 05
-- [ ] Click **Apply demo** → the EDH's status bar turns `#e11d48` (crimson) with `#ffffff` text **live**, and its User `settings.json` gains `"workbench.colorCustomizations": { "statusBar.background": "#e11d48", "statusBar.foreground": "#ffffff" }`. → step 06
+- [ ] Click **Apply demo** → the EDH's status bar turns `#e11d48` (crimson) with `#ffffff` text **live**, *without stopping the debug session*, and its User `settings.json` gains `"workbench.colorCustomizations"` with **four** keys: `statusBar.background` + `statusBar.foreground` + `statusBar.debuggingBackground` + `statusBar.debuggingForeground`, all `#e11d48` / `#ffffff`. → step 06
 - [ ] Click **Revert** → the status bar returns to exactly its prior state; the key returns to its prior value (or is removed if you had none before). → step 06
 - [ ] Click **Reset** → the entire `"workbench.colorCustomizations"` key is **removed** from `settings.json` (not left as `{}`). → step 06
 

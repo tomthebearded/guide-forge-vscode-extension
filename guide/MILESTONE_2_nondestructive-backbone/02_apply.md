@@ -16,7 +16,9 @@ in step 03 matters — replacing is destructive on its own, and the snapshot is 
 > returns a config object scoped to that section (here `'workbench'`). Calling `.update(key, value, target)` on it
 > writes `value` into `settings.json` at `section.key` — for us, `workbench.colorCustomizations`. Two things to
 > internalize: **(1) it's async** — it returns a `Promise`, so you must `await` it before assuming the value landed;
-> **(2) the write applies live** — VS Code re-renders the affected UI immediately, no reload. Docs:
+> **(2) the write applies live** — VS Code re-renders the affected UI immediately, no reload. ("Live" means the
+> *setting* takes effect at once; a given surface can still be painted by a higher-precedence color — the status bar
+> while debugging is exactly that case, see [step 05](05_panel-buttons.md).) Docs:
 > [workspace.getConfiguration](https://code.visualstudio.com/api/references/vscode-api#workspace.getConfiguration)
 > and [WorkspaceConfiguration.update](https://code.visualstudio.com/api/references/vscode-api#WorkspaceConfiguration).
 >

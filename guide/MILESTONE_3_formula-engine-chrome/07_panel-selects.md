@@ -133,8 +133,9 @@ function getNonce(): string {
 - The file compiles with no errors and `src/extension.ts` is still the M2 version (`new ThemePanelProvider(history)`).
 - Press <kbd>F5</kbd>, open the Van Code panel: it shows a **Starter** dropdown (5 options) and a **Style**
   dropdown (9 options) above **Apply / Revert / Reset**.
-- Pick **Deep Sea** + **Neon** (or click **Apply**): the editor background, sidebar, activity bar, status bar, tabs,
-  and panels all recolor to a coordinated dark-teal theme **live**, no reload.
+- Pick **Deep Sea** + **Neon** (or click **Apply**): the editor background, sidebar, activity bar, tabs, and panels
+  all recolor to a coordinated dark-teal theme **live**, no reload. **The status bar stays debug-orange** — expected
+  under <kbd>F5</kbd>; its key is written but overridden while debugging (see [step 06](06_generate.md)).
 - Change the **Style** dropdown to **Midnight / OLED**: the background snaps to pure black immediately (the `change`
   handler re-applies).
 - (Full milestone gate — including the settings.json diff and Revert — is step 08.)

@@ -15,12 +15,16 @@ the non-destructive backbone matters.)*
 2. **Panel + buttons** — click the Van Code icon in the EDH's Activity Bar → the panel shows **"Van Code"**
    and three buttons: **Apply demo (red status bar)**, **Revert**, **Reset**.
 3. **Apply (live + written)** — click **Apply demo**:
-   - The EDH's **status bar turns crimson** (`#e11d48`) with **white** text, immediately, with no reload.
-   - The EDH's `settings.json` gains **exactly** this block:
+   - The EDH's **status bar turns crimson** (`#e11d48`) with **white** text, immediately, with no reload — and
+     **while the debug session is still running**, replacing the orange debug color. (If it stays orange and only
+     turns crimson when you stop the session, the `debugging*` keys are missing — see [step 05](05_panel-buttons.md).)
+   - The EDH's `settings.json` gains **exactly** this block — **four** keys:
      ```jsonc
      "workbench.colorCustomizations": {
        "statusBar.background": "#e11d48",
-       "statusBar.foreground": "#ffffff"
+       "statusBar.foreground": "#ffffff",
+       "statusBar.debuggingBackground": "#e11d48",
+       "statusBar.debuggingForeground": "#ffffff"
      }
      ```
 4. **Revert (restores exactly)** — click **Revert**:
@@ -155,7 +159,14 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
     switch (m.type) {
       case 'applyDemo':
         await this.history.apply(() =>
-          applyChrome({ 'statusBar.background': '#e11d48', 'statusBar.foreground': '#ffffff' }),
+          applyChrome({
+            'statusBar.background': '#e11d48',
+            'statusBar.foreground': '#ffffff',
+            // The debugging pair overrides the pair above while a debug session is active —
+            // and the Extension Development Host always has one. Both, or you see nothing.
+            'statusBar.debuggingBackground': '#e11d48',
+            'statusBar.debuggingForeground': '#ffffff',
+          }),
         );
         break;
       case 'revert':
@@ -207,7 +218,8 @@ function getNonce(): string {
 |---------|-------------|-----|
 | `new ThemePanelProvider(history)` won't compile | Provider still has the M1 no-arg constructor | Add `constructor(private readonly history: ThemeHistory) {}` (step 05) |
 | Apply does nothing, no error | Message-type mismatch — posted `type` ≠ a `case` in `onMessage` | Both sides must be `applyDemo` / `revert` / `reset` exactly |
-| Status bar doesn't recolor | Wrong color keys, or EDH running a stale build | Use `statusBar.background` / `statusBar.foreground`; <kbd>Shift</kbd>+<kbd>F5</kbd> then <kbd>F5</kbd> |
+| Status bar stays orange; crimson appears only after <kbd>Shift</kbd>+<kbd>F5</kbd> | The EDH is being debugged, so `statusBar.debugging*` overrides the ordinary pair | Apply **all four** keys — add `statusBar.debuggingBackground` / `statusBar.debuggingForeground` (step 05) |
+| Status bar doesn't recolor *and* `settings.json` is unchanged | Wrong color keys, or EDH running a stale build | Use the exact four keys from step 05; <kbd>Shift</kbd>+<kbd>F5</kbd> then <kbd>F5</kbd> |
 | Reset leaves `"workbench.colorCustomizations": {}` | Restored `{}` instead of `undefined` | `reset()` must restore `{ chrome: undefined }` — `undefined` deletes the key |
 | Revert restores the wrong value | Snapshot captured *after* the write (missing `await`) | `apply()` must `push(capture())` **before** running `fn`; every `update` is `await`ed |
 | `update` throws "No workspace folder open" | A write used `ConfigurationTarget.Workspace` with no folder | Use `TARGET` (`Global`) as exported in `settings.ts` |

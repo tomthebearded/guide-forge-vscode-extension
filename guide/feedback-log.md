@@ -29,7 +29,10 @@
   cannot tell success from failure).
 - **Tags:** `M2` `statusBar` `debugging-colors` `EDH` `verify-gate` `false-negative` `colorCustomizations`
 - **Quote:** "it works but it applies the color only when i close the debug session"
-- **Status:** logged.
+- **Status:** fixed via /report-issue (2026-08-07) — M2's demo now applies both status-bar pairs (4 keys) with a
+  precedence concept note + glossary entry + failure note; the same class swept out of M3/06–08, M3/00 and M4/06
+  (where the generated palette re-masks the bar), with M5/10 closing the loop after `.vsix` install. Engine left at
+  20 keys by [D7](foundation/decision-log.md#d7--m2s-demo-sets-the-status-bar-debugging-colors-the-m3-engine-map-does-not).
 
 ### 2026-07-13 · M4/03 (+ M5/07) `media/webview/main.js` · double-apply on every pick
 - **Where:** M4 step 03 (and its M5 final rewrite, step 07) — the webview's `render()` / chip click handlers.

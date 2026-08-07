@@ -85,7 +85,7 @@ M3's whole apply path rides on it. You still need Node 24 LTS and VS Code 1.128.
 - [ ] `types.ts` + `combos.ts` compile with no errors; `COMBOS` has the 5 combos with the exact hex values. → steps 02–03
 - [ ] `profiles.ts` exports `GENERATIVE` with **9** entries and a `profileById` lookup. → step 05
 - [ ] `generate(combo, profile)` returns `{ palette, chrome }` where `chrome` has **20** workbench keys. → step 06
-- [ ] The panel shows a **Starter** dropdown and a **Style** dropdown; **Deep Sea + Neon** recolors all chrome live. → step 07
+- [ ] The panel shows a **Starter** dropdown and a **Style** dropdown; **Deep Sea + Neon** recolors all chrome live — *except the status bar, which stays debug-orange under <kbd>F5</kbd> (expected; see step 06)*. → step 07
 - [ ] `settings.json` `workbench.colorCustomizations` now holds 20 keys; switching the Style dropdown **re-applies** live; **Revert** restores the prior palette exactly. → step 08
 
 ## Handoff

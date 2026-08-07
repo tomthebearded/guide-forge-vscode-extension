@@ -57,6 +57,13 @@ result you should see. Open a real `.ts` or `.js` file in the EDH first so you c
 
 If all six pass, **M5 is done — and so is the build.**
 
+> 💡 **The status-bar exception disappears once you're not debugging.** Since M3 you've watched every surface but the
+> status bar recolor under <kbd>F5</kbd> — the EDH is a debugged window, so `statusBar.debugging*` overrode the
+> `statusBar.background` the engine writes ([M3/06](../MILESTONE_3_formula-engine-chrome/06_generate.md)). Install the
+> `.vsix` you just built (`code --install-extension van-code-0.0.1.vsix`, then reload) and apply a preset in an
+> ordinary window: **the status bar recolors with everything else.** It was an artifact of the dev loop, never a
+> defect in the extension.
+
 ## What's automatable vs. checked by hand
 - **Engine (pure, no F5):** step 02's `node -e` check proves `generate()` emits seven token colors + 13 semantic
   types. That's the only part verifiable without VS Code.

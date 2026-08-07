@@ -33,8 +33,11 @@ the rest run in the Extension Development Host.
    Accent), above **Apply / Revert / Reset**.
 
 4. **Live chrome apply** — pick **Deep Sea** + **Neon** (or click **Apply**). The whole editor *chrome* recolors at
-   once and live (no reload): editor background deep navy, sidebar/activity bar dark, **status bar a bright cyan
-   with readable text**, tabs and panels coordinated.
+   once and live (no reload): editor background deep navy, sidebar/activity bar dark, tabs and panels coordinated,
+   title bar tinted.
+   **The status bar is the one exception: it stays debug-orange.** That is correct under <kbd>F5</kbd> — the EDH is
+   being debugged, so `statusBar.debugging*` (which the 20-key map deliberately omits) wins over the
+   `statusBar.background` we do write. Check 5 proves the value landed; see [step 06](06_generate.md) for why.
 
 5. **Settings diff** — open your User `settings.json` (Command Palette → **Preferences: Open User Settings (JSON)**).
    `workbench.colorCustomizations` is now present with **20 keys**, e.g.:
@@ -509,6 +512,7 @@ function getNonce(): string {
 | `contrast` prints something other than `21` | typo in `contrastRatio`/luminance weights | Weights `0.2126/0.7152/0.0722`; ratio `(hi+0.05)/(lo+0.05)` |
 | Dropdowns empty in the panel | `COMBOS`/`GENERATIVE` not imported, or option map missing | Confirm imports + `${comboOpts}`/`${profOpts}` inside the `<select>`s |
 | Only the status bar changes | you left M2's `applyDemo` handler | Replace with the `apply` case that applies `theme.chrome` |
+| Everything recolors **except** the status bar (stays orange) | Not a bug — the EDH is being debugged and `statusBar.debugging*` wins; the 20-key map omits it | Confirm `statusBar.background` in the `settings.json` diff (check 5); to theme it under F5 too, add the two `debugging*` keys to `paletteToChrome` (→ 22 keys, and every "20" in these gates moves) |
 | Colors apply but Revert does nothing | `applyChrome` called outside `history.apply` | Wrap it: `this.history.apply(() => applyChrome(theme.chrome))` |
 | `ThemePanelProvider` argument-count error | `extension.ts` drifted from M2 | Ctor is `(history)`; `extension.ts` calls `new ThemePanelProvider(history)` |
 | Engine won't compile: "Cannot find module 'vscode'" in `engine/` | you imported `vscode` into the pure engine | Remove it — the engine is `vscode`-free by design |

@@ -65,3 +65,25 @@
 - **Rules out / trade-off:** wider install reach — a reader on an older VS Code can lower the floor to `^1.100.0`
   safely (noted so they know it's optional).
 - **Revisit if:** the guide targets Marketplace reach (out of scope here) — then lower the floor deliberately.
+
+## D7 — M2's demo sets the status-bar debugging colors; the M3 engine map does not
+- **Date:** 2026-08-07
+- **Source:** field report (a reader following M2/05 saw the crimson only after stopping the debug session) +
+  [Theme Color reference](https://code.visualstudio.com/api/references/theme-color#status-bar-colors), re-verified
+  2026-08-07.
+- **Decision:** M2's `applyDemo` writes **four** keys — `statusBar.background`/`foreground` **and**
+  `statusBar.debuggingBackground`/`debuggingForeground` — so the milestone's one observable proof is visible in the
+  Extension Development Host. M3's `paletteToChrome` stays at **20 keys** and deliberately omits the debugging pair;
+  from M3 on the guide *teaches the exception* instead (the status bar keeps the debug-orange under <kbd>F5</kbd>,
+  proven via the `settings.json` diff, and recolors normally once the extension is installed from the `.vsix`).
+- **Why:** M2 exists to prove "the write lands and you can see it" — a demo you can't see fails its own gate, and the
+  fix is two lines. M3's 20-key count is asserted by a machine-checked `node -e` gate and repeated across M3/M5
+  gates; growing it to 22 to work around a *dev-loop artifact* would ripple through ~10 assertion sites and bake an
+  F5 concern into a pure engine that is supposed to be about color math. Teaching the precedence rule once (M2/05)
+  and referring back to it costs nothing and explains something real about VS Code.
+- **Rules out / trade-off:** a status bar that is themed under F5 from M3 onward. The reader watching the EDH sees
+  every surface but that one recolor — acceptable only because the guide now says so explicitly at every gate that
+  used to claim otherwise, and closes the loop in M5/10.
+- **Revisit if:** the engine gains a "chrome extras" pass, or a reader still misreads the M3 status bar as a bug —
+  then add the two keys to `paletteToChrome` (→ 22) and update every key-count assertion in M3/00, M3/06, M3/08 and
+  the M5/10 file copy in the same pass.

@@ -30,6 +30,18 @@ The 20 keys, grouped by surface (so you can see the coverage):
 - **Tabs:** `tab.activeBackground`, `tab.inactiveBackground`, `tab.activeForeground`, `tab.inactiveForeground`, `editorGroupHeader.tabsBackground`
 - **Panel + focus:** `panel.background`, `panel.border`, `focusBorder`
 
+> ⚠️ **Failure note — the status bar will look "not recolored" from here on, and that's expected.** The 20 keys
+> deliberately **exclude** `statusBar.debuggingBackground` / `statusBar.debuggingForeground`, the pair M2's demo
+> added. Two things compound: (a) `applyChrome` **replaces** the whole `workbench.colorCustomizations` object
+> ([M2/02](../MILESTONE_2_nondestructive-backbone/02_apply.md)), so applying a generated palette *drops* M2's
+> debugging keys; (b) the Extension Development Host is a window with an active debug session, so its status bar is
+> painted from those debugging keys ([M2/05](../MILESTONE_2_nondestructive-backbone/05_panel-buttons.md)).
+> Net effect: **under <kbd>F5</kbd> the status bar stays debug-orange while every other surface recolors.** The
+> `statusBar.background` value *is* being written correctly — check the `settings.json` diff, or stop the session
+> (<kbd>Shift</kbd>+<kbd>F5</kbd>) and reopen the folder to see it painted. Verify M3 on the **other** surfaces.
+> *(Want the status bar themed under F5 too? Add the two `debugging*` keys to the **Status bar** group above — the
+> map becomes 22 keys, and every "20 keys" count in this milestone's gates and in M5 changes with it.)*
+
 > 🧠 **Why `ThemeResult` is `{ palette, chrome }` here.** `generate` returns both the *raw* `palette` (so the panel
 > can later show swatches + a contrast readout in M4) and the *mapped* `chrome` (what actually gets written). M5
 > extends the return with `tokens` and `semantic`; the `[M5]` comments mark exactly where. Don't add those now.
