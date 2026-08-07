@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ThemePanelProvider } from './panel/ThemePanelProvider';
+import { ThemePanelProvider } from './panel/themePanelProvider';
 import { ThemeHistory } from './theme/history';
 
 export function activate(context: vscode.ExtensionContext): void {
