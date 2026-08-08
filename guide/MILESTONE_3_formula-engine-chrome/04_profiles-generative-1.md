@@ -34,8 +34,8 @@ Reading the three profiles as *rules with reasons*:
   and darken the surfaces beneath it. *Why:* maximum contrast and power saving; the black is intentional and absolute,
   not derived.
 
-*(TypeScript reminder — `{ ...p, bg: darken(p.bg, 0.03) }` spreads the base palette then overrides `bg`; the arrow
-`(c) => { … }` is the `buildPalette` implementation. Nothing to install.)*
+*(TypeScript reminder — `{ ...palette, bg: darken(palette.bg, 0.03) }` spreads the base palette then overrides
+`bg`; the arrow `(combo) => { … }` is the `buildPalette` implementation. Nothing to install.)*
 
 ## Do this
 This step creates **one file**: `src/engine/profiles.ts` (extended in step 05).
@@ -75,30 +75,30 @@ function base(combo: StarterCombo): Palette {
 export const GENERATIVE: StyleProfile[] = [
   {
     id: 'neon', label: 'Neon', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p,
-        bg: darken(p.bg, 0.03), surface: darken(p.surface, 0.02),
-        accent1: saturate(lighten(p.accent1, 0.05), 0.3),
-        accent2: saturate(lighten(p.accent2, 0.05), 0.3),
-        text: lighten(p.text, 0.02) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette,
+        bg: darken(palette.bg, 0.03), surface: darken(palette.surface, 0.02),
+        accent1: saturate(lighten(palette.accent1, 0.05), 0.3),
+        accent2: saturate(lighten(palette.accent2, 0.05), 0.3),
+        text: lighten(palette.text, 0.02) };
     },
   },
   {
     id: 'pastel', label: 'Pastel', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p,
-        surface: lighten(p.surface, 0.06), surfaceAlt: lighten(p.surfaceAlt, 0.06),
-        accent1: lighten(desaturate(p.accent1, 0.25), 0.12),
-        accent2: lighten(desaturate(p.accent2, 0.25), 0.12) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette,
+        surface: lighten(palette.surface, 0.06), surfaceAlt: lighten(palette.surfaceAlt, 0.06),
+        accent1: lighten(desaturate(palette.accent1, 0.25), 0.12),
+        accent2: lighten(desaturate(palette.accent2, 0.25), 0.12) };
     },
   },
   {
     id: 'midnight', label: 'Midnight / OLED', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p, bg: '#000000', surface: darken(p.surface, 0.06), surfaceAlt: darken(p.surfaceAlt, 0.05) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette, bg: '#000000', surface: darken(palette.surface, 0.06), surfaceAlt: darken(palette.surfaceAlt, 0.05) };
     },
   },
 ];
@@ -107,7 +107,7 @@ export const GENERATIVE: StyleProfile[] = [
 export const PROFILES: StyleProfile[] = [...GENERATIVE];
 
 export function profileById(id: string): StyleProfile {
-  return PROFILES.find((p) => p.id === id) ?? PROFILES[0];
+  return PROFILES.find((profile) => profile.id === id) ?? PROFILES[0];
 }
 ```
 
@@ -123,8 +123,8 @@ export function profileById(id: string): StyleProfile {
 ## If it breaks
 - **`darken`/`saturate` etc. "has no exported member"** → a typo in the import from `./color`, or step 01 wasn't
   saved. Only import helpers you use — importing a name that doesn't exist fails the compile.
-- **Type error on a `buildPalette` return** → you dropped one of the 8 `Palette` roles. Spreading `...base(c)` (via
-  the local `p`) supplies all 8; make sure every profile keeps the spread.
+- **Type error on a `buildPalette` return** → you dropped one of the 8 `Palette` roles. Spreading `...base(combo)`
+  (via the local `palette`) supplies all 8; make sure every profile keeps the spread.
 - **"`GENERATIVE` has only 3 entries" — is that wrong?** No. This step is intentionally partial; step 05 adds the
   remaining six.
 

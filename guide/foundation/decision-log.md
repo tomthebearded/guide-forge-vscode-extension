@@ -87,3 +87,26 @@
 - **Revisit if:** the engine gains a "chrome extras" pass, or a reader still misreads the M3 status bar as a bug —
   then add the two keys to `paletteToChrome` (→ 22) and update every key-count assertion in M3/00, M3/06, M3/08 and
   the M5/10 file copy in the same pass.
+
+## D8 — Engine code spells its locals out; the terse math names are gone
+- **Date:** 2026-08-08
+- **Source:** reader feedback while following M3 (`src/engine/color.ts` read as unfollowable: `c`, `d`, `n`, `x`,
+  `m`, `t`, `la`/`lb`, `hi`/`lo`, `to2`, `rn`/`gn`/`bn`) + the reader's own rewrite of the file.
+- **Decision:** every `src/engine/*` code block in the guide uses spelled-out locals — `palette`, `combo`,
+  `profile`, `chroma`, `brightest`/`darkest`, `luminanceA`/`luminanceB`, `brighter`/`darker`, `toHexPair`,
+  `fromHex`/`toHex`/`amount`, `foreground`/`background`/`targetRatio`, `hsl`, `step`. Two formula intermediates
+  that the math has no word for are now *named after their meaning*: `maxChromaAtThisLightness` (was the inline
+  `l > 0.5 ? 2-max-min : max+min`) and `lightnessOffset` (was `m`). `hslToHex`'s six-branch `if (h < 60) … else`
+  ladder became `switch (Math.floor(hue / 60))`, one labelled case per 60° slice. Codified as a naming rule in
+  [conventions.md](conventions.md#naming); the three surviving abbreviations are the `Rgb`/`Hsl` interface fields,
+  the `Palette` role names, and underscore-prefixed unused parameters (`_combo`).
+- **Why:** a reader typing this code for the first time has no IDE hover and no prior model of the algorithm — the
+  variable name is the cheapest explanation a step can give, and `d`/`x`/`m` spend that budget on nothing. The
+  engine is also the guide's most math-dense milestone, so it is exactly where terseness costs the most.
+- **Rules out / trade-off:** longer lines and a slightly taller code block per step (M3/01 grew ~40 lines,
+  comments included). Accepted: the guide optimizes for a first read, not for a diff.
+- **Verified:** behavior-preserving — the renamed engine compiles under `--strict` and its output is byte-identical
+  to the pre-rename engine across all 85 combo × profile(× variant) themes and a 17,760-color sweep of all 13
+  color operations. Every published gate value is unchanged (`#3ec6ff` round-trip, contrast `21`, 20 chrome keys,
+  Midnight `#000000`, 13 profiles, 13 semantic types, Game Boy `#0f380f`).
+- **Revisit if:** a later milestone adds engine code — it must follow the conventions.md rule, not the old style.

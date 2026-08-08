@@ -21,7 +21,7 @@ Reading each new profile as *rules with reasons*:
   guaranteed by formula, not by eye — this is why `ensureContrast` exists.
 - **Muted / Low-strain** — `desaturate` + slightly `darken` the text and accents. *Why:* lower saturation and a
   touch less lightness reduce eye strain for long sessions.
-- **Monochrome + Accent** — `desaturate(h, 1)` drives *every neutral* to pure grey (saturation forced to 0), then
+- **Monochrome + Accent** — `desaturate(hex, 1)` drives *every neutral* to pure grey (saturation forced to 0), then
   reintroduces a **single** accent (both `accent1` and `accent2` = the seed's `accent1`). *Why:* a stark greyscale
   UI with one pop of color.
 
@@ -30,8 +30,9 @@ Reading each new profile as *rules with reasons*:
 > (200° = a specific blue) while keeping its saturation and lightness. Nature wants "make this blue" regardless of
 > the seed, so it sets the hue absolutely.
 
-*(TypeScript reminder — `buildPalette: (c, variant = 'ocean') => …` gives the variant a default, so calling it with
-no variant still works. `const warm = (h, t) => mix(h, '#c98a3c', t)` is a local helper, scoped to that one profile.)*
+*(TypeScript reminder — `buildPalette: (combo, variant = 'ocean') => …` gives the variant a default, so calling it
+with no variant still works. `const warm = (hex, amount) => mix(hex, '#c98a3c', amount)` is a local helper, scoped
+to that one profile.)*
 
 ## Do this
 This step **edits one file**: `src/engine/profiles.ts` (from [step 04](04_profiles-generative-1.md)). Two changes —
@@ -50,70 +51,70 @@ import { darken, lighten, saturate, desaturate, setHue, mix, ensureContrast } fr
 ```ts
   {
     id: 'warm-sepia', label: 'Warm Sepia', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      const warm = (h: string, t: number) => mix(h, '#c98a3c', t);
-      return { ...p,
-        bg: warm(p.bg, 0.10), surface: warm(p.surface, 0.12), surfaceAlt: warm(p.surfaceAlt, 0.12),
-        text: warm(p.text, 0.06), textMuted: warm(p.textMuted, 0.10),
-        accent1: setHue(p.accent1, 32), accent2: setHue(p.accent2, 44) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      const warm = (hex: string, amount: number) => mix(hex, '#c98a3c', amount);
+      return { ...palette,
+        bg: warm(palette.bg, 0.10), surface: warm(palette.surface, 0.12), surfaceAlt: warm(palette.surfaceAlt, 0.12),
+        text: warm(palette.text, 0.06), textMuted: warm(palette.textMuted, 0.10),
+        accent1: setHue(palette.accent1, 32), accent2: setHue(palette.accent2, 44) };
     },
   },
   {
     id: 'material', label: 'Material', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p,
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette,
         bg: '#121212', surface: '#1e1e1e', surfaceAlt: '#242424',
         text: '#e0e0e0', textMuted: '#9e9e9e',
-        accent1: saturate(p.accent1, 0.05), accent2: saturate(p.accent2, 0.05),
+        accent1: saturate(palette.accent1, 0.05), accent2: saturate(palette.accent2, 0.05),
         border: '#2c2c2c' };
     },
   },
   {
     id: 'nature', label: 'Nature', family: 'generative', variants: ['ocean', 'forest'],
-    buildPalette: (c, variant = 'ocean') => {
-      const p = base(c);
+    buildPalette: (combo, variant = 'ocean') => {
+      const palette = base(combo);
       const hue = variant === 'forest' ? 140 : 200;
-      return { ...p,
-        bg: mix(p.bg, setHue(p.bg, hue), 0.5),
-        surface: mix(p.surface, setHue(p.surface, hue), 0.5),
-        accent1: setHue(p.accent1, hue),
-        accent2: setHue(p.accent2, hue + (variant === 'forest' ? 40 : -30)) };
+      return { ...palette,
+        bg: mix(palette.bg, setHue(palette.bg, hue), 0.5),
+        surface: mix(palette.surface, setHue(palette.surface, hue), 0.5),
+        accent1: setHue(palette.accent1, hue),
+        accent2: setHue(palette.accent2, hue + (variant === 'forest' ? 40 : -30)) };
     },
   },
   {
     id: 'high-contrast', label: 'High Contrast (AAA)', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      const bg = darken(p.bg, 0.02);
-      return { ...p, bg,
-        text: ensureContrast(p.text, bg, 7),
-        textMuted: ensureContrast(p.textMuted, bg, 4.5),
-        accent1: ensureContrast(saturate(p.accent1, 0.1), bg, 7),
-        accent2: ensureContrast(saturate(p.accent2, 0.1), bg, 7),
-        border: ensureContrast(p.border, bg, 3) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      const bg = darken(palette.bg, 0.02);
+      return { ...palette, bg,
+        text: ensureContrast(palette.text, bg, 7),
+        textMuted: ensureContrast(palette.textMuted, bg, 4.5),
+        accent1: ensureContrast(saturate(palette.accent1, 0.1), bg, 7),
+        accent2: ensureContrast(saturate(palette.accent2, 0.1), bg, 7),
+        border: ensureContrast(palette.border, bg, 3) };
     },
   },
   {
     id: 'muted', label: 'Muted / Low-strain', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p,
-        text: desaturate(darken(p.text, 0.05), 0.1),
-        accent1: desaturate(darken(p.accent1, 0.05), 0.25),
-        accent2: desaturate(darken(p.accent2, 0.05), 0.25) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette,
+        text: desaturate(darken(palette.text, 0.05), 0.1),
+        accent1: desaturate(darken(palette.accent1, 0.05), 0.25),
+        accent2: desaturate(darken(palette.accent2, 0.05), 0.25) };
     },
   },
   {
     id: 'monochrome', label: 'Monochrome + Accent', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      const gray = (h: string) => desaturate(h, 1);
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      const gray = (hex: string) => desaturate(hex, 1);
       return {
-        bg: gray(p.bg), surface: gray(p.surface), surfaceAlt: gray(p.surfaceAlt),
-        text: gray(p.text), textMuted: gray(p.textMuted), border: gray(p.border),
-        accent1: p.accent1, accent2: p.accent1 };
+        bg: gray(palette.bg), surface: gray(palette.surface), surfaceAlt: gray(palette.surfaceAlt),
+        text: gray(palette.text), textMuted: gray(palette.textMuted), border: gray(palette.border),
+        accent1: palette.accent1, accent2: palette.accent1 };
     },
   },
 ```

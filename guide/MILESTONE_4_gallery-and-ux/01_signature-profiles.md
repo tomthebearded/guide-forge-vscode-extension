@@ -15,8 +15,8 @@ Boy screen is a specific four-green wash; "derive it from Deep Sea" is meaningle
 
 > 🧠 **Concept — generative vs. signature (same shape, different source).** Both kinds are the *same* data type,
 > `StyleProfile`, and both live in the *same* registry — the only difference is what `buildPalette` does with its
-> arguments. A generative profile reads `combo` and computes; a signature profile ignores `combo` (note the `_c`)
-> and returns constants. This is the payoff of the data-driven design from [conventions.md](../foundation/conventions.md#data-vs-code):
+> arguments. A generative profile reads `combo` and computes; a signature profile ignores its combo argument (note the
+> `_combo`) and returns constants. This is the payoff of the data-driven design from [conventions.md](../foundation/conventions.md#data-vs-code):
 > adding these 4 is **appending 4 objects**, not adding branches anywhere else. The `family` field
 > (`'generative' | 'signature'`) — already on the `StyleProfile` type since M3 — is just a label we forward to the
 > UI later; nothing branches on it in the engine.
@@ -42,12 +42,12 @@ This step edits **one file**: `src/engine/profiles.ts` — the M3 file with the 
 
    In `src/engine/profiles.ts`, **immediately after the `GENERATIVE` array's closing `];`**:
    ```ts
-   // M4 — the 4 fixed-identity signature presets. They ignore the combo (note `_c`)
+   // M4 — the 4 fixed-identity signature presets. They ignore the combo (note `_combo`)
    // and return hand-picked palettes via the fixed() helper below.
    export const SIGNATURE: StyleProfile[] = [
      {
        id: 'game-boy', label: 'Game Boy', family: 'signature', variants: ['dmg', 'pocket', 'light'],
-       buildPalette: (_c, variant = 'dmg') => {
+       buildPalette: (_combo, variant = 'dmg') => {
          if (variant === 'pocket') return fixed('#0d0d0d', '#2b2b2b', '#8b8b8b', '#c4c4c4', '#5a5a5a');
          if (variant === 'light') return fixed('#c4cfa1', '#8b956d', '#4d533c', '#1f1f1f', '#4d533c');
          return fixed('#0f380f', '#306230', '#9bbc0f', '#8bac0f', '#306230'); // dmg
@@ -63,7 +63,7 @@ This step edits **one file**: `src/engine/profiles.ts` — the M3 file with the 
      },
      {
        id: 'terminal', label: 'Terminal / CRT', family: 'signature', variants: ['green', 'amber'],
-       buildPalette: (_c, variant = 'green') => variant === 'amber'
+       buildPalette: (_combo, variant = 'green') => variant === 'amber'
          ? fixed('#0a0600', '#1a1200', '#ffb000', '#ffc433', '#7a5200')
          : fixed('#001100', '#002200', '#33ff33', '#66ff66', '#0a5a0a'),
      },
@@ -97,9 +97,10 @@ This step edits **one file**: `src/engine/profiles.ts` — the M3 file with the 
    The imports already include everything `fixed()` needs (`lighten`, `mix`).
 6. Save. The watch task recompiles; there should be no new errors.
 
-> Why `_c` and not `combo`? A leading underscore is the project convention for a parameter the interface forces on
-> you but you don't use (same as `_context`/`_token` in the M1 provider) — here it documents "signature palettes
-> don't read the combo." It also keeps the linter from flagging the unused argument.
+> Why `_combo` and not `combo`? A leading underscore is the project convention for a parameter the interface forces
+> on you but you don't use (same as `_context`/`_token` in the M1 provider) — the name still says *what* the
+> argument is, and the underscore says "signature palettes don't read it." It also keeps the linter from flagging
+> the unused argument.
 
 ## Done when (this step)
 - `src/engine/profiles.ts` compiles with no errors and now exports `GENERATIVE` (9), `SIGNATURE` (4), and
@@ -108,7 +109,7 @@ This step edits **one file**: `src/engine/profiles.ts` — the M3 file with the 
   1. Make sure the watch/compile task has produced `out/` (run `npm run compile` if unsure).
   2. Run:
      ```powershell
-     node -e "const {PROFILES,SIGNATURE}=require('./out/engine/profiles.js'); console.log(PROFILES.length, SIGNATURE.map(p=>p.id).join(','))"
+     node -e "const {PROFILES,SIGNATURE}=require('./out/engine/profiles.js'); console.log(PROFILES.length, SIGNATURE.map(profile=>profile.id).join(','))"
      ```
   3. Expected output — exactly:
      ```

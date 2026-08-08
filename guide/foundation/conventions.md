@@ -14,6 +14,14 @@
 - **Casing:** `camelCase` for identifiers/functions, `PascalCase` for types/interfaces, and `SCREAMING_SNAKE`
   only for module-level constants. (Webview message `type` strings — e.g. `apply`, `revert`, `reset` — are the
   closest thing to an action id here; they're plain `camelCase` strings that must match on both sides.)
+- **Locals and parameters say what they hold.** No single- or two-letter names in any code block a reader types:
+  write `palette`, `combo`, `profile`, `chroma`, `luminanceA` — not `p`, `c`, `d`, `la`. Three exceptions, all
+  because the *abbreviation is the domain term*: (1) the `Rgb`/`Hsl` interface fields `r,g,b`/`h,s,l`, (2) the
+  `Palette` role names (`bg`, `text`, `accent1`…), (3) an unused parameter an interface forces on you, which keeps
+  its real name behind an underscore (`_combo`, `_token`). *Why:* the reader is meeting this code for the first
+  time and has no IDE hover to lean on — a name is the cheapest explanation a step can give. When a formula needs
+  an intermediate the math has no word for, name it after what it *means* (`maxChromaAtThisLightness`,
+  `lightnessOffset`) rather than after the paper it came from.
 
 ## Structure / architecture
 - **Two layers, one boundary.**

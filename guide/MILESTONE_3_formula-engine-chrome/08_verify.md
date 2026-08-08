@@ -8,7 +8,7 @@ the rest run in the Extension Development Host.
 1. **Engine math (Node, no F5)** — compile, then run a one-liner against the compiled engine:
    ```powershell
    npx tsc -p ./
-   node -e "const c=require('./out/engine/color'); console.log('round-trip', c.hslToHex(c.hexToHsl('#3ec6ff'))); console.log('contrast', c.contrastRatio('#ffffff','#000000'))"
+   node -e "const color=require('./out/engine/color'); console.log('round-trip', color.hslToHex(color.hexToHsl('#3ec6ff'))); console.log('contrast', color.contrastRatio('#ffffff','#000000'))"
    ```
    **Expected — exactly:**
    ```
@@ -19,7 +19,7 @@ the rest run in the Extension Development Host.
 
 2. **Engine wiring (Node, no F5)** — prove `generate` produces a full chrome object:
    ```powershell
-   node -e "const {generate}=require('./out/engine/generate'); const {comboById}=require('./out/engine/combos'); const {profileById}=require('./out/engine/profiles'); const t=generate(comboById('deep-sea'),profileById('midnight')); console.log('keys', Object.keys(t.chrome).length); console.log('bg', t.chrome['editor.background'])"
+   node -e "const {generate}=require('./out/engine/generate'); const {comboById}=require('./out/engine/combos'); const {profileById}=require('./out/engine/profiles'); const theme=generate(comboById('deep-sea'),profileById('midnight')); console.log('keys', Object.keys(theme.chrome).length); console.log('bg', theme.chrome['editor.background'])"
    ```
    **Expected — exactly:**
    ```
@@ -76,116 +76,141 @@ Files **created this milestone**: the five `src/engine/*` files. File **modified
 export interface Rgb { r: number; g: number; b: number; } // 0..255
 export interface Hsl { h: number; s: number; l: number; }  // h 0..360, s/l 0..1
 
-const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+/** Force `value` into the range [min, max]. */
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 export function hexToRgb(hex: string): Rgb {
-  const h = hex.replace('#', '');
-  const n = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+  const digits = hex.replace('#', '');
+  // Shorthand "#f80" means "#ff8800" — each digit stands for the pair "dd".
+  const sixDigits = digits.length === 3 ? digits.split('').map((digit) => digit + digit).join('') : digits;
   return {
-    r: parseInt(n.slice(0, 2), 16),
-    g: parseInt(n.slice(2, 4), 16),
-    b: parseInt(n.slice(4, 6), 16),
+    r: parseInt(sixDigits.slice(0, 2), 16),
+    g: parseInt(sixDigits.slice(2, 4), 16),
+    b: parseInt(sixDigits.slice(4, 6), 16),
   };
 }
 
 export function rgbToHex({ r, g, b }: Rgb): string {
-  const to2 = (n: number) => clamp(Math.round(n), 0, 255).toString(16).padStart(2, '0');
-  return `#${to2(r)}${to2(g)}${to2(b)}`;
+  // Channels arrive as floats (the math produces 254.7, -0.3…), so round + clamp before writing.
+  const toHexPair = (channel: number) => clamp(Math.round(channel), 0, 255).toString(16).padStart(2, '0');
+  return `#${toHexPair(r)}${toHexPair(g)}${toHexPair(b)}`;
 }
 
 export function hexToHsl(hex: string): Hsl {
   const { r, g, b } = hexToRgb(hex);
-  const rn = r / 255, gn = g / 255, bn = b / 255;
-  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
-  const l = (max + min) / 2;
-  let h = 0, s = 0;
-  const d = max - min;
-  if (d !== 0) {
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case rn: h = ((gn - bn) / d + (gn < bn ? 6 : 0)); break;
-      case gn: h = ((bn - rn) / d + 2); break;
-      default: h = ((rn - gn) / d + 4); break;
+  // Work in 0..1 so the channels line up with saturation/lightness.
+  const red = r / 255, green = g / 255, blue = b / 255;
+  const brightest = Math.max(red, green, blue), darkest = Math.min(red, green, blue);
+  const lightness = (brightest + darkest) / 2;
+  // Chroma = how far apart the extremes are. Grey means all three are equal, so chroma 0 = no hue.
+  const chroma = brightest - darkest;
+  let hue = 0, saturation = 0;
+  if (chroma !== 0) {
+    // Saturation is chroma as a fraction of the most chroma possible at *this* lightness —
+    // that ceiling shrinks toward pure black and pure white.
+    const maxChromaAtThisLightness = lightness > 0.5 ? 2 - brightest - darkest : brightest + darkest;
+    saturation = chroma / maxChromaAtThisLightness;
+    // Whichever channel won says which pair of 60° slices we're in; the other two give the
+    // position inside it, in slice units (0..6).
+    switch (brightest) {
+      case red:   hue = ((green - blue) / chroma + (green < blue ? 6 : 0)); break;
+      case green: hue = ((blue - red) / chroma + 2); break;
+      default:    hue = ((red - green) / chroma + 4); break;   // blue won
     }
-    h *= 60;
+    hue *= 60;   // slices -> degrees
   }
-  return { h, s, l };
+  return { h: hue, s: saturation, l: lightness };
 }
 
 export function hslToHex({ h, s, l }: Hsl): string {
-  h = ((h % 360) + 360) % 360;
-  s = clamp(s, 0, 1);
-  l = clamp(l, 0, 1);
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = l - c / 2;
-  let r = 0, g = 0, b = 0;
-  if (h < 60) { r = c; g = x; }
-  else if (h < 120) { r = x; g = c; }
-  else if (h < 180) { g = c; b = x; }
-  else if (h < 240) { g = x; b = c; }
-  else if (h < 300) { r = x; b = c; }
-  else { r = c; b = x; }
-  return rgbToHex({ r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 });
+  // Hue is an angle, so it wraps (400° -> 40°); the double modulo fixes JS's signed `%`.
+  const hue = ((h % 360) + 360) % 360;
+  const saturation = clamp(s, 0, 1);
+  const lightness = clamp(l, 0, 1);
+  // Same ceiling as in hexToHsl, solved for chroma instead of saturation.
+  const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
+  // Every hue has one channel at full chroma, one at 0, and one ramping between — the secondary.
+  const secondary = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  // The triple below is centred on lightness 0.5; this slides it to the requested lightness.
+  const lightnessOffset = lightness - chroma / 2;
+  let red = 0, green = 0, blue = 0;
+  switch (Math.floor(hue / 60)) {
+    case 0:  red = chroma;    green = secondary; break;   //   0–60°  red -> yellow
+    case 1:  red = secondary; green = chroma;    break;   //  60–120° yellow -> green
+    case 2:  green = chroma;    blue = secondary; break;  // 120–180° green -> cyan
+    case 3:  green = secondary; blue = chroma;    break;  // 180–240° cyan -> blue
+    case 4:  red = secondary;   blue = chroma;    break;  // 240–300° blue -> magenta
+    default: red = chroma;      blue = secondary; break;  // 300–360° magenta -> red
+  }
+  return rgbToHex({
+    r: (red + lightnessOffset) * 255,
+    g: (green + lightnessOffset) * 255,
+    b: (blue + lightnessOffset) * 255,
+  });
 }
 
+// The dial operations: go to HSL, move exactly one dial, come back.
 export function lighten(hex: string, amount: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, l: c.l + amount });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, l: hsl.l + amount });
 }
 export function darken(hex: string, amount: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, l: c.l - amount });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, l: hsl.l - amount });
 }
 export function saturate(hex: string, amount: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, s: c.s + amount });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, s: hsl.s + amount });
 }
 export function desaturate(hex: string, amount: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, s: c.s - amount });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, s: hsl.s - amount });
 }
 export function rotate(hex: string, degrees: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, h: c.h + degrees });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, h: hsl.h + degrees });
 }
 export function setHue(hex: string, hue: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, h: hue });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, h: hue });
 }
-export function mix(a: string, b: string, t: number): string {
-  const ca = hexToRgb(a), cb = hexToRgb(b);
+/** `amount` 0 returns `fromHex`, 1 returns `toHex`, 0.5 the halfway point. */
+export function mix(fromHex: string, toHex: string, amount: number): string {
+  const from = hexToRgb(fromHex), to = hexToRgb(toHex);
   return rgbToHex({
-    r: ca.r + (cb.r - ca.r) * t,
-    g: ca.g + (cb.g - ca.g) * t,
-    b: ca.b + (cb.b - ca.b) * t,
+    r: from.r + (to.r - from.r) * amount,
+    g: from.g + (to.g - from.g) * amount,
+    b: from.b + (to.b - from.b) * amount,
   });
 }
 
 // WCAG relative luminance + contrast ratio.
-function channelLuminance(c: number): number {
-  const s = c / 255;
-  return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+function channelLuminance(channel: number): number {
+  // Undo the sRGB gamma curve so the channel is proportional to physical light.
+  const normalized = channel / 255;
+  return normalized <= 0.03928
+    ? normalized / 12.92
+    : Math.pow((normalized + 0.055) / 1.055, 2.4);
 }
 export function relativeLuminance(hex: string): number {
   const { r, g, b } = hexToRgb(hex);
   return 0.2126 * channelLuminance(r) + 0.7152 * channelLuminance(g) + 0.0722 * channelLuminance(b);
 }
-export function contrastRatio(a: string, b: string): number {
-  const la = relativeLuminance(a), lb = relativeLuminance(b);
-  const hi = Math.max(la, lb), lo = Math.min(la, lb);
-  return (hi + 0.05) / (lo + 0.05);
+export function contrastRatio(hexA: string, hexB: string): number {
+  const luminanceA = relativeLuminance(hexA), luminanceB = relativeLuminance(hexB);
+  const brighter = Math.max(luminanceA, luminanceB), darker = Math.min(luminanceA, luminanceB);
+  return (brighter + 0.05) / (darker + 0.05);
 }
 
-// Return near-black or near-white, whichever reads better on `bg`.
-export function readableOn(bg: string): string {
-  return contrastRatio('#ffffff', bg) >= contrastRatio('#111111', bg) ? '#ffffff' : '#111111';
+// Return near-black or near-white, whichever reads better on `background`.
+export function readableOn(background: string): string {
+  return contrastRatio('#ffffff', background) >= contrastRatio('#111111', background) ? '#ffffff' : '#111111';
 }
 
-// Nudge `fg` lighter/darker until it hits `ratio` against `bg` (or clamps).
-export function ensureContrast(fg: string, bg: string, ratio: number): string {
-  if (contrastRatio(fg, bg) >= ratio) return fg;
-  const goLighter = relativeLuminance(bg) < 0.5;
-  let c = hexToHsl(fg);
-  for (let i = 0; i < 100; i++) {
-    c = { ...c, l: clamp(c.l + (goLighter ? 0.01 : -0.01), 0, 1) };
-    const candidate = hslToHex(c);
-    if (contrastRatio(candidate, bg) >= ratio) return candidate;
-    if (c.l <= 0 || c.l >= 1) break;
+// Nudge `foreground` lighter/darker until it clears `targetRatio` against `background` (or clamps).
+export function ensureContrast(foreground: string, background: string, targetRatio: number): string {
+  if (contrastRatio(foreground, background) >= targetRatio) return foreground;
+  const goLighter = relativeLuminance(background) < 0.5;
+  let hsl = hexToHsl(foreground);
+  for (let step = 0; step < 100; step++) {
+    hsl = { ...hsl, l: clamp(hsl.l + (goLighter ? 0.01 : -0.01), 0, 1) };
+    const candidate = hslToHex(hsl);
+    if (contrastRatio(candidate, background) >= targetRatio) return candidate;
+    if (hsl.l <= 0 || hsl.l >= 1) break;
   }
   return goLighter ? '#ffffff' : '#111111';
 }
@@ -248,7 +273,7 @@ export const COMBOS: StarterCombo[] = [
 ];
 
 export function comboById(id: string): StarterCombo {
-  return COMBOS.find((c) => c.id === id) ?? COMBOS[0];
+  return COMBOS.find((combo) => combo.id === id) ?? COMBOS[0];
 }
 ```
 
@@ -275,98 +300,98 @@ function base(combo: StarterCombo): Palette {
 export const GENERATIVE: StyleProfile[] = [
   {
     id: 'neon', label: 'Neon', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p,
-        bg: darken(p.bg, 0.03), surface: darken(p.surface, 0.02),
-        accent1: saturate(lighten(p.accent1, 0.05), 0.3),
-        accent2: saturate(lighten(p.accent2, 0.05), 0.3),
-        text: lighten(p.text, 0.02) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette,
+        bg: darken(palette.bg, 0.03), surface: darken(palette.surface, 0.02),
+        accent1: saturate(lighten(palette.accent1, 0.05), 0.3),
+        accent2: saturate(lighten(palette.accent2, 0.05), 0.3),
+        text: lighten(palette.text, 0.02) };
     },
   },
   {
     id: 'pastel', label: 'Pastel', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p,
-        surface: lighten(p.surface, 0.06), surfaceAlt: lighten(p.surfaceAlt, 0.06),
-        accent1: lighten(desaturate(p.accent1, 0.25), 0.12),
-        accent2: lighten(desaturate(p.accent2, 0.25), 0.12) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette,
+        surface: lighten(palette.surface, 0.06), surfaceAlt: lighten(palette.surfaceAlt, 0.06),
+        accent1: lighten(desaturate(palette.accent1, 0.25), 0.12),
+        accent2: lighten(desaturate(palette.accent2, 0.25), 0.12) };
     },
   },
   {
     id: 'midnight', label: 'Midnight / OLED', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p, bg: '#000000', surface: darken(p.surface, 0.06), surfaceAlt: darken(p.surfaceAlt, 0.05) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette, bg: '#000000', surface: darken(palette.surface, 0.06), surfaceAlt: darken(palette.surfaceAlt, 0.05) };
     },
   },
   {
     id: 'warm-sepia', label: 'Warm Sepia', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      const warm = (h: string, t: number) => mix(h, '#c98a3c', t);
-      return { ...p,
-        bg: warm(p.bg, 0.10), surface: warm(p.surface, 0.12), surfaceAlt: warm(p.surfaceAlt, 0.12),
-        text: warm(p.text, 0.06), textMuted: warm(p.textMuted, 0.10),
-        accent1: setHue(p.accent1, 32), accent2: setHue(p.accent2, 44) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      const warm = (hex: string, amount: number) => mix(hex, '#c98a3c', amount);
+      return { ...palette,
+        bg: warm(palette.bg, 0.10), surface: warm(palette.surface, 0.12), surfaceAlt: warm(palette.surfaceAlt, 0.12),
+        text: warm(palette.text, 0.06), textMuted: warm(palette.textMuted, 0.10),
+        accent1: setHue(palette.accent1, 32), accent2: setHue(palette.accent2, 44) };
     },
   },
   {
     id: 'material', label: 'Material', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p,
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette,
         bg: '#121212', surface: '#1e1e1e', surfaceAlt: '#242424',
         text: '#e0e0e0', textMuted: '#9e9e9e',
-        accent1: saturate(p.accent1, 0.05), accent2: saturate(p.accent2, 0.05),
+        accent1: saturate(palette.accent1, 0.05), accent2: saturate(palette.accent2, 0.05),
         border: '#2c2c2c' };
     },
   },
   {
     id: 'nature', label: 'Nature', family: 'generative', variants: ['ocean', 'forest'],
-    buildPalette: (c, variant = 'ocean') => {
-      const p = base(c);
+    buildPalette: (combo, variant = 'ocean') => {
+      const palette = base(combo);
       const hue = variant === 'forest' ? 140 : 200;
-      return { ...p,
-        bg: mix(p.bg, setHue(p.bg, hue), 0.5),
-        surface: mix(p.surface, setHue(p.surface, hue), 0.5),
-        accent1: setHue(p.accent1, hue),
-        accent2: setHue(p.accent2, hue + (variant === 'forest' ? 40 : -30)) };
+      return { ...palette,
+        bg: mix(palette.bg, setHue(palette.bg, hue), 0.5),
+        surface: mix(palette.surface, setHue(palette.surface, hue), 0.5),
+        accent1: setHue(palette.accent1, hue),
+        accent2: setHue(palette.accent2, hue + (variant === 'forest' ? 40 : -30)) };
     },
   },
   {
     id: 'high-contrast', label: 'High Contrast (AAA)', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      const bg = darken(p.bg, 0.02);
-      return { ...p, bg,
-        text: ensureContrast(p.text, bg, 7),
-        textMuted: ensureContrast(p.textMuted, bg, 4.5),
-        accent1: ensureContrast(saturate(p.accent1, 0.1), bg, 7),
-        accent2: ensureContrast(saturate(p.accent2, 0.1), bg, 7),
-        border: ensureContrast(p.border, bg, 3) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      const bg = darken(palette.bg, 0.02);
+      return { ...palette, bg,
+        text: ensureContrast(palette.text, bg, 7),
+        textMuted: ensureContrast(palette.textMuted, bg, 4.5),
+        accent1: ensureContrast(saturate(palette.accent1, 0.1), bg, 7),
+        accent2: ensureContrast(saturate(palette.accent2, 0.1), bg, 7),
+        border: ensureContrast(palette.border, bg, 3) };
     },
   },
   {
     id: 'muted', label: 'Muted / Low-strain', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      return { ...p,
-        text: desaturate(darken(p.text, 0.05), 0.1),
-        accent1: desaturate(darken(p.accent1, 0.05), 0.25),
-        accent2: desaturate(darken(p.accent2, 0.05), 0.25) };
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      return { ...palette,
+        text: desaturate(darken(palette.text, 0.05), 0.1),
+        accent1: desaturate(darken(palette.accent1, 0.05), 0.25),
+        accent2: desaturate(darken(palette.accent2, 0.05), 0.25) };
     },
   },
   {
     id: 'monochrome', label: 'Monochrome + Accent', family: 'generative',
-    buildPalette: (c) => {
-      const p = base(c);
-      const gray = (h: string) => desaturate(h, 1);
+    buildPalette: (combo) => {
+      const palette = base(combo);
+      const gray = (hex: string) => desaturate(hex, 1);
       return {
-        bg: gray(p.bg), surface: gray(p.surface), surfaceAlt: gray(p.surfaceAlt),
-        text: gray(p.text), textMuted: gray(p.textMuted), border: gray(p.border),
-        accent1: p.accent1, accent2: p.accent1 };
+        bg: gray(palette.bg), surface: gray(palette.surface), surfaceAlt: gray(palette.surfaceAlt),
+        text: gray(palette.text), textMuted: gray(palette.textMuted), border: gray(palette.border),
+        accent1: palette.accent1, accent2: palette.accent1 };
     },
   },
 ];
@@ -375,7 +400,7 @@ export const GENERATIVE: StyleProfile[] = [
 export const PROFILES: StyleProfile[] = [...GENERATIVE];
 
 export function profileById(id: string): StyleProfile {
-  return PROFILES.find((p) => p.id === id) ?? PROFILES[0];
+  return PROFILES.find((profile) => profile.id === id) ?? PROFILES[0];
 }
 ```
 
@@ -385,29 +410,29 @@ export function profileById(id: string): StyleProfile {
 import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult } from './types';
 import { readableOn } from './color';
 
-function paletteToChrome(p: Palette): ChromeColors {
-  const onAccent = readableOn(p.accent1);
+function paletteToChrome(palette: Palette): ChromeColors {
+  const onAccent = readableOn(palette.accent1);
   return {
-    'editor.background': p.bg,
-    'editor.foreground': p.text,
-    'sideBar.background': p.surface,
-    'sideBar.foreground': p.text,
-    'sideBarSectionHeader.background': p.surfaceAlt,
-    'activityBar.background': p.surfaceAlt,
-    'activityBar.foreground': p.accent1,
-    'activityBar.activeBorder': p.accent1,
-    'statusBar.background': p.accent1,
+    'editor.background': palette.bg,
+    'editor.foreground': palette.text,
+    'sideBar.background': palette.surface,
+    'sideBar.foreground': palette.text,
+    'sideBarSectionHeader.background': palette.surfaceAlt,
+    'activityBar.background': palette.surfaceAlt,
+    'activityBar.foreground': palette.accent1,
+    'activityBar.activeBorder': palette.accent1,
+    'statusBar.background': palette.accent1,
     'statusBar.foreground': onAccent,
-    'titleBar.activeBackground': p.surfaceAlt,
-    'titleBar.activeForeground': p.text,
-    'tab.activeBackground': p.bg,
-    'tab.inactiveBackground': p.surface,
-    'tab.activeForeground': p.text,
-    'tab.inactiveForeground': p.textMuted,
-    'editorGroupHeader.tabsBackground': p.surface,
-    'panel.background': p.surface,
-    'panel.border': p.border,
-    'focusBorder': p.accent2,
+    'titleBar.activeBackground': palette.surfaceAlt,
+    'titleBar.activeForeground': palette.text,
+    'tab.activeBackground': palette.bg,
+    'tab.inactiveBackground': palette.surface,
+    'tab.activeForeground': palette.text,
+    'tab.inactiveForeground': palette.textMuted,
+    'editorGroupHeader.tabsBackground': palette.surface,
+    'panel.background': palette.surface,
+    'panel.border': palette.border,
+    'focusBorder': palette.accent2,
   };
 }
 
@@ -509,7 +534,7 @@ function getNonce(): string {
 |---------|-------------|-----|
 | `node -e` can't find `./out/engine/color` | project not compiled, or wrong path | Run `npx tsc -p ./`; the output mirrors `src/` under `out/` |
 | `Cannot use import statement outside a module` | you ran the `.ts`, not the compiled `.js` | Node runs `out/engine/*.js`; compile first |
-| `contrast` prints something other than `21` | typo in `contrastRatio`/luminance weights | Weights `0.2126/0.7152/0.0722`; ratio `(hi+0.05)/(lo+0.05)` |
+| `contrast` prints something other than `21` | typo in `contrastRatio`/luminance weights | Weights `0.2126/0.7152/0.0722`; ratio `(brighter+0.05)/(darker+0.05)` |
 | Dropdowns empty in the panel | `COMBOS`/`GENERATIVE` not imported, or option map missing | Confirm imports + `${comboOpts}`/`${profOpts}` inside the `<select>`s |
 | Only the status bar changes | you left M2's `applyDemo` handler | Replace with the `apply` case that applies `theme.chrome` |
 | Everything recolors **except** the status bar (stays orange) | Not a bug — the EDH is being debugged and `statusBar.debugging*` wins; the 20-key map omits it | Confirm `statusBar.background` in the `settings.json` diff (check 5); to theme it under F5 too, add the two `debugging*` keys to `paletteToChrome` (→ 22 keys, and every "20" in these gates moves) |

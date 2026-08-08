@@ -69,29 +69,29 @@ This step creates **one file**: `src/engine/generate.ts`.
 import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult } from './types';
 import { readableOn } from './color';
 
-function paletteToChrome(p: Palette): ChromeColors {
-  const onAccent = readableOn(p.accent1);
+function paletteToChrome(palette: Palette): ChromeColors {
+  const onAccent = readableOn(palette.accent1);
   return {
-    'editor.background': p.bg,
-    'editor.foreground': p.text,
-    'sideBar.background': p.surface,
-    'sideBar.foreground': p.text,
-    'sideBarSectionHeader.background': p.surfaceAlt,
-    'activityBar.background': p.surfaceAlt,
-    'activityBar.foreground': p.accent1,
-    'activityBar.activeBorder': p.accent1,
-    'statusBar.background': p.accent1,
+    'editor.background': palette.bg,
+    'editor.foreground': palette.text,
+    'sideBar.background': palette.surface,
+    'sideBar.foreground': palette.text,
+    'sideBarSectionHeader.background': palette.surfaceAlt,
+    'activityBar.background': palette.surfaceAlt,
+    'activityBar.foreground': palette.accent1,
+    'activityBar.activeBorder': palette.accent1,
+    'statusBar.background': palette.accent1,
     'statusBar.foreground': onAccent,
-    'titleBar.activeBackground': p.surfaceAlt,
-    'titleBar.activeForeground': p.text,
-    'tab.activeBackground': p.bg,
-    'tab.inactiveBackground': p.surface,
-    'tab.activeForeground': p.text,
-    'tab.inactiveForeground': p.textMuted,
-    'editorGroupHeader.tabsBackground': p.surface,
-    'panel.background': p.surface,
-    'panel.border': p.border,
-    'focusBorder': p.accent2,
+    'titleBar.activeBackground': palette.surfaceAlt,
+    'titleBar.activeForeground': palette.text,
+    'tab.activeBackground': palette.bg,
+    'tab.inactiveBackground': palette.surface,
+    'tab.activeForeground': palette.text,
+    'tab.inactiveForeground': palette.textMuted,
+    'editorGroupHeader.tabsBackground': palette.surface,
+    'panel.background': palette.surface,
+    'panel.border': palette.border,
+    'focusBorder': palette.accent2,
   };
 }
 

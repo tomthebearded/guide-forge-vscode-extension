@@ -46,7 +46,7 @@ export const COMBOS: StarterCombo[] = [
 ];
 
 export function comboById(id: string): StarterCombo {
-  return COMBOS.find((c) => c.id === id) ?? COMBOS[0];
+  return COMBOS.find((combo) => combo.id === id) ?? COMBOS[0];
 }
 ```
 

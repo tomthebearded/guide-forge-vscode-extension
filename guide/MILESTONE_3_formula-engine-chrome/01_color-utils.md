@@ -5,6 +5,7 @@
 - **RGB** — a color as three channels, **R**ed / **G**reen / **B**lue, each `0–255`. Hex `#rrggbb` is just those three bytes written in base-16 (`ff` = 255). *(defined inline below)*
 - **[HSL](../foundation/glossary.md#hsl)** — a color as **H**ue (`0–360°`, the position on the color wheel), **S**aturation (`0–1`, grey→vivid), **L**ightness (`0–1`, black→white).
 - **[Contrast ratio (WCAG)](../foundation/glossary.md#contrast-ratio-wcag)** — a number from `1:1` (identical) to `21:1` (black vs. white) describing how distinguishable two colors are; text wants **≥ 4.5:1** (AA) or **≥ 7:1** (AAA).
+- **Chroma** — the gap between a color's strongest and weakest RGB channel: `0` means all three are equal (a grey, with no hue at all), larger means more color present. It's the raw quantity the conversions below compute *saturation* from. *(defined inline in the code)*
 
 ## Why / design
 This is the first file of the **pure engine** (`src/engine/`) — plain TypeScript with **no `import * as vscode`**.
@@ -47,7 +48,7 @@ This step creates **one file**: `src/engine/color.ts`.
    - **`hexToRgb` / `rgbToHex`** — parse `#rrggbb` (or shorthand `#rgb`) into `{r,g,b}` and back. `rgbToHex` rounds
      and `clamp`s each channel to `0–255` and `padStart`s to two hex digits, so a value like `255.4` or `-2` can
      never produce a malformed color string. *(Load-bearing: these are the string↔number boundary.)*
-   - **`hexToHsl` / `hslToHex`** — the two model converters. `hexToHsl` also handles the grey case (`d === 0` →
+   - **`hexToHsl` / `hslToHex`** — the two model converters. `hexToHsl` also handles the grey case (`chroma === 0` →
      saturation 0). `hslToHex` normalizes hue into `0–360` (`((h % 360) + 360) % 360`) and clamps `s`/`l`, so a
      rotate past 360° or a lighten past 1.0 wraps/clamps safely instead of breaking.
    - **`lighten` / `darken`** — move **L** up/down by an amount (e.g. `0.05` = 5 percentage points). *Why:* coordinated
@@ -55,8 +56,8 @@ This step creates **one file**: `src/engine/color.ts`.
    - **`saturate` / `desaturate`** — move **S**. *Why:* Neon boosts it, Pastel/Muted cut it.
    - **`rotate` / `setHue`** — `rotate` adds degrees to **H** (relative); `setHue` sets it absolutely. *Why:* Nature
      re-hues a palette toward ocean/forest; Warm-Sepia pins accents to warm hues.
-   - **`mix`** — linearly blend two colors in RGB by `t` (`0` = all `a`, `1` = all `b`). *Why:* deriving `textMuted`
-     (text mixed toward surface) and `border` (surface mixed toward text).
+   - **`mix`** — linearly blend two colors in RGB by `amount` (`0` = all `fromHex`, `1` = all `toHex`). *Why:*
+     deriving `textMuted` (text mixed toward surface) and `border` (surface mixed toward text).
    - **`relativeLuminance` / `contrastRatio`** — the WCAG math from the callout above.
    - **`readableOn`** — returns near-white or near-black, whichever has more contrast on a given background. *Why:*
      status-bar text that stays legible whatever the accent color is.
@@ -72,116 +73,141 @@ This step creates **one file**: `src/engine/color.ts`.
 export interface Rgb { r: number; g: number; b: number; } // 0..255
 export interface Hsl { h: number; s: number; l: number; }  // h 0..360, s/l 0..1
 
-const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+/** Force `value` into the range [min, max]. */
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 export function hexToRgb(hex: string): Rgb {
-  const h = hex.replace('#', '');
-  const n = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+  const digits = hex.replace('#', '');
+  // Shorthand "#f80" means "#ff8800" — each digit stands for the pair "dd".
+  const sixDigits = digits.length === 3 ? digits.split('').map((digit) => digit + digit).join('') : digits;
   return {
-    r: parseInt(n.slice(0, 2), 16),
-    g: parseInt(n.slice(2, 4), 16),
-    b: parseInt(n.slice(4, 6), 16),
+    r: parseInt(sixDigits.slice(0, 2), 16),
+    g: parseInt(sixDigits.slice(2, 4), 16),
+    b: parseInt(sixDigits.slice(4, 6), 16),
   };
 }
 
 export function rgbToHex({ r, g, b }: Rgb): string {
-  const to2 = (n: number) => clamp(Math.round(n), 0, 255).toString(16).padStart(2, '0');
-  return `#${to2(r)}${to2(g)}${to2(b)}`;
+  // Channels arrive as floats (the math produces 254.7, -0.3…), so round + clamp before writing.
+  const toHexPair = (channel: number) => clamp(Math.round(channel), 0, 255).toString(16).padStart(2, '0');
+  return `#${toHexPair(r)}${toHexPair(g)}${toHexPair(b)}`;
 }
 
 export function hexToHsl(hex: string): Hsl {
   const { r, g, b } = hexToRgb(hex);
-  const rn = r / 255, gn = g / 255, bn = b / 255;
-  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
-  const l = (max + min) / 2;
-  let h = 0, s = 0;
-  const d = max - min;
-  if (d !== 0) {
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case rn: h = ((gn - bn) / d + (gn < bn ? 6 : 0)); break;
-      case gn: h = ((bn - rn) / d + 2); break;
-      default: h = ((rn - gn) / d + 4); break;
+  // Work in 0..1 so the channels line up with saturation/lightness.
+  const red = r / 255, green = g / 255, blue = b / 255;
+  const brightest = Math.max(red, green, blue), darkest = Math.min(red, green, blue);
+  const lightness = (brightest + darkest) / 2;
+  // Chroma = how far apart the extremes are. Grey means all three are equal, so chroma 0 = no hue.
+  const chroma = brightest - darkest;
+  let hue = 0, saturation = 0;
+  if (chroma !== 0) {
+    // Saturation is chroma as a fraction of the most chroma possible at *this* lightness —
+    // that ceiling shrinks toward pure black and pure white.
+    const maxChromaAtThisLightness = lightness > 0.5 ? 2 - brightest - darkest : brightest + darkest;
+    saturation = chroma / maxChromaAtThisLightness;
+    // Whichever channel won says which pair of 60° slices we're in; the other two give the
+    // position inside it, in slice units (0..6).
+    switch (brightest) {
+      case red:   hue = ((green - blue) / chroma + (green < blue ? 6 : 0)); break;
+      case green: hue = ((blue - red) / chroma + 2); break;
+      default:    hue = ((red - green) / chroma + 4); break;   // blue won
     }
-    h *= 60;
+    hue *= 60;   // slices -> degrees
   }
-  return { h, s, l };
+  return { h: hue, s: saturation, l: lightness };
 }
 
 export function hslToHex({ h, s, l }: Hsl): string {
-  h = ((h % 360) + 360) % 360;
-  s = clamp(s, 0, 1);
-  l = clamp(l, 0, 1);
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = l - c / 2;
-  let r = 0, g = 0, b = 0;
-  if (h < 60) { r = c; g = x; }
-  else if (h < 120) { r = x; g = c; }
-  else if (h < 180) { g = c; b = x; }
-  else if (h < 240) { g = x; b = c; }
-  else if (h < 300) { r = x; b = c; }
-  else { r = c; b = x; }
-  return rgbToHex({ r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 });
+  // Hue is an angle, so it wraps (400° -> 40°); the double modulo fixes JS's signed `%`.
+  const hue = ((h % 360) + 360) % 360;
+  const saturation = clamp(s, 0, 1);
+  const lightness = clamp(l, 0, 1);
+  // Same ceiling as in hexToHsl, solved for chroma instead of saturation.
+  const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
+  // Every hue has one channel at full chroma, one at 0, and one ramping between — the secondary.
+  const secondary = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  // The triple below is centred on lightness 0.5; this slides it to the requested lightness.
+  const lightnessOffset = lightness - chroma / 2;
+  let red = 0, green = 0, blue = 0;
+  switch (Math.floor(hue / 60)) {
+    case 0:  red = chroma;    green = secondary; break;   //   0–60°  red -> yellow
+    case 1:  red = secondary; green = chroma;    break;   //  60–120° yellow -> green
+    case 2:  green = chroma;    blue = secondary; break;  // 120–180° green -> cyan
+    case 3:  green = secondary; blue = chroma;    break;  // 180–240° cyan -> blue
+    case 4:  red = secondary;   blue = chroma;    break;  // 240–300° blue -> magenta
+    default: red = chroma;      blue = secondary; break;  // 300–360° magenta -> red
+  }
+  return rgbToHex({
+    r: (red + lightnessOffset) * 255,
+    g: (green + lightnessOffset) * 255,
+    b: (blue + lightnessOffset) * 255,
+  });
 }
 
+// The dial operations: go to HSL, move exactly one dial, come back.
 export function lighten(hex: string, amount: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, l: c.l + amount });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, l: hsl.l + amount });
 }
 export function darken(hex: string, amount: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, l: c.l - amount });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, l: hsl.l - amount });
 }
 export function saturate(hex: string, amount: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, s: c.s + amount });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, s: hsl.s + amount });
 }
 export function desaturate(hex: string, amount: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, s: c.s - amount });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, s: hsl.s - amount });
 }
 export function rotate(hex: string, degrees: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, h: c.h + degrees });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, h: hsl.h + degrees });
 }
 export function setHue(hex: string, hue: number): string {
-  const c = hexToHsl(hex); return hslToHex({ ...c, h: hue });
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, h: hue });
 }
-export function mix(a: string, b: string, t: number): string {
-  const ca = hexToRgb(a), cb = hexToRgb(b);
+/** `amount` 0 returns `fromHex`, 1 returns `toHex`, 0.5 the halfway point. */
+export function mix(fromHex: string, toHex: string, amount: number): string {
+  const from = hexToRgb(fromHex), to = hexToRgb(toHex);
   return rgbToHex({
-    r: ca.r + (cb.r - ca.r) * t,
-    g: ca.g + (cb.g - ca.g) * t,
-    b: ca.b + (cb.b - ca.b) * t,
+    r: from.r + (to.r - from.r) * amount,
+    g: from.g + (to.g - from.g) * amount,
+    b: from.b + (to.b - from.b) * amount,
   });
 }
 
 // WCAG relative luminance + contrast ratio.
-function channelLuminance(c: number): number {
-  const s = c / 255;
-  return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+function channelLuminance(channel: number): number {
+  // Undo the sRGB gamma curve so the channel is proportional to physical light.
+  const normalized = channel / 255;
+  return normalized <= 0.03928
+    ? normalized / 12.92
+    : Math.pow((normalized + 0.055) / 1.055, 2.4);
 }
 export function relativeLuminance(hex: string): number {
   const { r, g, b } = hexToRgb(hex);
   return 0.2126 * channelLuminance(r) + 0.7152 * channelLuminance(g) + 0.0722 * channelLuminance(b);
 }
-export function contrastRatio(a: string, b: string): number {
-  const la = relativeLuminance(a), lb = relativeLuminance(b);
-  const hi = Math.max(la, lb), lo = Math.min(la, lb);
-  return (hi + 0.05) / (lo + 0.05);
+export function contrastRatio(hexA: string, hexB: string): number {
+  const luminanceA = relativeLuminance(hexA), luminanceB = relativeLuminance(hexB);
+  const brighter = Math.max(luminanceA, luminanceB), darker = Math.min(luminanceA, luminanceB);
+  return (brighter + 0.05) / (darker + 0.05);
 }
 
-// Return near-black or near-white, whichever reads better on `bg`.
-export function readableOn(bg: string): string {
-  return contrastRatio('#ffffff', bg) >= contrastRatio('#111111', bg) ? '#ffffff' : '#111111';
+// Return near-black or near-white, whichever reads better on `background`.
+export function readableOn(background: string): string {
+  return contrastRatio('#ffffff', background) >= contrastRatio('#111111', background) ? '#ffffff' : '#111111';
 }
 
-// Nudge `fg` lighter/darker until it hits `ratio` against `bg` (or clamps).
-export function ensureContrast(fg: string, bg: string, ratio: number): string {
-  if (contrastRatio(fg, bg) >= ratio) return fg;
-  const goLighter = relativeLuminance(bg) < 0.5;
-  let c = hexToHsl(fg);
-  for (let i = 0; i < 100; i++) {
-    c = { ...c, l: clamp(c.l + (goLighter ? 0.01 : -0.01), 0, 1) };
-    const candidate = hslToHex(c);
-    if (contrastRatio(candidate, bg) >= ratio) return candidate;
-    if (c.l <= 0 || c.l >= 1) break;
+// Nudge `foreground` lighter/darker until it clears `targetRatio` against `background` (or clamps).
+export function ensureContrast(foreground: string, background: string, targetRatio: number): string {
+  if (contrastRatio(foreground, background) >= targetRatio) return foreground;
+  const goLighter = relativeLuminance(background) < 0.5;
+  let hsl = hexToHsl(foreground);
+  for (let step = 0; step < 100; step++) {
+    hsl = { ...hsl, l: clamp(hsl.l + (goLighter ? 0.01 : -0.01), 0, 1) };
+    const candidate = hslToHex(hsl);
+    if (contrastRatio(candidate, background) >= targetRatio) return candidate;
+    if (hsl.l <= 0 || hsl.l >= 1) break;
   }
   return goLighter ? '#ffffff' : '#111111';
 }
@@ -221,7 +247,7 @@ compile the project, run it, read the numbers, then delete it.
 
 > *(One-liner alternative, no scratch file — after `npx tsc -p ./`:)*
 > ```powershell
-> node -e "const c=require('./out/engine/color'); console.log(c.hslToHex(c.hexToHsl('#3ec6ff')), c.contrastRatio('#ffffff','#000000'))"
+> node -e "const color=require('./out/engine/color'); console.log(color.hslToHex(color.hexToHsl('#3ec6ff')), color.contrastRatio('#ffffff','#000000'))"
 > ```
 > prints `#3ec6ff 21`.
 
@@ -238,9 +264,9 @@ compile the project, run it, read the numbers, then delete it.
 - **Node error `Cannot use import statement outside a module`** → you tried to `node` the **`.ts`** file. Node runs
   the **compiled `.js`** in `out/`, not TypeScript source. Re-run `npx tsc -p ./` then `node ./out/engine/...js`.
 - **`contrast` prints something other than `21`** → a typo in `channelLuminance` or `contrastRatio`; the weights are
-  `0.2126 / 0.7152 / 0.0722` and the ratio is `(hi + 0.05) / (lo + 0.05)`. Compare against the block above.
+  `0.2126 / 0.7152 / 0.0722` and the ratio is `(brighter + 0.05) / (darker + 0.05)`. Compare against the block above.
 - **`round-trip` prints a *slightly* different hex** (e.g. `#3ec6fe`) → a rounding/branch typo in `hslToHex`; check
-  the `if (h < 60) … else …` ladder and `rgbToHex`'s `Math.round`.
+  the `switch (Math.floor(hue / 60))` slice table and `rgbToHex`'s `Math.round`.
 
 ---
 > Nav: — · [Overview](00_overview.md) · [Types →](02_types.md)

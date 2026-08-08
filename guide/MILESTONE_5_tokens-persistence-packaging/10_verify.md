@@ -132,51 +132,51 @@ export interface StyleProfile {
 import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult, TokenColors, SemanticColors } from './types';
 import { readableOn, mix, rotate, ensureContrast } from './color';
 
-function paletteToChrome(p: Palette): ChromeColors {
-  const onAccent = readableOn(p.accent1);
+function paletteToChrome(palette: Palette): ChromeColors {
+  const onAccent = readableOn(palette.accent1);
   return {
-    'editor.background': p.bg,
-    'editor.foreground': p.text,
-    'sideBar.background': p.surface,
-    'sideBar.foreground': p.text,
-    'sideBarSectionHeader.background': p.surfaceAlt,
-    'activityBar.background': p.surfaceAlt,
-    'activityBar.foreground': p.accent1,
-    'activityBar.activeBorder': p.accent1,
-    'statusBar.background': p.accent1,
+    'editor.background': palette.bg,
+    'editor.foreground': palette.text,
+    'sideBar.background': palette.surface,
+    'sideBar.foreground': palette.text,
+    'sideBarSectionHeader.background': palette.surfaceAlt,
+    'activityBar.background': palette.surfaceAlt,
+    'activityBar.foreground': palette.accent1,
+    'activityBar.activeBorder': palette.accent1,
+    'statusBar.background': palette.accent1,
     'statusBar.foreground': onAccent,
-    'titleBar.activeBackground': p.surfaceAlt,
-    'titleBar.activeForeground': p.text,
-    'tab.activeBackground': p.bg,
-    'tab.inactiveBackground': p.surface,
-    'tab.activeForeground': p.text,
-    'tab.inactiveForeground': p.textMuted,
-    'editorGroupHeader.tabsBackground': p.surface,
-    'panel.background': p.surface,
-    'panel.border': p.border,
-    'focusBorder': p.accent2,
+    'titleBar.activeBackground': palette.surfaceAlt,
+    'titleBar.activeForeground': palette.text,
+    'tab.activeBackground': palette.bg,
+    'tab.inactiveBackground': palette.surface,
+    'tab.activeForeground': palette.text,
+    'tab.inactiveForeground': palette.textMuted,
+    'editorGroupHeader.tabsBackground': palette.surface,
+    'panel.background': palette.surface,
+    'panel.border': palette.border,
+    'focusBorder': palette.accent2,
   };
 }
 
-function paletteToTokens(p: Palette): TokenColors {
-  const on = (c: string) => ensureContrast(c, p.bg, 3);
+function paletteToTokens(palette: Palette): TokenColors {
+  const readable = (hex: string) => ensureContrast(hex, palette.bg, 3);
   return {
-    comments: on(p.textMuted),
-    keywords: on(p.accent1),
-    strings: on(p.accent2),
-    numbers: on(rotate(p.accent2, 20)),
-    types: on(rotate(p.accent1, -20)),
-    functions: on(mix(p.accent2, p.text, 0.2)),
-    variables: on(p.text),
+    comments: readable(palette.textMuted),
+    keywords: readable(palette.accent1),
+    strings: readable(palette.accent2),
+    numbers: readable(rotate(palette.accent2, 20)),
+    types: readable(rotate(palette.accent1, -20)),
+    functions: readable(mix(palette.accent2, palette.text, 0.2)),
+    variables: readable(palette.text),
   };
 }
 
-function paletteToSemantic(t: TokenColors): SemanticColors {
+function paletteToSemantic(tokens: TokenColors): SemanticColors {
   return {
-    variable: t.variables, parameter: t.variables, property: t.variables,
-    function: t.functions, method: t.functions,
-    class: t.types, type: t.types, interface: t.types, enum: t.types,
-    keyword: t.keywords, string: t.strings, number: t.numbers, comment: t.comments,
+    variable: tokens.variables, parameter: tokens.variables, property: tokens.variables,
+    function: tokens.functions, method: tokens.functions,
+    class: tokens.types, type: tokens.types, interface: tokens.types, enum: tokens.types,
+    keyword: tokens.keywords, string: tokens.strings, number: tokens.numbers, comment: tokens.comments,
   };
 }
 

@@ -44,18 +44,18 @@ wrote it (don't re-type it); you're widening the imports, adding two functions b
    import { readableOn, mix, rotate, ensureContrast } from './color';
    ```
 3. **Add `paletteToTokens`** directly **below the unchanged `paletteToChrome` function**. It maps each of the seven
-   roles from palette accents/text/muted, each clamped for contrast against `p.bg`.
+   roles from palette accents/text/muted, each clamped for contrast against `palette.bg`.
    ```ts
-   function paletteToTokens(p: Palette): TokenColors {
-     const on = (c: string) => ensureContrast(c, p.bg, 3);
+   function paletteToTokens(palette: Palette): TokenColors {
+     const readable = (hex: string) => ensureContrast(hex, palette.bg, 3);
      return {
-       comments: on(p.textMuted),
-       keywords: on(p.accent1),
-       strings: on(p.accent2),
-       numbers: on(rotate(p.accent2, 20)),
-       types: on(rotate(p.accent1, -20)),
-       functions: on(mix(p.accent2, p.text, 0.2)),
-       variables: on(p.text),
+       comments: readable(palette.textMuted),
+       keywords: readable(palette.accent1),
+       strings: readable(palette.accent2),
+       numbers: readable(rotate(palette.accent2, 20)),
+       types: readable(rotate(palette.accent1, -20)),
+       functions: readable(mix(palette.accent2, palette.text, 0.2)),
+       variables: readable(palette.text),
      };
    }
    ```
@@ -63,12 +63,12 @@ wrote it (don't re-type it); you're widening the imports, adding two functions b
    semantic **token type** names a language server emits (several types share a color on purpose — e.g.
    `class`/`type`/`interface`/`enum` all use `types`).
    ```ts
-   function paletteToSemantic(t: TokenColors): SemanticColors {
+   function paletteToSemantic(tokens: TokenColors): SemanticColors {
      return {
-       variable: t.variables, parameter: t.variables, property: t.variables,
-       function: t.functions, method: t.functions,
-       class: t.types, type: t.types, interface: t.types, enum: t.types,
-       keyword: t.keywords, string: t.strings, number: t.numbers, comment: t.comments,
+       variable: tokens.variables, parameter: tokens.variables, property: tokens.variables,
+       function: tokens.functions, method: tokens.functions,
+       class: tokens.types, type: tokens.types, interface: tokens.types, enum: tokens.types,
+       keyword: tokens.keywords, string: tokens.strings, number: tokens.numbers, comment: tokens.comments,
      };
    }
    ```
@@ -99,7 +99,7 @@ specific *derivation math* (which accent maps where, the `rotate` degrees) is **
 - Optional Node-runnable sanity check (the engine is pure, so no F5 needed). From the project root:
   ```powershell
   npm run compile
-  node -e "const {generate}=require('./out/engine/generate.js');const {comboById}=require('./out/engine/combos.js');const {profileById}=require('./out/engine/profiles.js');const t=generate(comboById('deep-sea'),profileById('neon'));console.log(t.tokens);console.log(Object.keys(t.semantic).length,'semantic types')"
+  node -e "const {generate}=require('./out/engine/generate.js');const {comboById}=require('./out/engine/combos.js');const {profileById}=require('./out/engine/profiles.js');const theme=generate(comboById('deep-sea'),profileById('neon'));console.log(theme.tokens);console.log(Object.keys(theme.semantic).length,'semantic types')"
   ```
   Expected: an object with seven `#rrggbb` fields (`comments`, `keywords`, …), then `13 semantic types`. Every
   value is a valid 7-char hex string.
