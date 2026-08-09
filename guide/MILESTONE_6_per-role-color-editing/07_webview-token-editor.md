@@ -13,7 +13,7 @@ engine ever emits a fourth group — *new data, not new control flow*
 (→ [conventions.md](../foundation/conventions.md#data-vs-code)).
 
 **Why the semantic group is collapsed and the other two aren't.** 28 rows in one scroll is a wall. The 15 roles in
-the first two groups are the ones a reader tunes constantly; the 13 semantic types are mostly *derived from* the
+the first two groups are the ones you tune constantly; the 13 semantic types are mostly *derived from* the
 token roles above them (M5's `paletteToSemantic` fans 7 colors out to 13 types, so `class`/`type`/`interface`/`enum`
 all start out identical) and are only worth opening when you specifically want types to differ from the TextMate
 color underneath. `<details>` (step 05) makes that a one-click, zero-state affair.

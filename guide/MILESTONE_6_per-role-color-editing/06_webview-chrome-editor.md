@@ -3,7 +3,7 @@
 
 ## Glossary for this step
 - **[Role override](../foundation/glossary.md#role-override)** — one hand-picked color pinned to a named role.
-  *(Defined in step 01; this is the step where the reader can finally create one.)*
+  *(Defined in step 01; this is the step where you can finally create one.)*
 - **[Effective color](../foundation/glossary.md#effective-color)** — what a role ended up being after the formula
   ran and the overrides were layered on. *(Defined in step 04; arrives on every `applied` message.)*
 
@@ -195,6 +195,9 @@ Press <kbd>F5</kbd> and open the panel.
 - **The picker shows black for every role** → `shown` is `undefined` for those roles. `<input type="color">` falls
   back to `#000000` for anything that isn't `#rrggbb`; check the `applied` message is carrying the group you're
   reading.
+- **Clicking a swatch opens no dialog** → the OS color picker is the host's to surface from a sandboxed webview and
+  some builds don't (see [step 05](05_styles-editor.md)'s warning). Use the hex box instead — it's wired to the same
+  `setRole` and every gate in this milestone works through it. The swatches still *display* each role's color.
 
 ---
 > Nav: [← Style the role rows](05_styles-editor.md) · [Overview](00_overview.md) · [Token + semantic rows →](07_webview-token-editor.md)

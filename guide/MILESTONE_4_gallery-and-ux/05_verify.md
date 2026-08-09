@@ -1,5 +1,5 @@
-# M4 · Step 06 of 6 — Verify the milestone + the ⭐ reality check
-> Nav: [← Wire the extension](05_wire-extension.md) · [Overview](00_overview.md) · [M5 → Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)
+# M4 · Step 05 of 5 — Verify the milestone, file checkpoint, and the ⭐ reality check
+> Nav: [← Rewrite the provider](04_provider-externalize.md) · [Overview](00_overview.md) · [M5 → Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)
 
 ## Done-when gate (run every check)
 Do these in order; each pairs an action with the **exact** result you should see. Checks 1–2 are the pure-engine
@@ -55,7 +55,8 @@ you touch M5, **actually use it.**
 3. Watch the **contrast badge** as you go. If a combo/style pair drops to **AA** (amber) or **FAIL** (red), that's
    the readout doing its job — decide whether that pair is one you'd actually ship.
 4. Ask yourself the gate question honestly: **is this worth finishing?** M5 adds real weight — recoloring the code
-   text (tokens), saving named sets, import/export, per-language scoping, and packaging a `.vsix`. Those are worth
+   text (tokens), saving named sets, import/export and per-language scoping — with per-role editing (M6) and a
+   packaged `.vsix` (M7) after it. Those are worth
    it only if the chrome experience already feels good to you here. If something about the *chrome* still bugs you
    (a profile you'd re-tune, a combo you'd swap), fix it now in the engine — it's cheaper before tokens layer on top.
 
@@ -480,8 +481,8 @@ These eight hands-on checks are the same gate as the **seven** aggregated Done-w
 
 Once all eight gate checks pass **and** you've done the ⭐ reality check and decided it's worth finishing, continue
 to **[M5 — Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)**: recolor
-the code text (syntax + semantic tokens), **Save** named sets that survive a reload, **export/import** as JSON,
-**scope tokens per language**, and build the shippable **`.vsix`**.
+the code text (syntax + semantic tokens), **Save** named sets that survive a reload, **export/import** as JSON, and
+**scope tokens per language**. (The shippable `.vsix` is **M7**, two milestones further on.)
 
 ---
-> Nav: [← Wire the extension](05_wire-extension.md) · [Overview](00_overview.md) · [M5 → Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)
+> Nav: [← Rewrite the provider](04_provider-externalize.md) · [Overview](00_overview.md) · [M5 → Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)

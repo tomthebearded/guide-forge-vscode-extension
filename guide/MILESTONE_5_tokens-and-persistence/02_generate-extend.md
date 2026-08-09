@@ -1,4 +1,4 @@
-# M5 · Step 02 of 9 — Generate token + semantic colors
+# M5 · Step 02 of 9 — Widen `ThemeResult` and generate token + semantic colors
 > Nav: [← Types extend](01_types-extend.md) · [Overview](00_overview.md) · [Apply tokens →](03_apply-extend.md)
 
 ## Why / design
@@ -28,22 +28,31 @@ least a 3:1 ratio against the background — a color that's invisible on the the
 agree: a keyword and the semantic `keyword` type get the same hex.
 
 ## Do this
-This step edits **one file**: `src/engine/generate.ts` — the M4 file. `paletteToChrome` stays **exactly** as M4
-wrote it (don't re-type it); you're widening the imports, adding two functions below it, and rewriting `generate()`.
-(The complete file is in [the M5 checkpoint](09_verify.md) under `### src/engine/generate.ts`.)
+This step edits **two files**: `src/engine/types.ts` (two fields) and `src/engine/generate.ts` (the M4 file).
+They travel together on purpose — widening `ThemeResult` is what makes `generate()`'s old return illegal, so the
+fix ships in the same step and the build never sits red. `paletteToChrome` stays **exactly** as M4 wrote it (don't
+re-type it). (Both complete files are in [the M5 checkpoint](09_verify.md).)
 
-> **Before you start:** M4's `src/engine/generate.ts` must exist with `paletteToChrome` and a `generate()` that
-> returns `{ palette, chrome }`, and step 01's `TokenColors`/`SemanticColors` must already be in `types.ts`.
+> **Before you start:** step 01's `TokenColors`/`SemanticColors` must be exported from `src/engine/types.ts`, and
+> M4's `src/engine/generate.ts` must exist with `paletteToChrome` and a `generate()` returning `{ palette, chrome }`.
 
-1. Open `src/engine/generate.ts`.
-2. **Widen the imports.** Add `TokenColors, SemanticColors` to the `types` import, and `mix, rotate,
+1. Open `src/engine/types.ts` and **add `tokens` and `semantic` to the `ThemeResult` interface**, directly after its
+   `chrome: ChromeColors;` line (replacing M3's `// [M5] adds:` comment). Leave `palette` and `chrome` as they are:
+   ```ts
+     tokens: TokenColors;
+     semantic: SemanticColors;
+   ```
+   Save it. `generate.ts` now shows *"Property 'tokens' is missing"* — the rest of this step is what clears it, so
+   don't stop here.
+2. Open `src/engine/generate.ts`.
+3. **Widen the imports.** Add `TokenColors, SemanticColors` to the `types` import, and `mix, rotate,
    ensureContrast` to the `color` import (they're used by the new functions; `readableOn` stays — chrome uses it).
    **Replace the two import lines at the top** with:
    ```ts
    import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult, TokenColors, SemanticColors } from './types';
    import { readableOn, mix, rotate, ensureContrast } from './color';
    ```
-3. **Add `paletteToTokens`** directly **below the unchanged `paletteToChrome` function**. It maps each of the seven
+4. **Add `paletteToTokens`** directly **below the unchanged `paletteToChrome` function**. It maps each of the seven
    roles from palette accents/text/muted, each clamped for contrast against `palette.bg`.
    ```ts
    function paletteToTokens(palette: Palette): TokenColors {
@@ -59,7 +68,7 @@ wrote it (don't re-type it); you're widening the imports, adding two functions b
      };
    }
    ```
-4. **Add `paletteToSemantic`** directly **below `paletteToTokens`**. It fans the seven token colors out to the
+5. **Add `paletteToSemantic`** directly **below `paletteToTokens`**. It fans the seven token colors out to the
    semantic **token type** names a language server emits (several types share a color on purpose — e.g.
    `class`/`type`/`interface`/`enum` all use `types`).
    ```ts
@@ -72,7 +81,7 @@ wrote it (don't re-type it); you're widening the imports, adding two functions b
      };
    }
    ```
-5. **Replace `generate()`** so it computes `tokens` and returns `tokens` + `semantic` alongside `palette` and
+6. **Replace `generate()`** so it computes `tokens` and returns `tokens` + `semantic` alongside `palette` and
    `chrome`:
    ```ts
    export function generate(combo: StarterCombo, profile: StyleProfile, variant?: string): ThemeResult {
@@ -86,7 +95,7 @@ wrote it (don't re-type it); you're widening the imports, adding two functions b
      };
    }
    ```
-6. Save — this clears the `ThemeResult` error left over from step 01.
+7. Save. This clears the `ThemeResult` error opened in action 1, and **`npm run compile` reports 0 errors** again.
 
 **Load-bearing:** the seven `TokenColors` keys (from step 01) and the semantic **type names** on the left of
 `paletteToSemantic` (`variable`, `parameter`, `property`, `function`, `method`, `class`, `type`, `interface`,
@@ -94,8 +103,8 @@ wrote it (don't re-type it); you're widening the imports, adding two functions b
 specific *derivation math* (which accent maps where, the `rotate` degrees) is **cosmetic** — tune it freely.
 
 ## Done when (this step)
-- `src/engine/generate.ts` matches the checkpoint version and the **whole engine compiles with no errors** (`npm run
-  compile` is clean).
+- `src/engine/types.ts`'s `ThemeResult` carries `palette`, `chrome`, `tokens`, `semantic`; `src/engine/generate.ts`
+  matches the checkpoint version; and the **whole engine compiles with no errors** (`npm run compile` is clean).
 - Optional Node-runnable sanity check (the engine is pure, so no F5 needed). From the project root:
   ```powershell
   npm run compile

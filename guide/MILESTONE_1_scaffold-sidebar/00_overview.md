@@ -1,5 +1,5 @@
 # Milestone M1 — Scaffold + sidebar panel
-> Setup · milestone 1 of 7 · prev: — · next: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md)
+> Setup · milestone 1 of 7 · prev: — · next: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md) · start: [Check prerequisites](01_prerequisites.md)
 
 ## Goal
 Stand up a real VS Code extension and give it a home in the editor: an **icon in the Activity Bar** that opens a
@@ -55,7 +55,8 @@ None — this is the first milestone. You need Node 24 LTS and VS Code installed
 10. [Milestone verification + file checkpoint](10_verify.md)
 
 ## Design / decisions folded in
-- **Unbundled TypeScript** (plain `tsc` → `out/`), no webpack/esbuild — fewer concepts for a reader New to the API;
+- **Unbundled TypeScript** (plain `tsc` → `out/`), no webpack/esbuild — fewer concepts while the extension API is
+  still new to you;
   packaging in M7 is unaffected. → [conventions.md](../foundation/conventions.md)
 - **Two-layer architecture starts here:** the only files we write are the *adapter* (`extension.ts`, `panel/`).
   The `vscode`-free `engine/` doesn't exist until M3. → [conventions.md](../foundation/conventions.md#structure--architecture)
@@ -97,4 +98,4 @@ actually *do* something — apply one workbench color live — but first build t
 Done-when: status bar turns a chosen hex live; Revert restores it exactly; Reset removes the customization.
 
 ---
-> Setup · milestone 1 of 7 · prev: — · next: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md)
+> Setup · milestone 1 of 7 · prev: — · next: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md) · start: [Check prerequisites](01_prerequisites.md)

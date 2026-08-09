@@ -265,6 +265,7 @@ export class ThemeHistory {
     this.stack = [];
   }
 
+  // [unused] Nothing calls this; it's the hook for a future "Revert (n)" label.
   get depth(): number { return this.stack.length; }
 }
 ```
@@ -574,9 +575,10 @@ export function deactivate(): void {}
     }
     box.append(strip);
     const aa = contrast >= 4.5, aaa = contrast >= 7;
-    const badge = el('span', { className: 'badge ' + (aaa ? 'ok' : aa ? 'warn' : 'bad'),
-      textContent: 'text/bg contrast ' + contrast + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL') });
-    box.append(badge);
+    box.append(el('span', {
+      className: 'badge ' + (aaa ? 'ok' : aa ? 'warn' : 'bad'),
+      textContent: 'text/bg contrast ' + contrast + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL'),
+    }));
   }
 
   function renderSaved() {

@@ -10,7 +10,7 @@ to M2's `applyChrome`.
 
 The mapping is deliberately opinionated: one palette role fans out to several related keys so the whole UI moves
 together. For example `accent1` becomes both the status-bar background *and* the active activity-bar border, so the
-"brand" color shows up consistently. The one computed value is `onAccent = readableOn(p.accent1)` — the status-bar
+"brand" color shows up consistently. The one computed value is `onAccent = readableOn(palette.accent1)` — the status-bar
 *text* is forced to black-or-white for legibility on whatever accent the profile produced (this is why
 `readableOn` exists).
 
@@ -116,7 +116,7 @@ export function generate(combo: StarterCombo, profile: StyleProfile, variant?: s
 ## If it breaks
 - **`Property 'tokens' is missing`** anywhere → you're on the M5 shape too early. In M3 `ThemeResult` and `generate`
   are `{ palette, chrome }` only; keep the token lines commented.
-- **A key value is `undefined` when applied** → a typo in a palette role name (e.g. `p.surfaceAlt` misspelled). The
+- **A key value is `undefined` when applied** → a typo in a palette role name (e.g. `palette.surfaceAlt` misspelled). The
   8 role names are load-bearing and must match `types.ts` exactly.
 - **`readableOn` not found** → import it from `./color`; it's the only color helper this file needs.
 

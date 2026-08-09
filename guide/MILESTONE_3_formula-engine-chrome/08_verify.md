@@ -162,6 +162,7 @@ export function saturate(hex: string, amount: number): string {
 export function desaturate(hex: string, amount: number): string {
   const hsl = hexToHsl(hex); return hslToHex({ ...hsl, s: hsl.s - amount });
 }
+// [M5] Unused until M5 derives token colors by nudging an accent off its current hue.
 export function rotate(hex: string, degrees: number): string {
   const hsl = hexToHsl(hex); return hslToHex({ ...hsl, h: hsl.h + degrees });
 }

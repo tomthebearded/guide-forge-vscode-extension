@@ -1,5 +1,5 @@
 # Milestone M5 — Tokens and persistence
-> Core · milestone 5 of 7 · prev: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md) · next: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md)
+> Core · milestone 5 of 7 · prev: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md) · next: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md) · start: [Extend the engine types](01_types-extend.md)
 
 ## Goal
 M4 recolored the **chrome** (the editor's surrounding UI); M5 makes the extension recolor **the code itself** —
@@ -47,7 +47,7 @@ path. If M4's Done-when gate doesn't pass, fix that first — M5 edits those exa
 ## Steps at a glance (grouped into sittings)
 **Sitting 1 — Extend the engine to emit tokens (01–02)** — pure, `vscode`-free, unit-testable.
 1. [Extend the engine types — `TokenColors`, `SemanticColors`, `ThemeResult`](01_types-extend.md)
-2. [Generate token + semantic colors from the palette](02_generate-extend.md)
+2. [Widen `ThemeResult` and generate token + semantic colors](02_generate-extend.md)
 
 **Sitting 2 — Write tokens through the one path + per-language (03–04)**
 3. [Apply tokens + semantic, and scope tokens per language](03_apply-extend.md)
@@ -114,4 +114,4 @@ the tokens-only language-scoping limit.
 28 roles the engine emits, layered over the formula.
 
 ---
-> Core · milestone 5 of 7 · prev: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md) · next: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md)
+> Core · milestone 5 of 7 · prev: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md) · next: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md) · start: [Extend the engine types](01_types-extend.md)

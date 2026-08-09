@@ -72,14 +72,17 @@ No code changes. Run the round-trip in the Extension Development Host:
 5. Click **Import**, pick `my-sets.json` in the dialog. A notification reads **"Van Code: imported 1 set(s)."**
    and the set **reappears** under My sets.
 6. Click the set's name in My sets → it applies (chrome + tokens recolor). Round-trip complete.
+7. **Prove the merge is idempotent:** click **Import** again and pick the *same* `my-sets.json`. The toast still
+   reads **"Van Code: imported 1 set(s)."**, and **My sets still shows exactly one `my-neon`** — no duplicate row.
+   (`importSets` merges by `name`, so re-importing overwrites rather than appends.)
 
 ## Done when (this step)
 - **Export** opens a JSON document whose top level is an array of `SavedSet` objects (not an object, not empty if
   you saved one).
 - Saving it, deleting the set, then **Import**ing the saved file **restores the identical set** — same name, same
   colors — and the info toast reports the count imported.
-- Re-importing the same file again is idempotent: My sets doesn't gain duplicates (merge-by-name), and the toast
-  still reports the incoming count.
+- Re-importing the same file again (action 7) is idempotent: My sets doesn't gain duplicates (merge-by-name), and
+  the toast still reports the incoming count.
 
 ## If it breaks
 - **Export tab is empty (`[]`)** → you have no saved sets; save one first (step 07). Export reflects `globalState`.

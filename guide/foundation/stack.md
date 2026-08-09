@@ -20,7 +20,7 @@
 npx --package yo --package generator-code -- yo code
 
 # Inside the generated folder, the dev loop is F5 in VS Code (Extension Development Host).
-# Packaging (M5) — the command name is still `vsce` even though the package is scoped:
+# Packaging (M7) — the command name is still `vsce` even though the package is scoped:
 npm install -g @vscode/vsce   # or: npx @vscode/vsce package
 vsce package                  # emits van-code-<version>.vsix
 ```

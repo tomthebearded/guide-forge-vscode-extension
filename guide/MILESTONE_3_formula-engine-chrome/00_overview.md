@@ -1,5 +1,5 @@
 # Milestone M3 — Color-formula engine (chrome)
-> Core · milestone 3 of 7 · prev: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md) · next: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md)
+> Core · milestone 3 of 7 · prev: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md) · next: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md) · start: [Color utilities](01_color-utils.md)
 
 ## Goal
 Build the **pure color engine** — a `vscode`-free `src/engine/` — that turns a **starter combination** (5 hand-picked
@@ -118,4 +118,4 @@ the full chip gallery (5 combos × 9 generative **+ 4 signature presets**), add 
 point you stop and actually use the thing.
 
 ---
-> Core · milestone 3 of 7 · prev: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md) · next: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md)
+> Core · milestone 3 of 7 · prev: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md) · next: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md) · start: [Color utilities](01_color-utils.md)

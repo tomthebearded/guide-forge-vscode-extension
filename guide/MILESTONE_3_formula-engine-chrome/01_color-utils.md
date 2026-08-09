@@ -54,8 +54,13 @@ This step creates **one file**: `src/engine/color.ts`.
    - **`lighten` / `darken`** — move **L** up/down by an amount (e.g. `0.05` = 5 percentage points). *Why:* coordinated
      shades of one surface.
    - **`saturate` / `desaturate`** — move **S**. *Why:* Neon boosts it, Pastel/Muted cut it.
-   - **`rotate` / `setHue`** — `rotate` adds degrees to **H** (relative); `setHue` sets it absolutely. *Why:* Nature
-     re-hues a palette toward ocean/forest; Warm-Sepia pins accents to warm hues.
+   - **`rotate` / `setHue`** — `rotate` adds degrees to **H** (relative); `setHue` sets it absolutely. *Why
+     `setHue`:* Nature re-hues a palette toward ocean/forest and Warm-Sepia pins accents to warm hues — both want an
+     *absolute* hue, so **every profile in this milestone uses `setHue`, not `rotate`** (step 05 explains the
+     difference where it bites). *Why `rotate` anyway:* nothing calls it until
+     **[M5](../MILESTONE_5_tokens-and-persistence/02_generate-extend.md)**, where token colors are derived by
+     nudging an accent ±20° off wherever it already sits. It's written now so `color.ts` is complete in one pass,
+     and it carries an `[M5]` marker in the code so its silence here doesn't read as a missing call site.
    - **`mix`** — linearly blend two colors in RGB by `amount` (`0` = all `fromHex`, `1` = all `toHex`). *Why:*
      deriving `textMuted` (text mixed toward surface) and `border` (surface mixed toward text).
    - **`relativeLuminance` / `contrastRatio`** — the WCAG math from the callout above.
@@ -66,7 +71,7 @@ This step creates **one file**: `src/engine/color.ts`.
 3. Save the file. With the `watch` task running (or `npm run compile`) it should compile with **no** errors.
 
 ## Code
-`src/engine/color.ts` *(the complete file — load-bearing; this is the final version, used unchanged through M5)*
+`src/engine/color.ts` *(the complete file — load-bearing; this is the final version, unchanged for the rest of the guide)*
 ```ts
 // Pure color math. No VS Code imports. Colors cross the boundary as "#rrggbb" strings.
 
@@ -159,6 +164,7 @@ export function saturate(hex: string, amount: number): string {
 export function desaturate(hex: string, amount: number): string {
   const hsl = hexToHsl(hex); return hslToHex({ ...hsl, s: hsl.s - amount });
 }
+// [M5] Unused until M5 derives token colors by nudging an accent off its current hue.
 export function rotate(hex: string, degrees: number): string {
   const hsl = hexToHsl(hex); return hslToHex({ ...hsl, h: hsl.h + degrees });
 }

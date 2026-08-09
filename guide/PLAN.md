@@ -1,9 +1,11 @@
 # PLAN — Van Code: a VS Code extension that recolors the whole editor
 
 > **Stage-1 deliverable** (GuideForge `/plan-guide`). This is the plan the guide will be drafted from — the
-> whole guide, in one drafting pass, after approval. It is **not** the guide. Nothing here is scaffolded yet except this file.
+> whole guide, in one drafting pass, after approval. It is **not** the guide — the milestones are.
 >
-> **Status: awaiting approval.** On approval → `/scaffold-guide` stamps the skeleton, then `/draft-milestone` drafts the whole guide.
+> **Status: approved and fully drafted** (M1→M7; the ladder grew from 5 to 7 on 2026-08-09). This file is kept as the
+> standing contract the guide is audited against — the sections below describe intent, and
+> [`foundation/status.md`](foundation/status.md) states reality.
 
 ---
 
@@ -150,9 +152,10 @@ API and color math get taught; the language and npm do not.)
   adding one data entry, not new control flow.
 - **Colors are strings in, strings out.** Hex `#RRGGBB(AA)` at the boundary; HSL only inside the engine.
 - **Load-bearing names** (must match exactly, flagged at first use): the view container id, the view id, the three
-  settings IDs, the command ids, the `StyleProfile` field names. **Cosmetic** (free to rename): profile display
-  labels, the extension display name, swatch CSS classes.
-- **Naming:** `camelCase` identifiers, `kebab-case` command ids under one publisher prefix, `PascalCase` types.
+  settings IDs, the `StyleProfile` field names. **Cosmetic** (free to rename): profile display labels, the
+  extension display name, swatch CSS classes. *(No command ids: the extension contributes **no commands** — M1
+  deletes the scaffold's Hello-World command and every action flows through webview messages.)*
+- **Naming:** `camelCase` identifiers, `PascalCase` types, `SCREAMING_SNAKE` for module-level constants.
 
 ---
 
@@ -194,7 +197,8 @@ The **reality-check gate is M4** — the first point the extension is genuinely 
 ### Per-step template (Highly-granular tuning)
 ```
 # <Milestone> · Step NN of <TOTAL> — <single action title>
-> Nav: [← prev](PREV.md) · [Milestone overview](00_overview.md) · [next →](NEXT.md)   ← MUST be line 2, no blank line under the H1
+> Nav: [← prev](PREV.md) · [Overview](00_overview.md) · [next →](NEXT.md)   ← MUST be line 2, no blank line under the H1
+                                                                            ← and repeated verbatim as the last line, after a `---`
 
 ## Glossary for this step        (only terms THIS step introduces; omit if none)
 ## Why / design                  (the rationale the reader needs; omit only if pure mechanics)
@@ -286,7 +290,11 @@ so you have the finished guide before you build. Once it's drafted I reconcile `
 `examples/README.md` and run a dead-link check. You then follow the guide, building each milestone and verifying its
 Done-when gate as you go (M1's F5 gate is the first checkpoint).
 
-**Do not draft yet.** This plan is the deliverable. Next steps in order:
-1. You approve (or adjust) this plan.
-2. `/scaffold-guide` stamps the README + 5 foundation docs + milestone overview placeholders.
-3. `/draft-milestone` drafts the whole guide (M1→M7).
+**All three of those steps have happened** (approved → scaffolded → drafted M1→M7; see
+[`foundation/status.md`](foundation/status.md) for the dates and the current frontier):
+1. ~~You approve (or adjust) this plan.~~
+2. ~~`/scaffold-guide` stamps the README + 5 foundation docs + milestone overview placeholders.~~
+3. ~~`/draft-milestone` drafts the whole guide (M1→M7).~~
+
+What's left is execution: follow the guide from [M1](MILESTONE_1_scaffold-sidebar/00_overview.md) and run each
+Done-when gate by hand. No milestone is ✅ until someone has.

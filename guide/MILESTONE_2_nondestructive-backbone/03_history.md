@@ -48,7 +48,9 @@ This step creates **one file**: `src/theme/history.ts`.
      it runs is `applyChrome(...)` (wired in step 05).
    - `revert()` — pops one snapshot and restores it; returns `false` if the stack is empty (nothing to undo).
    - `reset()` — restores an all-`undefined` snapshot (deletes the key) and empties the stack.
-   - `depth` — how many snapshots are stacked; handy for debugging / a future "Revert (n)" label.
+   - `depth` — how many snapshots are stacked. **Nothing in this guide ever calls it**; it's marked `[unused]` in
+     the code and kept as the hook for a future "Revert (n)" label (and as a handy thing to inspect in the
+     debugger). Leaving it in is a deliberate exception to "build it when you consume it".
 3. Save.
 
 > 📌 **This is the M2 version of `history.ts`.** The locked source expands `Snapshot` to
@@ -101,6 +103,7 @@ export class ThemeHistory {
     this.stack = [];
   }
 
+  // [unused] Nothing calls this; it's the hook for a future "Revert (n)" label.
   get depth(): number { return this.stack.length; }
 }
 ```

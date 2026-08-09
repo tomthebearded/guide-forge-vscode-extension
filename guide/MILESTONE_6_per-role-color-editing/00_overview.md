@@ -1,12 +1,12 @@
 # Milestone M6 — Per-role color editing
-> Core · milestone 6 of 7 · prev: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md) · next: [M7](../MILESTONE_7_packaging/00_overview.md)
+> Core · milestone 6 of 7 · prev: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md) · next: [M7](../MILESTONE_7_packaging/00_overview.md) · start: [Add the `ThemeOverrides` type](01_types-overrides.md)
 
 ## Goal
 Through M5 every color in the editor was *computed*: you picked a starter combo and a style, and the formula
 decided the other 28 values. It's a good formula — but it's not *your* formula. If Deep Sea + Neon gets everything
 right except a background that's one notch too blue, your only move today is to abandon the whole preset.
 
-M6 gives the reader a **color picker for every role the engine emits** — all **28** of them: the **8 palette
+M6 gives you a **color picker for every role the engine emits** — all **28** of them: the **8 palette
 roles** (`bg`, `surface`, `surfaceAlt`, `text`, `textMuted`, `accent1`, `accent2`, `border`), the **7 syntax-token
 roles** (`comments`, `keywords`, `strings`, `numbers`, `types`, `functions`, `variables`) and the **13 semantic
 token types** (`variable`, `parameter`, `property`, `function`, `method`, `class`, `type`, `interface`, `enum`,
@@ -49,7 +49,7 @@ their M5 state before you start.
 | Name | Value | What breaks if it drifts |
 |------|-------|--------------------------|
 | Override group keys | `palette`, `tokens`, `semantic` | the webview writes a group the engine never reads → edits do nothing |
-| Role keys | the `Palette` / `TokenColors` field names and the 13 semantic type names | an unknown role is silently ignored (the merge only accepts keys that exist) |
+| Role keys | the `Palette` / `TokenColors` field names and the 13 semantic type names | a misspelled role is merged in as a **new** key: harmless for `palette`/`tokens` (nothing reads it) but for `semantic` it reaches VS Code's `rules` object |
 | Hex shape | `#rrggbb`, 7 chars, lowercase or upper | `isHex` rejects anything else, so the edit is dropped on purpose |
 | New message type | `restore` (provider → webview) | applying a saved set won't repopulate the pickers |
 | `overrides` field on `apply` | `{ palette, tokens, semantic }` | the provider generates an un-overridden theme |
@@ -79,7 +79,7 @@ their M5 state before you start.
 10. [Milestone verification + file checkpoint](10_verify.md)
 
 ## Design / decisions folded in
-- **Overrides are role-level, not key-level.** The reader edits the 8 semantic *roles* the palette is made of, and
+- **Overrides are role-level, not key-level.** You edit the 8 semantic *roles* the palette is made of, and
   `paletteToChrome` re-derives all 20 workbench keys from the edited palette. One picker moves a coordinated group
   of surfaces, which is both less work and better design than 20 unrelated pickers.
   → [decision-log.md D9](../foundation/decision-log.md#d9--overrides-are-role-level-not-vs-code-key-level)
@@ -95,7 +95,7 @@ their M5 state before you start.
   hundreds of events, and under M2's backbone *every apply takes a history snapshot*. Committing only on `change`
   (mouse released / field left) keeps the rule the guide has enforced since M4: **one apply, one snapshot, per
   deliberate action.** → [decision-log.md D10](../foundation/decision-log.md#d10--role-edits-commit-on-change-not-on-input)
-- **The engine stays total.** Hex arriving from the webview is untrusted text — the reader can type `banana` into
+- **The engine stays total.** Hex arriving from the webview is untrusted text — you can type `banana` into
   the box. `isHex` gates every value, and an invalid one is dropped rather than thrown. Same reflex as
   `comboById`'s `?? COMBOS[0]` in M3: *give the engine anything, it returns a valid theme.*
 
@@ -116,7 +116,7 @@ their M5 state before you start.
 
 ## Handoff
 ### Recap
-You added a sparse `ThemeOverrides` map to the pure engine, a 20-line `overrides.ts` that validates and merges it,
+You added a sparse `ThemeOverrides` map to the pure engine, a two-function `overrides.ts` that validates and merges it,
 three lines inside `generate()` that layer it over the formula, one field on the `apply` message, one `restore`
 message, and a webview editor that turns all 28 roles into pickers — without touching a single profile, the apply
 path, or the history stack.
@@ -137,8 +137,8 @@ path, or the history stack.
 - Untouched: `src/engine/color.ts`, `combos.ts`, `profiles.ts`, `src/theme/*`, `src/extension.ts`, `package.json`.
 
 ### Decisions / open issues
-- Overrides are keyed by role and survive a style change **by design** — a reader who forgets that will read a
-  pinned role as "the style is broken". The `N pinned` badge and step 08's failure note exist for exactly this.
+- Overrides are keyed by role and survive a style change **by design** — forget that, and a pinned role reads as
+  "the style is broken". The `N pinned` badge and step 08's failure note exist for exactly this.
 - Semantic overrides only *look* like they do anything on files with a language server (M5's trap, unchanged).
 - Overrides ride inside the saved set; a set exported by an older build simply has no `overrides` key and re-opens
   with empty pickers — that's the field being optional, not a migration bug.
@@ -148,4 +148,4 @@ path, or the history stack.
 close the status-bar exception that has been open since M3.
 
 ---
-> Core · milestone 6 of 7 · prev: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md) · next: [M7](../MILESTONE_7_packaging/00_overview.md)
+> Core · milestone 6 of 7 · prev: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md) · next: [M7](../MILESTONE_7_packaging/00_overview.md) · start: [Add the `ThemeOverrides` type](01_types-overrides.md)

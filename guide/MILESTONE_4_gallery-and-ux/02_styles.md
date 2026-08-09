@@ -1,4 +1,4 @@
-# M4 · Step 02 of 6 — Create `media/webview/styles.css`
+# M4 · Step 02 of 5 — Create `media/webview/styles.css`
 > Nav: [← Signature presets](01_signature-profiles.md) · [Overview](00_overview.md) · [The gallery script →](03_main-js.md)
 
 ## Why / design

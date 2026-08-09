@@ -4,7 +4,7 @@
 ## Why / design
 The pickers work; what's missing is a way to see and undo them *as a set*. This step adds a footer to the
 Fine-tune section — a **`N pinned`** badge and a **Clear all overrides** button — and, more importantly, settles a
-question the reader is about to hit: **there are now three different "undo" affordances in this panel, and they
+question you're about to hit: **there are now three different "undo" affordances in this panel, and they
 undo three different things.**
 
 | Control | What it actually does | Does it touch your pins? |
@@ -30,12 +30,13 @@ panel, so the next chip you click re-applies them. To genuinely start from a bla
 > glance, which is precisely why the badge exists: **`3 pinned`** in the footer, bold labels and solid ↺ buttons on
 > the rows in question. When a style "won't take", read the badge first.
 
-> 🧠 **New concept — why un-pinning uses `delete` and not `= undefined`.** Both would apply the same colors,
-> because [step 02](02_overrides-module.md)'s `isHex` filter drops `undefined` either way. But `countPinned()`
-> below counts `Object.keys(...)`, and **`Object.keys` still lists a key whose value is `undefined`** — the key
-> exists, it just holds nothing. Assigning `undefined` would leave the badge reading `3 pinned` after you un-pinned
-> all three, with three bold labels and no way to make them go away. `delete` removes the key itself, so "cleared"
-> and "never touched" stay the *same* state, exactly as step 01 promised. Docs:
+> 🧠 **New concept — why un-pinning uses `delete` and not `= undefined`.** The *colors* would come out identical
+> either way, because [step 02](02_overrides-module.md)'s `isHex` filter drops `undefined`. The **badge** would
+> not: `countPinned()` below counts `Object.keys(...)`, and **`Object.keys` still lists a key whose value is
+> `undefined`** — the key exists, it just holds nothing. Assigning `undefined` would leave the badge reading
+> `3 pinned` after you un-pinned all three, with no way to make it go away. `delete` removes the key itself, so
+> "cleared" and "never touched" stay the *same* state, exactly as step 01 promised — in the merge, in the badge,
+> and in the JSON a saved set exports. Docs:
 > [MDN — `delete`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/delete).
 
 ## Do this
@@ -66,17 +67,17 @@ apply();`), so per-row un-pinning needs no new code here. (The complete file is 
    ```
    `disabled: !pinned` is assigned by `el`'s `Object.assign`, so the button is genuinely disabled (not just styled)
    when there's nothing to clear — a dead click is a small lie about what the UI can do.
-3. **Add `countPinned()`** directly below `renderRoles()`. It counts keys across the three groups, and lives in the
-   webview because it counts *what the panel is holding*, not what the engine accepted:
+3. **Add `countPinned()`** directly below `renderRoles()`. It counts keys across the three groups, and it lives
+   here — not in the engine — because it answers a question about *what the panel is holding*, which is the only
+   thing the badge is allowed to claim:
    ```js
    function countPinned() {
      return Object.keys(state.overrides)
        .reduce((total, group) => total + Object.keys(state.overrides[group]).length, 0);
    }
    ```
-   > 📌 The engine has its own `countOverrides` (step 02) with the stricter definition — *valid hexes* the merge
-   > would actually honour. They agree in every normal case; they'd disagree only if the panel held junk it never
-   > sent, which `setRole` prevents. Two counters, two owners, no shared state to drift.
+   > 📌 It counts **keys**, not valid colors — which is exactly why the next point matters, and why `setRole` is the
+   > only thing that ever writes into `state.overrides`.
 4. **Re-clearing state, not mutating it.** Note that **Clear all** assigns three brand-new empty objects rather
    than deleting keys in a loop. Same result, one line, and no chance of leaving a group object behind that some
    later code has a stale reference to.
@@ -89,7 +90,8 @@ and the button label are cosmetic.
 ## Done when (this step)
 Press <kbd>F5</kbd>.
 - With nothing pinned the footer reads **`0 pinned`** (muted) and **Clear all overrides** is greyed out and
-  unclickable.
+  unclickable. (For the split second before the panel's first apply lands, the footer is *all* you see — the role
+  groups need an `applied` message to exist. That's expected, not a missing section.)
 - Pin three roles from three different groups — say `bg`, `strings`, and the semantic `parameter`. The badge reads
   **`3 pinned`** in amber, the button is enabled, and three labels are bold with solid ↺.
 - Click ↺ on `strings` → badge drops to **`2 pinned`**, that row's color returns to the formula's value, the label
@@ -113,7 +115,7 @@ Press <kbd>F5</kbd>.
 - **`Cannot read properties of undefined` right after Clear all** → the replacement object is missing a group key.
   All three — `palette`, `tokens`, `semantic` — must be present and empty.
 - **The button is styled grey but still clickable** → you set a class instead of the `disabled` property.
-- **A reader reports "the style chips stopped working"** → check the badge before the code. This is the pinned-role
+- **"The style chips stopped working" — one color won't budge** → check the badge before the code. This is the pinned-role
   behaviour in the warning above, not a regression.
 
 ---

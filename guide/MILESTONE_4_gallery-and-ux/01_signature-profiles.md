@@ -1,4 +1,4 @@
-# M4 · Step 01 of 6 — Add the 4 signature presets to the engine
+# M4 · Step 01 of 5 — Add the 4 signature presets to the engine
 > Nav: — · [Overview](00_overview.md) · [Externalize the CSS →](02_styles.md)
 
 ## Glossary for this step
@@ -29,7 +29,7 @@ names** are load-bearing (the UI and `profileById` look them up by string).
 This step edits **one file**: `src/engine/profiles.ts` — the M3 file with the 9 generative profiles. You're
 **appending** two things and changing one line; the import, `base()`, the whole `GENERATIVE` array, and
 `profileById` stay exactly as M3 wrote them. (The complete file, all 13 profiles, is in
-[the M4 checkpoint](06_verify.md) under `### src/engine/profiles.ts` — don't re-type the unchanged parts.)
+[the M4 checkpoint](05_verify.md) under `### src/engine/profiles.ts` — don't re-type the unchanged parts.)
 
 > **Before you start:** M3's `src/engine/profiles.ts` must already exist with the `GENERATIVE` array (9 profiles)
 > and the `base()` helper. This step adds to that file.

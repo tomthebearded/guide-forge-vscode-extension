@@ -5,17 +5,23 @@
 Checks 1–2 are pure engine and run in plain Node. Checks 3–9 run in the Extension Development Host
 (<kbd>F5</kbd>) — open a **`.ts` file** in it first, because check 6 needs a language server.
 
+> 💡 **The status bar is still the one surface that won't move under <kbd>F5</kbd>** — including when you pin
+> `accent1`, the role it's derived from. The EDH is a debugged window, so `statusBar.debugging*` overrides
+> `statusBar.background` ([D7](../foundation/decision-log.md#d7--m2s-demo-sets-the-status-bar-debugging-colors-the-m3-engine-map-does-not)).
+> Your pin *is* landing — check the `settings.json` diff — and [M7's gate](../MILESTONE_7_packaging/02_verify.md)
+> closes it for good by installing the `.vsix` in an ordinary window. Judge every check below on the other surfaces.
+
 ### 1. The merge is total (no F5)
 ```powershell
 npm run compile
-node -e "const {isHex,overrideRoles,countOverrides}=require('./out/engine/overrides.js');console.log('guard:',isHex('#0a0f1e'),isHex('#0A0F1E'),isHex('banana'),isHex('#0a0f1'),isHex(undefined));console.log('merge:',overrideRoles({bg:'#111111',text:'#eeeeee'},{bg:'#0a0f1e',text:'banana'}));console.log('undefined-safe:',overrideRoles({bg:'#111111'},{bg:undefined}));console.log('count:',countOverrides({palette:{bg:'#0a0f1e'},tokens:{keywords:'#ff0088'},semantic:{}}))"
+node -e "const {isHex,overrideRoles}=require('./out/engine/overrides.js');console.log('guard:',isHex('#0a0f1e'),isHex('#0A0F1E'),isHex('banana'),isHex('#0a0f1'),isHex(undefined));console.log('merge:',overrideRoles({bg:'#111111',text:'#eeeeee'},{bg:'#0a0f1e',text:'banana'}));console.log('undefined-safe:',overrideRoles({bg:'#111111'},{bg:undefined}));console.log('no-patch:',overrideRoles({bg:'#111111'}))"
 ```
 **Expected, exactly:**
 ```
 guard: true true false false false
 merge: { bg: '#0a0f1e', text: '#eeeeee' }
 undefined-safe: { bg: '#111111' }
-count: 2
+no-patch: { bg: '#111111' }
 ```
 
 ### 2. A pinned role propagates through the whole derivation (no F5)
@@ -143,7 +149,7 @@ export interface ThemeResult {
   semantic: SemanticColors;
 }
 
-// The reader's hand-picked colors, layered over whatever the profile computed.
+// Your hand-picked colors, layered over whatever the profile computed.
 // Sparse on purpose: a role that isn't here is a role the formula still owns.
 export interface ThemeOverrides {
   palette?: Partial<Palette>;      // any subset of the 8 chrome roles
@@ -163,9 +169,9 @@ export interface StyleProfile {
 
 ### `src/engine/overrides.ts`
 ```ts
-import { Hex, ThemeOverrides } from './types';
+import { Hex } from './types';
 
-// A color arriving from the webview is untrusted text — the reader can type anything
+// A color arriving from the webview is untrusted text — you can type anything
 // into the hex box. Exactly 7 chars, '#' + 6 hex digits, is a color. Nothing else is.
 const HEX_6 = /^#[0-9a-f]{6}$/i;
 
@@ -184,17 +190,6 @@ export function overrideRoles<T extends object>(base: T, chosen?: Partial<T>): T
   }
   // Shape-preserving by construction: every key came from `chosen`, which is a Partial<T>.
   return { ...base, ...accepted } as T;
-}
-
-// How many roles the reader has actually pinned, across all three groups.
-export function countOverrides(overrides?: ThemeOverrides): number {
-  if (!overrides) return 0;
-  const roles: unknown[] = [
-    ...Object.values(overrides.palette ?? {}),
-    ...Object.values(overrides.tokens ?? {}),
-    ...Object.values(overrides.semantic ?? {}),
-  ];
-  return roles.filter(isHex).length;
 }
 ```
 
@@ -643,9 +638,10 @@ details > summary {
     }
     box.append(strip);
     const aa = contrast >= 4.5, aaa = contrast >= 7;
-    const badge = el('span', { className: 'badge ' + (aaa ? 'ok' : aa ? 'warn' : 'bad'),
-      textContent: 'text/bg contrast ' + contrast + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL') });
-    box.append(badge);
+    box.append(el('span', {
+      className: 'badge ' + (aaa ? 'ok' : aa ? 'warn' : 'bad'),
+      textContent: 'text/bg contrast ' + contrast + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL'),
+    }));
   }
 
   function renderSaved() {
@@ -751,6 +747,7 @@ details > summary {
 | Fine-tune section is empty | no apply has happened, or `applied` isn't carrying `tokens`/`semantic` | pick any style chip; then check step 04 point 4 |
 | Rows render as a ragged column | wrapper missing `className: 'roles'`, or the CSS block wasn't appended | step 05 — and the grid must get 4 cells per row, not a wrapper |
 | A style chip "doesn't work" for one color | that role is pinned — working as designed | read the `N pinned` badge; ↺ the row or Clear all |
+| Clicking a swatch opens no picker at all | your VS Code build doesn't surface the OS color dialog inside the sandboxed webview | not fatal — the **hex box beside it is the full-strength control** and every check here passes through it. See step 05's note |
 | Semantic pin does nothing | no language server on the open file | test on `.ts`; M5's documented semantic trap |
 | Restored set shows empty pickers | webview isn't handling `restore`, or the set predates step 09 | step 09 point 8; re-save the set |
 | Clicking a saved set needs two Reverts | `apply()` called after `render()` in the `restore` branch | the provider already applied — don't apply again (step 09) |

@@ -83,10 +83,11 @@
   and referring back to it costs nothing and explains something real about VS Code.
 - **Rules out / trade-off:** a status bar that is themed under F5 from M3 onward. The reader watching the EDH sees
   every surface but that one recolor — acceptable only because the guide now says so explicitly at every gate that
-  used to claim otherwise, and closes the loop in M5/10.
+  used to claim otherwise, and closes the loop in [M7/02](../MILESTONE_7_packaging/02_verify.md) — where the
+  packaged `.vsix`, installed in an ordinary (undebugged) window, finally paints the bar with everything else.
 - **Revisit if:** the engine gains a "chrome extras" pass, or a reader still misreads the M3 status bar as a bug —
-  then add the two keys to `paletteToChrome` (→ 22) and update every key-count assertion in M3/00, M3/06, M3/08 and
-  the M5/10 file copy in the same pass.
+  then add the two keys to `paletteToChrome` (→ 22) and update every key-count assertion in M3/00, M3/06, M3/08,
+  M6/10 **and** the `generate.ts` file copies in M3/08, M5/09 and M6/10, in the same pass.
 
 ## D8 — Engine code spells its locals out; the terse math names are gone
 - **Date:** 2026-08-08

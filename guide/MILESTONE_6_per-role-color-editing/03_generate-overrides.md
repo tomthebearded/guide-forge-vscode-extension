@@ -20,8 +20,8 @@ profile.buildPalette(combo, variant)          8 computed palette roles
                         ↓  overrideRoles(…, overrides.semantic)   ← ③ your pinned types win HERE
 ```
 
-Three consequences fall out of that ordering, and every one of them is a thing the reader will observe in the
-panel within two steps:
+Three consequences fall out of that ordering, and every one of them is something you'll observe in the panel
+within two steps:
 
 - **① is why one picker moves a whole group.** Pin `bg` and *all 20* workbench keys are computed again from your
   hex — `editor.background`, `tab.activeBackground`, and the rest — instead of only the one key literally named

@@ -17,7 +17,7 @@ between them, and it carries traffic in **both** directions:
   `palette` it already sent. This is the half that's easy to miss, so here is why it's mandatory:
 
 > 🧠 **New concept — the picker needs the *effective* color, and only the extension knows it.** A role's swatch
-> has to show the color that role currently *is*. For a pinned role that's the reader's own hex, which the webview
+> has to show the color that role currently *is*. For a pinned role that's your own hex, which the webview
 > obviously knows. For the other 25 it's a value the formula computed — `#3ec6ff` rotated by −20° and clamped to
 > 3:1 against the background — and the webview has no engine, no combos and no profiles. It literally cannot
 > compute it. So the extension sends all three finished maps back after every apply, and the webview's rule for
@@ -52,7 +52,7 @@ are untouched here — `save` and `applySet` get their own edits in step 09. (Th
    ```ts
    import { ThemeOverrides } from '../engine/types';
    ```
-3. **Widen the `last` field** so a re-generate (step 09's **Save**) reproduces the theme the reader is actually
+3. **Widen the `last` field** so a re-generate (step 09's **Save**) reproduces the theme you're actually
    looking at, overrides included. Replace the `private last?: …` line with:
    ```ts
    private last?: { comboId: string; profileId: string; variant?: string; overrides?: ThemeOverrides };
@@ -92,7 +92,8 @@ webview message with an unknown field is simply ignored, no error anywhere). The
   This step is a widening, not a feature: the extra `tokens`/`semantic` fields are arriving in the webview and
   being ignored, because nothing reads them until step 06.
 - Optional proof the new fields really are on the wire, without any UI: in the Extension Development Host open
-  **Help → Toggle Developer Tools → Console**, then in the panel pick any style. The webview's
+  Command Palette → **Developer: Open Webview Developer Tools** (the *webview's* console — **not** Help → Toggle
+  Developer Tools, which opens the extension host's and won't see these messages), then in the panel pick any style. The webview's
   `window.addEventListener('message', …)` from M5 already receives the object; type
   `window.addEventListener('message', e => console.log(e.data))` into that console *before* picking, and the logged
   `applied` message shows `palette`, `tokens`, `semantic` and `contrast`.

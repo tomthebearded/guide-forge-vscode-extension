@@ -47,15 +47,16 @@ demo; we swap in the M2 version).
 
 1. Open `src/panel/ThemePanelProvider.ts`.
 2. Select all and replace it with the code below. What changed from M1:
-   - **Imports** `ThemeHistory` (from `../theme/history`) and `applyChrome` (from `../theme/apply`).
-   - **Adds** `constructor(private readonly history: ThemeHistory) {}` — this consumes the argument step 04 passed,
-     clearing that compile error. *(TS reminder — `private readonly` on a constructor param declares and assigns the
-     field in one line.)*
+   - **Imports** `applyChrome` (from `../theme/apply`). The `ThemeHistory` import and the
+     `constructor(private readonly history: ThemeHistory) {}` line are already there from
+     [step 04](04_wire-extension.md) — keep them exactly as they are; this is the step that finally *uses*
+     `this.history`.
    - **Adds** `onMessage`, a `switch` over `m.type` doing the three history calls above, and wires it with
      `onDidReceiveMessage((m) => this.onMessage(m))`.
    - **Rewrites** the HTML body: three `<button>`s and an inline nonce'd script that posts one message type per
      button. The CSP + `getNonce()` pattern is unchanged from M1 (script allowed only via the matching nonce).
-3. Save. If the `watch` task is running it recompiles; otherwise run `npm run compile`. The step-04 error is now gone.
+3. Save. If the `watch` task is running it recompiles; otherwise run `npm run compile` — it should still report 0
+   errors, as it did at the end of step 04.
 4. Press <kbd>F5</kbd> (or stop the EDH with <kbd>Shift</kbd>+<kbd>F5</kbd> and F5 again) and open the Van Code panel.
 
 ## Code
@@ -139,7 +140,7 @@ function getNonce(): string {
 ```
 
 ## Done when (this step)
-- The project compiles with **no** errors (the step-04 "Expected 0 arguments" error is resolved by the new constructor).
+- The project compiles with **no** errors (as it already did after step 04 — this step adds behaviour, not a fix).
 - In the EDH, opening the Van Code panel shows a heading **"Van Code"** and three buttons:
   **Apply demo (red status bar)**, **Revert**, **Reset**.
 - Clicking **Apply demo** turns the EDH's status bar crimson (`#e11d48`) with white text, **live** — *while the debug
@@ -147,8 +148,8 @@ function getNonce(): string {
   the `settings.json` diffs, is the milestone gate in [step 06](06_verify.md).)
 
 ## If it breaks
-- **Still "Expected 0 arguments, but got 1"** → the constructor line is missing or misplaced; it must be
-  `constructor(private readonly history: ThemeHistory) {}` inside the class.
+- **"Expected 0 arguments, but got 1"** → the rewrite dropped step 04's constructor. It must still read
+  `constructor(private readonly history: ThemeHistory) {}` inside the class — the code block below includes it.
 - **Buttons render but nothing happens on click** → most likely a message-type mismatch (the posted `type` string
   must equal a `case` in `onMessage`), or a CSP/nonce problem (open **Developer: Open Webview Developer Tools** and
   look for a CSP violation — the `script-src 'nonce-…'` and the `<script nonce="…">` must share the same `${nonce}`).

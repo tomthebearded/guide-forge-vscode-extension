@@ -1,5 +1,5 @@
 # Milestone M7 — Packaging
-> Core · milestone 7 of 7 · prev: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md) · next: —
+> Core · milestone 7 of 7 · prev: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md) · next: — · start: [Add `publisher` and package the `.vsix`](01_package.md)
 
 ## Goal
 Turn the project you've been running with <kbd>F5</kbd> into a **`.vsix`** — one installable file containing the
@@ -91,4 +91,4 @@ Once the gate in **[step 02](02_verify.md)** passes, the build is complete — h
 **[guide front door](../README.md)** for the closing recap.
 
 ---
-> Core · milestone 7 of 7 · prev: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md) · next: —
+> Core · milestone 7 of 7 · prev: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md) · next: — · start: [Add `publisher` and package the `.vsix`](01_package.md)

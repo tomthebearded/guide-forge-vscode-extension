@@ -56,7 +56,8 @@ This step edits **one file** (`package.json`) then runs two commands.
 
 ## Done when (this step)
 - `vsce package` completes and prints a line ending in **`van-code-0.0.1.vsix`**.
-- The file **`van-code-0.0.1.vsix`** exists in the project root (`Get-ChildItem *.vsix` lists it).
+- The file **`van-code-0.0.1.vsix`** exists in the project root — `Get-ChildItem *.vsix` on Windows/PowerShell,
+  `ls *.vsix` on macOS/Linux.
 - Don't install it yet — step 02 installs it deliberately, in an ordinary (undebugged) window, because *where* you
   install it is what proves the last open item in the guide.
 

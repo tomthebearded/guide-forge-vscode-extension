@@ -14,14 +14,22 @@
 - **Casing:** `camelCase` for identifiers/functions, `PascalCase` for types/interfaces, and `SCREAMING_SNAKE`
   only for module-level constants. (Webview message `type` strings — e.g. `apply`, `revert`, `reset` — are the
   closest thing to an action id here; they're plain `camelCase` strings that must match on both sides.)
-- **Locals and parameters say what they hold.** No single- or two-letter names in any code block a reader types:
-  write `palette`, `combo`, `profile`, `chroma`, `luminanceA` — not `p`, `c`, `d`, `la`. Three exceptions, all
-  because the *abbreviation is the domain term*: (1) the `Rgb`/`Hsl` interface fields `r,g,b`/`h,s,l`, (2) the
-  `Palette` role names (`bg`, `text`, `accent1`…), (3) an unused parameter an interface forces on you, which keeps
-  its real name behind an underscore (`_combo`, `_token`). *Why:* the reader is meeting this code for the first
-  time and has no IDE hover to lean on — a name is the cheapest explanation a step can give. When a formula needs
-  an intermediate the math has no word for, name it after what it *means* (`maxChromaAtThisLightness`,
-  `lightnessOffset`) rather than after the paper it came from.
+- **In the pure engine (`src/engine/*`), locals and parameters say what they hold.** No single- or two-letter names
+  in any engine code block you type: write `palette`, `combo`, `profile`, `chroma`, `luminanceA` — not `p`, `c`,
+  `d`, `la`. Three exceptions, all because the *abbreviation is the domain term*: (1) the `Rgb`/`Hsl` interface
+  fields `r,g,b`/`h,s,l`, (2) the `Palette` role names (`bg`, `text`, `accent1`…), (3) an unused parameter an
+  interface forces on you, which keeps its real name behind an underscore (`_combo`, `_token`). *Why:* you're
+  meeting this code for the first time with no IDE hover to lean on — a name is the cheapest explanation a step can
+  give — and the engine is the guide's most math-dense layer, exactly where terseness costs the most. When a
+  formula needs an intermediate the math has no word for, name it after what it *means*
+  (`maxChromaAtThisLightness`, `lightnessOffset`) rather than after the paper it came from.
+  → [decision-log.md D8](decision-log.md#d8--engine-code-spells-its-locals-out-the-terse-math-names-are-gone)
+- **The adapter and the webview keep their short idiomatic locals** — `m` for an incoming message, `wb`/`ed` for
+  the two `getConfiguration` handles, `s` for a `SavedSet` in a `filter`, and `el`/`n`/`k`/`c`/`p`/`b` in
+  `media/webview/main.js`. That is a **deliberate carve-out, not an oversight** ([D8](decision-log.md#d8--engine-code-spells-its-locals-out-the-terse-math-names-are-gone)):
+  these are one-line callbacks whose type is obvious from the line they sit on, and the code is DOM/API plumbing
+  rather than math a reader has to hold in their head. A **new** name introduced in adapter code should still say
+  what it does (`saveBtn`, `nameInput`, `scriptUri`), and any code added to `src/engine/` follows the rule above.
 
 ## Structure / architecture
 - **Two layers, one boundary.**

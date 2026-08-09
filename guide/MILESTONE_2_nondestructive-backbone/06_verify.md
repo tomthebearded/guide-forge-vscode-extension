@@ -112,6 +112,7 @@ export class ThemeHistory {
     this.stack = [];
   }
 
+  // [unused] Nothing calls this; it's the hook for a future "Revert (n)" label.
   get depth(): number { return this.stack.length; }
 }
 ```
@@ -216,7 +217,7 @@ function getNonce(): string {
 ## Troubleshooting sheet (M2 traps)
 | Symptom | Usual cause | Fix |
 |---------|-------------|-----|
-| `new ThemePanelProvider(history)` won't compile | Provider still has the M1 no-arg constructor | Add `constructor(private readonly history: ThemeHistory) {}` (step 05) |
+| `new ThemePanelProvider(history)` won't compile | Provider still has the M1 no-arg constructor | Add `constructor(private readonly history: ThemeHistory) {}` (step 04, part B) |
 | Apply does nothing, no error | Message-type mismatch — posted `type` ≠ a `case` in `onMessage` | Both sides must be `applyDemo` / `revert` / `reset` exactly |
 | Status bar stays orange; crimson appears only after <kbd>Shift</kbd>+<kbd>F5</kbd> | The EDH is being debugged, so `statusBar.debugging*` overrides the ordinary pair | Apply **all four** keys — add `statusBar.debuggingBackground` / `statusBar.debuggingForeground` (step 05) |
 | Status bar doesn't recolor *and* `settings.json` is unchanged | Wrong color keys, or EDH running a stale build | Use the exact four keys from step 05; <kbd>Shift</kbd>+<kbd>F5</kbd> then <kbd>F5</kbd> |

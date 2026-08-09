@@ -1,5 +1,5 @@
 # Milestone M2 — Non-destructive backbone
-> Core · milestone 2 of 7 · prev: [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) · next: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md)
+> Core · milestone 2 of 7 · prev: [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) · next: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · start: [Create the settings descriptors](01_settings.md)
 
 ## Goal
 Make the panel's button *do* something real — apply **one** workbench color live — but only on top of the safety
@@ -35,7 +35,7 @@ webview→extension message channel works (M1's step-10 gate). If F5 doesn't ope
 | Demo hexes | `#e11d48` (background) · `#ffffff` (foreground) | the verify gate checks these exact values in `settings.json` |
 | Message types | `applyDemo` · `revert` · `reset` | the webview posts these; `onMessage`'s `switch` reads them — a typo = a dead button |
 | Files (the write path) | `src/theme/settings.ts` · `src/theme/apply.ts` · `src/theme/history.ts` | import paths in `extension.ts` and the provider |
-| Provider constructor | `new ThemePanelProvider(history)` | the provider now takes the shared `ThemeHistory`; the M1 no-arg form no longer compiles |
+| Provider constructor | `new ThemePanelProvider(history)` | the provider now takes the shared `ThemeHistory`; call site and signature both change in step 04 |
 
 *(Cosmetic — rename freely: the button labels, the `<h3>` text, the `Snapshot` interface name.)*
 
@@ -46,7 +46,7 @@ webview→extension message channel works (M1's step-10 gate). If F5 doesn't ope
 3. [Build the snapshot history (Revert / Reset)](03_history.md)
 
 **Sitting 2 — Wire it to the panel (04–05)**
-4. [Instantiate the history at activation](04_wire-extension.md)
+4. [Instantiate the history and inject it into the provider](04_wire-extension.md)
 5. [Panel buttons — Apply demo / Revert / Reset](05_panel-buttons.md)
 
 **Verify**
@@ -68,7 +68,7 @@ webview→extension message channel works (M1's step-10 gate). If F5 doesn't ope
 ## Done-when gate (aggregated — the real test)
 Each check pairs an action with the **exact** observable result. Full walkthrough + settings.json diffs in [step 06](06_verify.md).
 - [ ] The three files exist and compile: `src/theme/settings.ts`, `src/theme/apply.ts`, `src/theme/history.ts`. → steps 01–03
-- [ ] `src/extension.ts` creates one `ThemeHistory` and passes it into `new ThemePanelProvider(history)`; the project compiles with no errors. → steps 04–05
+- [ ] `src/extension.ts` creates one `ThemeHistory` and passes it into `new ThemePanelProvider(history)`, whose constructor receives it; the project compiles with **0 errors at the end of step 04**. → step 04
 - [ ] <kbd>F5</kbd> → the Van Code panel shows three buttons: **Apply demo (red status bar)**, **Revert**, **Reset**. → step 05
 - [ ] Click **Apply demo** → the EDH's status bar turns `#e11d48` (crimson) with `#ffffff` text **live**, *without stopping the debug session*, and its User `settings.json` gains `"workbench.colorCustomizations"` with **four** keys: `statusBar.background` + `statusBar.foreground` + `statusBar.debuggingBackground` + `statusBar.debuggingForeground`, all `#e11d48` / `#ffffff`. → step 06
 - [ ] Click **Revert** → the status bar returns to exactly its prior state; the key returns to its prior value (or is removed if you had none before). → step 06
@@ -106,4 +106,4 @@ applied live through this exact backbone. Done-when: pick a starter combo + a ge
 recolors coherently and live; Revert restores.
 
 ---
-> Core · milestone 2 of 7 · prev: [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) · next: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md)
+> Core · milestone 2 of 7 · prev: [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) · next: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · start: [Create the settings descriptors](01_settings.md)

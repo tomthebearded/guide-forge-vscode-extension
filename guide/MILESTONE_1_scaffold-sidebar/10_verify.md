@@ -28,6 +28,12 @@ These are the files **we created or modified**. Generator-created files we didn'
 `.vscode/launch.json` + `tasks.json`, ESLint config, `src/test/`, `.vscodeignore`, `.gitignore`,
 `CHANGELOG.md`) are left exactly as scaffolded.
 
+> **Why `package.json` is reproduced whole here, when step 05 only replaced its `contributes` block.** It's the one
+> generator-written file this milestone edits, and it's the file every later milestone's traps point back at (the
+> view id, `engines.vscode`, the `name` the `.vsix` is derived from). Seeing it once, complete, is worth more than
+> the risk of over-pasting — and the block below is *exactly* what the generator wrote plus step 05's `contributes`.
+> Everywhere else in this guide, an existing file you only add to is shown as its added region, never re-pasted.
+
 ### `package.json`
 > Your `devDependencies` version numbers are whatever the generator resolved on your scaffold day; they mirror the
 > pinned lines in [stack.md](../foundation/stack.md) (`typescript ^5.9`, `@types/vscode ^1.128`). **Don't hand-edit

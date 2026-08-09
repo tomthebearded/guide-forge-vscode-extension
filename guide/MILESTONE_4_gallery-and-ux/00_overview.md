@@ -1,5 +1,5 @@
 # Milestone M4 — Preset gallery + panel UX  ⭐ reality-check gate
-> Core · milestone 4 of 7 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md)
+> Core · milestone 4 of 7 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md) · start: [Add the 4 signature presets](01_signature-profiles.md)
 
 ## Goal
 Turn the two bare dropdowns from M3 into the **full preset gallery** and make the panel something you'd actually
@@ -15,7 +15,7 @@ and a row of **13 style chips**. Click **Deep Sea** then **Neon** → the whole 
 the green DMG palette applies and a **variant row** (dmg / pocket / light) appears. **Revert** steps back through
 your picks; **Reset** removes all customizations.
 
-This is the **⭐ reality-check gate** — the first point the extension is genuinely usable. Step 06 tells you to
+This is the **⭐ reality-check gate** — the first point the extension is genuinely usable. Step 05 tells you to
 **stop building and actually use it** for a while, then decide it's worth finishing before M5.
 
 ## Scope discipline (what this milestone deliberately does NOT do)
@@ -54,14 +54,13 @@ values inside each signature palette.)*
 **Sitting 1 — Finish the gallery's data (01)**
 1. [Add the 4 signature presets to the engine](01_signature-profiles.md)
 
-**Sitting 2 — Externalize the webview (02–05)**
+**Sitting 2 — Externalize the webview (02–04)**
 2. [Create `media/webview/styles.css`](02_styles.md)
 3. [Create `media/webview/main.js` — the gallery + preview + contrast](03_main-js.md)
-4. [Rewrite the provider to serve external files + post `init`/`applied`](04_provider-externalize.md)
-5. [Wire `extensionUri` into the provider from `extension.ts`](05_wire-extension.md)
+4. [Rewrite the provider to serve external files, and wire `extensionUri` in](04_provider-externalize.md)
 
 **Verify + reality check**
-6. [Milestone verification, file checkpoint, and the ⭐ reality check](06_verify.md)
+5. [Milestone verification, file checkpoint, and the ⭐ reality check](05_verify.md)
 
 ## Design / decisions folded in
 - **Signature presets are fixed-identity, not seed-derived.** The 4 signature styles ignore the starter combo and
@@ -86,7 +85,7 @@ values inside each signature palette.)*
 - [ ] Picking **Game Boy** applies the green DMG palette and shows a **variant row** (dmg / pocket / light);
       switching to **light** re-applies live. → steps 01, 03
 - [ ] **Revert** steps back one pick at a time; **Reset** removes all customizations. → step 04
-- [ ] **⭐ Reality check:** you used it as your editor for a while and decided it's worth finishing. → step 06
+- [ ] **⭐ Reality check:** you used it as your editor for a while and decided it's worth finishing. → step 05
 
 ## Handoff
 ### Recap
@@ -117,10 +116,10 @@ all still non-destructive.
 
 ### Next milestone
 **[M5 — Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md):** recolor the
-code text too (syntax + semantic tokens), **Save** named sets that survive reload, **export/import** as JSON,
-**scope tokens per language**, and build the shippable **`.vsix`**. Done-when: tokens recolor, a saved set
-survives a reload, export→import round-trips, a language-scoped set touches one language only, and `vsce package`
-emits `van-code-0.0.1.vsix`.
+code text too (syntax + semantic tokens), **Save** named sets that survive reload, **export/import** as JSON, and
+**scope tokens per language**. Done-when: tokens recolor, a saved set survives a reload, export→import
+round-trips, and a language-scoped set touches one language only. (Hand-picking individual colors is **M6**;
+packaging the `.vsix` is **M7**.)
 
 ---
-> Core · milestone 4 of 7 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md)
+> Core · milestone 4 of 7 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md) · start: [Add the 4 signature presets](01_signature-profiles.md)

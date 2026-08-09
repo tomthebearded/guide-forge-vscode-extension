@@ -8,7 +8,7 @@
   with a placeholder. Here: `{ bg: '#0a0f1e' }` means "`bg` is pinned, the other 7 palette roles are not". *(defined inline below.)*
 
 ## Why / design
-Before any code can layer a hand-picked color over the formula, the engine needs a word for "the colors the reader
+Before any code can layer a hand-picked color over the formula, the engine needs a word for "the colors you
 chose". That's `ThemeOverrides` — and its whole design is in one sentence: **every field is optional, at both
 levels.**
 
@@ -27,10 +27,10 @@ ThemeOverrides
 
 `semantic` is the odd one out: `SemanticColors` is already `Record<string, Hex>` (from M5 step 01) — a map with no
 fixed key list — so *it is already its own partial*. Wrapping it in `Partial<>` would only add
-`| undefined` to the value type and buy nothing. We use it as-is, and the comment in the code says why so the next
-reader doesn't "fix" the inconsistency.
+`| undefined` to the value type and buy nothing. We use it as-is, and the comment in the code says why — so nobody
+coming to the file later "fixes" the inconsistency.
 
-**Why optional matters so much:** an absent key is how the reader says *"leave this role to the formula."*
+**Why optional matters so much:** an absent key is how you say *"leave this role to the formula."*
 There is no `null`, no empty string, no `enabled: false` flag anywhere in this feature. Un-pinning a role in step
 08 will be a plain `delete`. One representation, one meaning — and step 02's merge is 6 lines because of it.
 
@@ -50,7 +50,7 @@ nothing compiles differently yet: you're only adding a type no one calls.
    the result shapes, not with the profile registry. Type it exactly as below, comments included: those three
    comments are the whole contract of the feature, and every later step leans on them.
    ```ts
-   // The reader's hand-picked colors, layered over whatever the profile computed.
+   // Your hand-picked colors, layered over whatever the profile computed.
    // Sparse on purpose: a role that isn't here is a role the formula still owns.
    export interface ThemeOverrides {
      palette?: Partial<Palette>;      // any subset of the 8 chrome roles

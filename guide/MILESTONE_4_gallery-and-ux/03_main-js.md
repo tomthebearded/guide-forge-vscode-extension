@@ -1,4 +1,4 @@
-# M4 · Step 03 of 6 — Create `media/webview/main.js` — the gallery + preview + contrast
+# M4 · Step 03 of 5 — Create `media/webview/main.js` — the gallery + preview + contrast
 > Nav: [← Externalize the CSS](02_styles.md) · [Overview](00_overview.md) · [Rewrite the provider →](04_provider-externalize.md)
 
 ## Glossary for this step
@@ -37,12 +37,12 @@ its own: the engine computes palettes, the provider ships them over, the script 
 > once. `render()` is pure drawing — it does **not** apply — so the selection is applied exactly one time per
 > pick. The very first apply happens once in the `init` handler, right after the first `render()`, so the panel
 > lands already showing the current selection. Selecting *is* applying; that immediacy is what makes the
-> reality-check in step 06 worth doing.
+> reality-check in step 05 worth doing.
 >
 > ⚠️ **Why `render()` must not call `apply()`.** If `render()` ended with an `apply()`, a chip click — which
 > already calls `render(); apply();` — would fire **two** identical `apply` messages, so the provider would take
 > **two** history snapshots per pick. The first **Revert** would then look inert (it pops the duplicate). One
-> apply per action = one snapshot per pick; that's the gate in step 06.
+> apply per action = one snapshot per pick; that's the gate in step 05.
 
 The DOM code here is plain, intermediate JavaScript — a tiny `el()` helper that creates an element and assigns
 props, and a `section()` helper that wraps a titled block. No framework.
@@ -50,7 +50,7 @@ props, and a `section()` helper that wraps a titled block. No framework.
 ## Do this
 This step creates **one file**: `media/webview/main.js`. It's built as a single IIFE; the fragments below assemble
 **top-to-bottom inside that closure** in the order given. (The complete file is also shown whole in
-[the M4 checkpoint](06_verify.md) under `### media/webview/main.js` if you want to diff.)
+[the M4 checkpoint](05_verify.md) under `### media/webview/main.js` if you want to diff.)
 
 > **Before you start:** `media/webview/` must already exist with `styles.css` in it (step 02). This file is its
 > sibling.
@@ -204,7 +204,7 @@ This step creates **one file**: `media/webview/main.js`. It's built as a single 
 ## Done when (this step)
 - The file **`media/webview/main.js`** exists with the content above, alongside `styles.css`.
 - Still nothing renders in the panel — the provider isn't serving these files yet (step 04). This file is verified
-  end-to-end as part of step 04's Done-when and the milestone gate in step 06.
+  end-to-end as part of step 04's Done-when and the milestone gate in step 05.
 
 ## If it breaks
 - **You started adding a language box / Save button** → stop; that's the M5 delta. The M4 `main.js` ends at
@@ -216,7 +216,7 @@ This step creates **one file**: `media/webview/main.js`. It's built as a single 
 - **The first Revert seems to do nothing / you undo twice per pick** → `render()` is calling `apply()`. It must
   not: a chip click already runs `render(); apply();`, so a second apply inside `render()` fires two identical
   `apply` messages and the provider snapshots twice per pick. Keep `render()` pure and apply once in each click
-  handler (and once in `init`). This is exactly what step 06's "one snapshot per apply" gate checks.
+  handler (and once in `init`). This is exactly what step 05's "one snapshot per apply" gate checks.
 
 ---
 > Nav: [← Externalize the CSS](02_styles.md) · [Overview](00_overview.md) · [Rewrite the provider →](04_provider-externalize.md)

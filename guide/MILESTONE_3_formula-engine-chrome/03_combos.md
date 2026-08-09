@@ -33,7 +33,7 @@ This step creates **one file**: `src/engine/combos.ts`.
 3. Save. It should compile with no errors (it depends only on `types.ts` from step 02).
 
 ## Code
-`src/engine/combos.ts` *(the complete file — final; used unchanged through M5)*
+`src/engine/combos.ts` *(the complete file — final; unchanged for the rest of the guide)*
 ```ts
 import { StarterCombo } from './types';
 

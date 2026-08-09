@@ -20,12 +20,18 @@ column down the panel and a pinned row is visible at a glance.
 > opens the operating system's color picker when clicked, and its `value` is **always** a lowercase `#rrggbb`
 > string. That last part is why step 02's regex is exactly 7 characters — it's the shape this control speaks. It
 > ignores any value that isn't valid `#rrggbb` (falling back to `#000000`), which is why the engine's colors reach
-> it already validated. Webviews are ordinary Chromium pages, so it works with no VS Code API at all. Docs:
+> it already validated. Webviews are ordinary Chromium pages, so it needs no VS Code API at all. Docs:
 > [MDN — `<input type="color">`](https://developer.mozilla.org/docs/Web/HTML/Element/input/color).
+>
+> ⚠️ **One thing to confirm on your machine, at step 06.** A webview is a *sandboxed* iframe inside Electron, and
+> whether clicking the swatch pops the operating system's color dialog is the host's call, not ours. If it doesn't
+> open in your VS Code build, **nothing about this milestone is lost**: every row also carries a `#rrggbb` text box
+> wired to the same `setRole`, and every gate in [step 10](10_verify.md) passes through that box. Treat the swatch
+> as the convenience and the hex box as the control.
 
 > 🧠 **New concept — `<details>` / `<summary>`.** The browser's built-in disclosure widget: everything inside
 > `<details>` is hidden until the user clicks the `<summary>` line. No JavaScript, no state to track. Step 07 wraps
-> the 13 semantic types in one so the panel opens at a manageable length — the 15 roles a reader tunes constantly
+> the 13 semantic types in one so the panel opens at a manageable length — the 15 roles you tune constantly
 > stay visible, the 13 they rarely touch stay one click away. Docs:
 > [MDN — `<details>`](https://developer.mozilla.org/docs/Web/HTML/Element/details).
 
@@ -92,12 +98,14 @@ Everything else — colors, sizes, the `.35` opacity, the comment banner — is 
 
 ## If it breaks
 - **The panel lost its styling entirely** → you replaced the file instead of appending to it. Restore M4's rules
-  from [the M4 checkpoint](../MILESTONE_4_gallery-and-ux/06_verify.md) and append again.
+  from [the M4 checkpoint](../MILESTONE_4_gallery-and-ux/05_verify.md) and append again.
 - **A stray `}` / the file's last rules stopped applying** → CSS has no error reporting; one unbalanced brace kills
   everything after it. Re-check the block you pasted, especially the multi-line `input[type="color"]`, `.hex` and
   `.clear` rules.
 - **You want to preview the rules now** → you can't usefully; there's no markup for them. Step 06 renders the first
   8 rows and that's the moment to judge the layout (and to widen `.hex` if your font renders 7 characters wider).
+- **(Looking ahead) the swatch won't open a picker in step 06** → see the warning above; the hex box is the
+  full-strength control and the milestone stands without the native dialog.
 
 ---
 > Nav: [← The provider passes them through](04_provider-overrides.md) · [Overview](00_overview.md) · [Edit the 8 chrome roles →](06_webview-chrome-editor.md)
