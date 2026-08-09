@@ -1,0 +1,80 @@
+body {
+	font-family: var(--vscode-font-family);
+	font-size: var(--vscode-font-size);
+	color: var(--vscode-foreground);
+	padding: 8px;
+}
+h4 {
+	margin: 12px 0 6px;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	opacity: 0.8;
+}
+.section {
+	margin-bottom: 8px;
+}
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+.chip,
+.btn {
+	font: inherit;
+	cursor: pointer;
+	border-radius: 4px;
+	padding: 4px 8px;
+	border: 1px solid var(--vscode-button-border, transparent);
+	background: var(--vscode-button-secondaryBackground, #2a2d2e);
+	color: var(--vscode-button-secondaryForeground, #ccc);
+}
+.chip.active {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+}
+.chip:hover,
+.btn:hover {
+	background: var(--vscode-button-hoverBackground);
+}
+.text {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 4px 6px;
+	margin-bottom: 6px;
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	border: 1px solid var(--vscode-input-border, #3c3c3c);
+	border-radius: 4px;
+}
+.swatches {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 6px;
+}
+.swatch {
+	width: 22px;
+	height: 22px;
+	border-radius: 4px;
+	border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.badge {
+	font-size: 11px;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+.badge.ok {
+	background: #1a7f37;
+	color: #fff;
+}
+.badge.warn {
+	background: #9a6700;
+	color: #fff;
+}
+.badge.bad {
+	background: #b62324;
+	color: #fff;
+}
+.muted {
+	opacity: 0.6;
+}
