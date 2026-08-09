@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { ThemeHistory } from '../theme/history';
 import { applyChrome } from '../theme/apply';
+import { COMBOS, comboById } from '../engine/combos';
+import { GENERATIVE, profileById } from '../engine/profiles';
+import { generate } from '../engine/generate';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'vanCode.panel';
@@ -17,18 +20,13 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage((m) => this.onMessage(m));
   }
 
-  private async onMessage(m: { type: string; }): Promise<void> {
+  private async onMessage(m: { type: string; comboId?: string; profileId?: string; }): Promise<void> {
     switch (m.type) {
-      case 'applyDemo':
-        await this.history.apply(() =>
-          applyChrome({
-            'statusBar.background': '#e11d48',
-            'statusBar.foreground': '#ffffff',
-            'statusBar.debuggingBackground': '#e11d48',
-            'statusBar.debuggingForeground': '#ffffff',
-          }),
-        );
+      case 'apply': {
+        const theme = generate(comboById(m.comboId ?? ''), profileById(m.profileId ?? ''));
+        await this.history.apply(() => applyChrome(theme.chrome));
         break;
+      }
       case 'revert':
         await this.history.revert();
         break;
@@ -40,6 +38,8 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
 
   private getHtml(webview: vscode.Webview): string {
     const nonce = getNonce();
+    const comboOpts = COMBOS.map((c) => `<option value="${ c.id }">${ c.label }</option>`).join('');
+    const profOpts = GENERATIVE.map((p) => `<option value="${ p.id }">${ p.label }</option>`).join('');
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,12 +51,19 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
   <h3>Van Code</h3>
-  <button id="apply">Apply demo (red status bar)</button>
+  <p><label>Starter <select id="combo">${ comboOpts }</select></label></p>
+  <p><label>Style <select id="profile">${ profOpts }</select></label></p>
+  <button id="apply">Apply</button>
   <button id="revert">Revert</button>
   <button id="reset">Reset</button>
   <script nonce="${ nonce }">
     const vscode = acquireVsCodeApi();
-    document.getElementById('apply').addEventListener('click', () => vscode.postMessage({ type: 'applyDemo' }));
+    const combo = document.getElementById('combo');
+    const profile = document.getElementById('profile');
+    function apply() { vscode.postMessage({ type: 'apply', comboId: combo.value, profileId: profile.value }); }
+    document.getElementById('apply').addEventListener('click', apply);
+    combo.addEventListener('change', apply);
+    profile.addEventListener('change', apply);
     document.getElementById('revert').addEventListener('click', () => vscode.postMessage({ type: 'revert' }));
     document.getElementById('reset').addEventListener('click', () => vscode.postMessage({ type: 'reset' }));
   </script>
