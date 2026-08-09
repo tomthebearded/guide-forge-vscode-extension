@@ -2,29 +2,51 @@ import * as vscode from 'vscode';
 import { ThemeHistory } from '../theme/history';
 import { applyChrome } from '../theme/apply';
 import { COMBOS, comboById } from '../engine/combos';
-import { GENERATIVE, profileById } from '../engine/profiles';
+import { PROFILES, profileById } from '../engine/profiles';
 import { generate } from '../engine/generate';
+import { contrastRatio } from '../engine/color';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'vanCode.panel';
+  private view?: vscode.WebviewView;
 
-  constructor(private readonly history: ThemeHistory) { }
+  constructor(
+    private readonly extensionUri: vscode.Uri,
+    private readonly history: ThemeHistory,
+  ) { }
 
-  resolveWebviewView(
-    webviewView: vscode.WebviewView,
-    _context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken,
-  ): void {
-    webviewView.webview.options = { enableScripts: true };
+
+  resolveWebviewView(webviewView: vscode.WebviewView): void {
+    this.view = webviewView;
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [vscode.Uri.joinPath(this.extensionUri, 'media')],
+    };
     webviewView.webview.html = this.getHtml(webviewView.webview);
     webviewView.webview.onDidReceiveMessage((m) => this.onMessage(m));
   }
 
-  private async onMessage(m: { type: string; comboId?: string; profileId?: string; }): Promise<void> {
+  private post(message: unknown): void {
+    this.view?.webview.postMessage(message);
+  }
+
+  private async onMessage(m: any): Promise<void> {
     switch (m.type) {
+      case 'ready':
+        this.post({
+          type: 'init',
+          combos: COMBOS.map((c) => ({ id: c.id, label: c.label })),
+          profiles: PROFILES.map((p) => ({ id: p.id, label: p.label, family: p.family, variants: p.variants })),
+        });
+        break;
       case 'apply': {
-        const theme = generate(comboById(m.comboId ?? ''), profileById(m.profileId ?? ''));
+        const theme = generate(comboById(m.comboId), profileById(m.profileId), m.variant);
         await this.history.apply(() => applyChrome(theme.chrome));
+        this.post({
+          type: 'applied',
+          palette: theme.palette,
+          contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
+        });
         break;
       }
       case 'revert':
@@ -37,44 +59,30 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
   }
 
   private getHtml(webview: vscode.Webview): string {
-    const nonce = getNonce();
-    const comboOpts = COMBOS.map((c) => `<option value="${ c.id }">${ c.label }</option>`).join('');
-    const profOpts = GENERATIVE.map((p) => `<option value="${ p.id }">${ p.label }</option>`).join('');
+    const nonce = this.getNonce();
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'media', 'webview', 'main.js'));
+    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'media', 'webview', 'styles.css'));
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'none'; style-src ${ webview.cspSource } 'unsafe-inline'; script-src 'nonce-${ nonce }';" />
+    content="default-src 'none'; style-src ${ webview.cspSource }; script-src 'nonce-${ nonce }';" />
+  <link href="${ styleUri }" rel="stylesheet" />
   <title>Van Code</title>
 </head>
 <body>
-  <h3>Van Code</h3>
-  <p><label>Starter <select id="combo">${ comboOpts }</select></label></p>
-  <p><label>Style <select id="profile">${ profOpts }</select></label></p>
-  <button id="apply">Apply</button>
-  <button id="revert">Revert</button>
-  <button id="reset">Reset</button>
-  <script nonce="${ nonce }">
-    const vscode = acquireVsCodeApi();
-    const combo = document.getElementById('combo');
-    const profile = document.getElementById('profile');
-    function apply() { vscode.postMessage({ type: 'apply', comboId: combo.value, profileId: profile.value }); }
-    document.getElementById('apply').addEventListener('click', apply);
-    combo.addEventListener('change', apply);
-    profile.addEventListener('change', apply);
-    document.getElementById('revert').addEventListener('click', () => vscode.postMessage({ type: 'revert' }));
-    document.getElementById('reset').addEventListener('click', () => vscode.postMessage({ type: 'reset' }));
-  </script>
+  <div id="app"></div>
+  <script nonce="${ nonce }" src="${ scriptUri }"></script>
 </body>
 </html>`;
   }
-}
 
-function getNonce(): string {
-  let text = '';
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 32; i++) { text += possible.charAt(Math.floor(Math.random() * possible.length)); }
-  return text;
+  private getNonce(): string {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < 32; i++) { text += possible.charAt(Math.floor(Math.random() * possible.length)); }
+    return text;
+  }
 }
