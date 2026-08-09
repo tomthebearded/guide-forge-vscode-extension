@@ -1,5 +1,5 @@
-# M5 · Step 08 of 10 — Export / import round-trip
-> Nav: [← Final webview](07_main-js-final.md) · [Overview](00_overview.md) · [Package the .vsix →](09_package.md)
+# M5 · Step 08 of 9 — Export / import round-trip
+> Nav: [← Final webview](07_main-js-final.md) · [Overview](00_overview.md) · [Verify the milestone →](09_verify.md)
 
 ## Why / design
 The `export` and `import` handler **code already landed in step 06** (the final provider). This step is a focused
@@ -92,4 +92,4 @@ No code changes. Run the round-trip in the Extension Development Host:
   `Buffer.from(bytes).toString('utf8')` before parsing.
 
 ---
-> Nav: [← Final webview](07_main-js-final.md) · [Overview](00_overview.md) · [Package the .vsix →](09_package.md)
+> Nav: [← Final webview](07_main-js-final.md) · [Overview](00_overview.md) · [Verify the milestone →](09_verify.md)

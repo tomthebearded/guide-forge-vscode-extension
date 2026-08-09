@@ -1,5 +1,5 @@
 # Milestone M1 — Scaffold + sidebar panel
-> Setup · milestone 1 of 5 · prev: — · next: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md)
+> Setup · milestone 1 of 7 · prev: — · next: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md)
 
 ## Goal
 Stand up a real VS Code extension and give it a home in the editor: an **icon in the Activity Bar** that opens a
@@ -17,7 +17,7 @@ the *first* window.
   snapshot/Revert backbone). M1's button just logs; it changes nothing in the editor.
 - **No color engine, no palettes, no profiles** — **M3**.
 - **No gallery, swatches, or contrast readout** — **M4**.
-- **No tokens, persistence, import/export, or packaging** — **M5**.
+- **No tokens, persistence, import/export, or packaging** — **M5** (tokens + persistence) and **M7** (packaging).
 - **No external webview JS/CSS files yet** — M1 keeps the webview HTML inline in the provider; we externalize it in
   **M4** when the UI grows. (Intentional, recorded here so it isn't mistaken for drift.)
 
@@ -27,7 +27,7 @@ None — this is the first milestone. You need Node 24 LTS and VS Code installed
 ## Load-bearing names (must match exactly, everywhere)
 | Name | Value | What breaks if it drifts |
 |------|-------|--------------------------|
-| Extension / package name | `van-code` | the `.vsix` filename (M5) and the extension id |
+| Extension / package name | `van-code` | the `.vsix` filename (M7) and the extension id |
 | View Container id | `vanCode` | the `contributes.views` key must equal this, or the view has no home |
 | View id | `vanCode.panel` | the provider's `viewType` must equal this, or the provider never attaches |
 | Icon path | `media/icon.svg` | a missing/renamed path = no Activity-Bar icon |
@@ -56,7 +56,7 @@ None — this is the first milestone. You need Node 24 LTS and VS Code installed
 
 ## Design / decisions folded in
 - **Unbundled TypeScript** (plain `tsc` → `out/`), no webpack/esbuild — fewer concepts for a reader New to the API;
-  packaging in M5 is unaffected. → [conventions.md](../foundation/conventions.md)
+  packaging in M7 is unaffected. → [conventions.md](../foundation/conventions.md)
 - **Two-layer architecture starts here:** the only files we write are the *adapter* (`extension.ts`, `panel/`).
   The `vscode`-free `engine/` doesn't exist until M3. → [conventions.md](../foundation/conventions.md#structure--architecture)
 - **Inline HTML + strict CSP + nonce** is the canonical VS Code webview pattern; we teach it now so M4's richer UI
@@ -97,4 +97,4 @@ actually *do* something — apply one workbench color live — but first build t
 Done-when: status bar turns a chosen hex live; Revert restores it exactly; Reset removes the customization.
 
 ---
-> Setup · milestone 1 of 5 · prev: — · next: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md)
+> Setup · milestone 1 of 7 · prev: — · next: [M2](../MILESTONE_2_nondestructive-backbone/00_overview.md)

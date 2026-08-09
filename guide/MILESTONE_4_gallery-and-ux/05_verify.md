@@ -1,5 +1,5 @@
 # M4 · Step 06 of 6 — Verify the milestone + the ⭐ reality check
-> Nav: [← Wire the extension](05_wire-extension.md) · [Overview](00_overview.md) · [M5 → Tokens, persistence, packaging](../MILESTONE_5_tokens-persistence-packaging/00_overview.md)
+> Nav: [← Wire the extension](05_wire-extension.md) · [Overview](00_overview.md) · [M5 → Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)
 
 ## Done-when gate (run every check)
 Do these in order; each pairs an action with the **exact** result you should see. Checks 1–2 are the pure-engine
@@ -479,9 +479,9 @@ These eight hands-on checks are the same gate as the **seven** aggregated Done-w
 [00_overview.md](00_overview.md) — the walkthrough splits some of them into finer steps, so the counts aren't 1:1.
 
 Once all eight gate checks pass **and** you've done the ⭐ reality check and decided it's worth finishing, continue
-to **[M5 — Tokens, persistence, packaging](../MILESTONE_5_tokens-persistence-packaging/00_overview.md)**: recolor
+to **[M5 — Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)**: recolor
 the code text (syntax + semantic tokens), **Save** named sets that survive a reload, **export/import** as JSON,
 **scope tokens per language**, and build the shippable **`.vsix`**.
 
 ---
-> Nav: [← Wire the extension](05_wire-extension.md) · [Overview](00_overview.md) · [M5 → Tokens, persistence, packaging](../MILESTONE_5_tokens-persistence-packaging/00_overview.md)
+> Nav: [← Wire the extension](05_wire-extension.md) · [Overview](00_overview.md) · [M5 → Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)

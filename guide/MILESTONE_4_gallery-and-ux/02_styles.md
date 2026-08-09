@@ -21,8 +21,8 @@ nothing renders differently until step 04 wires it up.
 > **at runtime, as files on disk** (via `asWebviewUri`, step 04) — they are not compiled into `out/` like your
 > TypeScript. The generator's **`.vscodeignore`** excludes `src/**` from the packaged `.vsix`, so a webview asset
 > placed under `src/` would work during F5 but **vanish from the shipped extension**. Assets under `media/` are
-> kept. We externalize into `media/webview/` **now** so M5's `vsce package` step just works — no last-minute file
-> shuffle. (This is a forward-reference to M5; nothing to do about packaging yet.) Docs:
+> kept. We externalize into `media/webview/` **now** so M7's `vsce package` step just works — no last-minute file
+> shuffle. (This is a forward-reference to M7; nothing to do about packaging yet.) Docs:
 > [Publishing → `.vscodeignore`](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#advance-usage).
 
 ## Do this
@@ -37,15 +37,15 @@ This step creates **one file**: `media/webview/styles.css`.
      (step 03 toggles that class).
    - `.swatches` / `.swatch` lay out the 8-color palette strip; a `.swatch`'s color is set inline by `main.js`.
    - `.badge` plus `.badge.ok` / `.badge.warn` / `.badge.bad` style the WCAG contrast readout (green/amber/red).
-   - `.text` and `.muted` are used by M5's inputs and empty-state text; we write the **whole final stylesheet now**
-     so M5 doesn't have to touch this file — a few rules will simply go unused until then. That's intentional, not
-     dead code.
+   - `.text` and `.muted` are used by M5's inputs and empty-state text; we write **all of M5's rules now** so M5
+     doesn't have to touch this file — a few rules will simply go unused until then. That's intentional, not dead
+     code. (M6 adds a new UI — the per-role editor — and *appends* its own rules; nothing written here changes.)
 4. Everything here is **cosmetic** — class names, colors, sizes. You can restyle freely as long as `main.js`
    (step 03) uses the same class names.
 5. Save.
 
 ## Code
-`media/webview/styles.css` — the complete, final stylesheet:
+`media/webview/styles.css` — the complete stylesheet for M4 and M5 (M6 appends to it):
 ```css
 body { font-family: var(--vscode-font-family); font-size: var(--vscode-font-size); color: var(--vscode-foreground); padding: 8px; }
 h4 { margin: 12px 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; opacity: .8; }
@@ -79,9 +79,9 @@ h4 { margin: 12px 0 6px; font-size: 11px; text-transform: uppercase; letter-spac
 
 ## If it breaks
 - **The file landed under `src/`** → move it to `media/webview/`. Under `src/` it will be stripped from the `.vsix`
-  in M5, and step 04's `localResourceRoots` (which only whitelists `media`) won't let the webview load it.
-- **You're unsure the `.badge`/`.text`/`.muted` rules belong here** → they do; the final stylesheet is written once,
-  in M4. M5 reuses it unchanged.
+  in M7, and step 04's `localResourceRoots` (which only whitelists `media`) won't let the webview load it.
+- **You're unsure the `.badge`/`.text`/`.muted` rules belong here** → they do; M5 reuses this stylesheet unchanged.
+  The only later edit is M6 appending the per-role editor's rules at the end.
 
 ---
 > Nav: [← Signature presets](01_signature-profiles.md) · [Overview](00_overview.md) · [The gallery script →](03_main-js.md)

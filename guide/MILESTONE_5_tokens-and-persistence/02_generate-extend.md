@@ -1,4 +1,4 @@
-# M5 · Step 02 of 10 — Generate token + semantic colors
+# M5 · Step 02 of 9 — Generate token + semantic colors
 > Nav: [← Types extend](01_types-extend.md) · [Overview](00_overview.md) · [Apply tokens →](03_apply-extend.md)
 
 ## Why / design
@@ -30,7 +30,7 @@ agree: a keyword and the semantic `keyword` type get the same hex.
 ## Do this
 This step edits **one file**: `src/engine/generate.ts` — the M4 file. `paletteToChrome` stays **exactly** as M4
 wrote it (don't re-type it); you're widening the imports, adding two functions below it, and rewriting `generate()`.
-(The complete file is in [the M5 checkpoint](10_verify.md) under `### src/engine/generate.ts`.)
+(The complete file is in [the M5 checkpoint](09_verify.md) under `### src/engine/generate.ts`.)
 
 > **Before you start:** M4's `src/engine/generate.ts` must exist with `paletteToChrome` and a `generate()` that
 > returns `{ palette, chrome }`, and step 01's `TokenColors`/`SemanticColors` must already be in `types.ts`.

@@ -1,4 +1,4 @@
-# M5 · Step 06 of 10 — The final provider (save / applySet / delete / import / export)
+# M5 · Step 06 of 9 — The final provider (save / applySet / delete / import / export)
 > Nav: [← Save sets](05_storage.md) · [Overview](00_overview.md) · [Final webview →](07_main-js-final.md)
 
 ## Why / design
@@ -29,7 +29,7 @@ straight through `applyTheme(set)` (global, no languageId) inside the history wr
 ## Do this
 This step **edits two files**: `src/panel/ThemePanelProvider.ts` (the last provider rewrite) and `src/extension.ts`
 (one constructor argument). The provider's **`resolveWebviewView`, `post()`, `getHtml`, and `getNonce()` are
-unchanged from M4**, so the **complete paste-able file is in [the M5 checkpoint](10_verify.md)** under
+unchanged from M4**, so the **complete paste-able file is in [the M5 checkpoint](09_verify.md)** under
 `### src/panel/ThemePanelProvider.ts` — select-all in your file and paste that. The fragments below walk only the
 regions that changed from M4.
 
@@ -163,7 +163,7 @@ the language through. The `m.name` set-naming and the info-message text are cosm
   persists, check the Webview Developer Tools console for a CSP/`main.js` load error (unchanged from M4).
 - **Chrome recolors but code text doesn't** → the `apply` handler still calls `applyChrome`; it must call
   `applyTheme(theme, m.languageId || undefined)`. (If code *still* doesn't change with `applyTheme` in place, see
-  the semantic "silently does nothing" note in step 10 — TextMate keyword/string/comment colors should change
+  the semantic "silently does nothing" note in step 09 — TextMate keyword/string/comment colors should change
   regardless of a language server.)
 
 ---

@@ -1,4 +1,4 @@
-# M5 · Step 03 of 10 — Apply tokens + semantic, and scope tokens per language
+# M5 · Step 03 of 9 — Apply tokens + semantic, and scope tokens per language
 > Nav: [← Generate tokens](02_generate-extend.md) · [Overview](00_overview.md) · [History extend →](04_history-extend.md)
 
 ## Why / design
@@ -36,7 +36,7 @@ Value shapes (both are objects VS Code merges into the setting):
 ## Do this
 This step edits **one file**: `src/theme/apply.ts` — the M2 file. `applyChrome` stays **exactly** as M2 wrote it
 (don't re-type it); you're widening the import and adding three functions below it. (The complete file is in
-[the M5 checkpoint](10_verify.md) under `### src/theme/apply.ts`.)
+[the M5 checkpoint](09_verify.md) under `### src/theme/apply.ts`.)
 
 > **Before you start:** M2's `src/theme/apply.ts` must exist (it imports `CHROME, TARGET` and exports
 > `applyChrome`), and step 01's `TokenColors`/`SemanticColors` types must be in place.
@@ -92,16 +92,16 @@ undefined` 4th arg; and the `if (!languageId) applyChrome(...)` guard. The local
 ## Done when (this step)
 - `src/theme/apply.ts` matches the checkpoint version and the project compiles clean.
 - Nothing observable in the editor yet — the provider doesn't call `applyTheme` until step 06. This step is wiring;
-  its real proof is in the verify gate (step 10), where a global apply recolors code and a `typescript`-scoped
+  its real proof is in the verify gate (step 09), where a global apply recolors code and a `typescript`-scoped
   apply recolors only `.ts`.
 
 ## If it breaks
 - **`Property 'tokens' does not exist on type 'ThemeResult'`** → step 01/02 aren't in place; `ThemeResult` must
   already carry `tokens`/`semantic`. Finish those steps first.
-- **Later (step 10): a language-scoped apply changes *all* files, not just the one language** → you obtained the
+- **Later (step 09): a language-scoped apply changes *all* files, not just the one language** → you obtained the
   config without the `{ languageId }` scope, or dropped the `true` 4th arg. Both are required together.
 - **Later: semantic colors never appear** → check `enabled: true` is in the `applySemantic` value; without it the
-  `rules` are inert. (And see the semantic "silently does nothing" note in step 10 — the file's language server
+  `rules` are inert. (And see the semantic "silently does nothing" note in step 09 — the file's language server
   also has to be running.)
 
 ---

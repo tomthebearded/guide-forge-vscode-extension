@@ -110,3 +110,41 @@
   color operations. Every published gate value is unchanged (`#3ec6ff` round-trip, contrast `21`, 20 chrome keys,
   Midnight `#000000`, 13 profiles, 13 semantic types, Game Boy `#0f380f`).
 - **Revisit if:** a later milestone adds engine code — it must follow the conventions.md rule, not the old style.
+
+## D9 — Overrides are role-level, not VS Code-key-level
+- **Date:** 2026-08-09
+- **Source:** feature request — "the reader must be able to choose every customizable color" — scoped against the
+  plan's existing "no settings-JSON editor UI" boundary.
+- **Decision:** M6's per-color editing exposes the **28 roles the engine emits** — the 8 `Palette` roles, the 7
+  `TokenColors` roles and the 13 semantic token types — and **not** the ~600 keys of VS Code's theme-color
+  reference, nor even the 20 `workbench.colorCustomizations` keys `paletteToChrome` writes. An override on `bg`
+  re-derives every chrome key computed from `bg`.
+- **Why:** a role is the unit the reader actually thinks in ("make the background darker"), and the 20 chrome keys
+  are already a *coordinated* function of the 8 roles — exposing them individually would let a reader desynchronize
+  surfaces the formula spent M3 harmonizing, for more clicks, not fewer. It also keeps the feature inside the plan's
+  scope boundary: a searchable editor over VS Code's full key list *is* the settings-JSON editor UI the plan rules
+  out. Mechanically it costs one merge point instead of one per key.
+- **Rules out / trade-off:** pinning a single workbench surface (e.g. only `tab.inactiveBackground`) without moving
+  its siblings. Accepted: that's a theme-authoring task, not a palette-tuning one, and `settings.json` already does
+  it. The 20-key map stays exactly the size D7 fixed — M6 changes values in it, never its shape.
+- **Revisit if:** readers repeatedly want one workbench surface pinned independently — then add a **fourth**
+  override group keyed by VS Code color key, merged after `paletteToChrome`, which the `overrideRoles` generic
+  already supports without modification.
+
+## D10 — Role edits commit on `change`, not on `input`
+- **Date:** 2026-08-09
+- **Source:** the M2 non-destructive backbone (D1) meeting a native color picker; same failure class as the
+  2026-07-13 double-apply bug.
+- **Decision:** both controls in a role row — `<input type="color">` and the hex text box — apply on the **`change`**
+  event (picker dismissed / field left), never on `input`.
+- **Why:** every apply passes through `history.apply(...)`, which takes a settings snapshot. `input` fires
+  continuously while the user drags a hue slider, so one gesture would push hundreds of snapshots and the first
+  **Revert** would appear inert — the exact symptom a reader already reported once for a different cause. The rule
+  the guide has enforced since M4 is *one deliberate action → one apply → one snapshot*, and `change` is what keeps
+  it true here.
+- **Rules out / trade-off:** live preview while dragging. Considered and rejected: a debounced `input` (still
+  multiple snapshots per gesture, plus a timer to explain) and a preview-without-snapshot path (a second write path
+  — straight through D1's one-choke-point rule). Accepted cost: the editor updates on release rather than during
+  the drag, which the M6 gate states as expected behaviour so it doesn't read as lag.
+- **Revisit if:** the history gains an explicit "coalesce until idle" mode — then a debounced `input` becomes
+  cheap, and only then.

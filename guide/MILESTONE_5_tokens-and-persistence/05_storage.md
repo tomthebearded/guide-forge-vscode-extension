@@ -1,4 +1,4 @@
-# M5 · Step 05 of 10 — Save named sets with `globalState`
+# M5 · Step 05 of 9 — Save named sets with `globalState`
 > Nav: [← History extend](04_history-extend.md) · [Overview](00_overview.md) · [Final provider →](06_provider-final.md)
 
 ## Glossary for this step
@@ -94,7 +94,7 @@ export async function importSets(ctx: vscode.ExtensionContext, json: string): Pr
 
 ## Done when (this step)
 - `src/storage/sets.ts` exists with the code above and the project compiles clean.
-- No behavior yet — the provider (step 06) hasn't called these. Persistence is proven in step 10: save a set,
+- No behavior yet — the provider (step 06) hasn't called these. Persistence is proven in step 09: save a set,
   reload the window (**Developer: Reload Window**), and it's still under "My sets".
 
 ## If it breaks

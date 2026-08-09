@@ -1,5 +1,5 @@
 # Milestone M2 — Non-destructive backbone
-> Core · milestone 2 of 5 · prev: [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) · next: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md)
+> Core · milestone 2 of 7 · prev: [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) · next: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md)
 
 ## Goal
 Make the panel's button *do* something real — apply **one** workbench color live — but only on top of the safety
@@ -15,7 +15,7 @@ Click **Reset** → the whole `workbench.colorCustomizations` key vanishes from 
 ## Scope discipline (what this milestone deliberately does NOT do)
 - **One hard-coded color only.** `#e11d48` on the status bar. **No seed→palette generation** — that's **M3**.
 - **No gallery, selects, swatches, or contrast readout** — that's **M3/M4**. M2's UI is exactly three buttons.
-- **No tokens, persistence, import/export, or packaging** — that's **M5**.
+- **No tokens, persistence, import/export, or packaging** — that's **M5** (tokens + persistence) and **M7** (packaging).
 - **No ad-hoc writes.** Every settings write in this guide, from here on, goes through the single `src/theme/`
   path. No step ever calls `getConfiguration().update('colorCustomizations', …)` anywhere else. → [conventions.md](../foundation/conventions.md#structure--architecture)
 - **The engine (`src/engine/`) still does not exist.** M2 is pure adapter — `theme/` + the panel. The `vscode`-free
@@ -106,4 +106,4 @@ applied live through this exact backbone. Done-when: pick a starter combo + a ge
 recolors coherently and live; Revert restores.
 
 ---
-> Core · milestone 2 of 5 · prev: [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) · next: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md)
+> Core · milestone 2 of 7 · prev: [M1](../MILESTONE_1_scaffold-sidebar/00_overview.md) · next: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md)

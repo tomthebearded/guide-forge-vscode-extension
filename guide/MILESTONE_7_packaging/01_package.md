@@ -1,5 +1,5 @@
-# M5 · Step 09 of 10 — Add `publisher` and package the `.vsix`
-> Nav: [← Export / import](08_export-import.md) · [Overview](00_overview.md) · [Verify →](10_verify.md)
+# M7 · Step 01 of 2 — Add `publisher` and package the `.vsix`
+> Nav: — · [Overview](00_overview.md) · [Install it and finish →](02_verify.md)
 
 ## Glossary for this step
 - **`.vsix`** — the zip-format package file a VS Code extension ships as; produced by `vsce package` and installable via **Extensions: Install from VSIX…**. *(Introduced here.)*
@@ -26,14 +26,14 @@ adding it silences that warning and is good hygiene.
 ## Do this
 This step edits **one file** (`package.json`) then runs two commands.
 
-> **Before you start:** steps 01–07 must be done and the extension must **compile clean** — `vsce package` runs
+> **Before you start:** M6 must be green and the extension must **compile clean** — `vsce package` runs
 > `vscode:prepublish` (→ `npm run compile`) first and aborts on any TypeScript error.
 
 1. Open `package.json`.
 2. **Add** two fields — `"publisher": "example"` (any lowercase id) and a `"repository"` object — **directly after
    the `"version": "0.0.1",` line**. Touch nothing else: the dependency versions and every other field (name,
    engines, contributes, scripts, devDependencies) stay **exactly as M1 scaffolded them**. (The complete final
-   `package.json` is in [the M5 checkpoint](10_verify.md) under `### package.json`.)
+   `package.json` is in [the M7 checkpoint](02_verify.md) under `### package.json`.)
    ```jsonc
    "publisher": "example",
    "repository": {
@@ -57,8 +57,8 @@ This step edits **one file** (`package.json`) then runs two commands.
 ## Done when (this step)
 - `vsce package` completes and prints a line ending in **`van-code-0.0.1.vsix`**.
 - The file **`van-code-0.0.1.vsix`** exists in the project root (`Get-ChildItem *.vsix` lists it).
-- Optional install check: Command Palette → **Extensions: Install from VSIX…** → pick the file → it installs with
-  no error (uninstall afterward if you don't want two copies during F5 dev).
+- Don't install it yet — step 02 installs it deliberately, in an ordinary (undebugged) window, because *where* you
+  install it is what proves the last open item in the guide.
 
 ## If it breaks
 | Symptom | Usual cause | Fix |
@@ -72,4 +72,4 @@ This step edits **one file** (`package.json`) then runs two commands.
 | `.vsix` missing `media/webview/*` at runtime | `.vscodeignore` dropped it | our webview lives under `media/` (not `src/`), so the default ignore keeps it — confirm the files are under `media/webview/` |
 
 ---
-> Nav: [← Export / import](08_export-import.md) · [Overview](00_overview.md) · [Verify →](10_verify.md)
+> Nav: — · [Overview](00_overview.md) · [Install it and finish →](02_verify.md)

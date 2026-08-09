@@ -1,4 +1,4 @@
-# M5 · Step 07 of 10 — The final webview (language box, Save/Export/Import, My sets)
+# M5 · Step 07 of 9 — The final webview (language box, Save/Export/Import, My sets)
 > Nav: [← Final provider](06_provider-final.md) · [Overview](00_overview.md) · [Export / import →](08_export-import.md)
 
 ## Why / design
@@ -24,7 +24,7 @@ also sends `state.languageId`, so if the box has `typescript`, selecting a style
 
 ## Do this
 This step edits **one file**: `media/webview/main.js` — M4's webview script. `el()`, `section()`, and
-`renderPreview()` are unchanged from M4, so the **complete paste-able file is in [the M5 checkpoint](10_verify.md)**
+`renderPreview()` are unchanged from M4, so the **complete paste-able file is in [the M5 checkpoint](09_verify.md)**
 under `### media/webview/main.js` — select-all and paste that. The fragments below walk only the regions that
 changed from M4.
 
@@ -160,12 +160,12 @@ labels, placeholder text, and the ✕ glyph are cosmetic.
 
 ## Done when (this step)
 - `media/webview/main.js` matches the fragments above (the complete file is in
-  [the M5 checkpoint](10_verify.md)).
+  [the M5 checkpoint](09_verify.md)).
 - Relaunch the EDH and open the panel. You now see, below the swatch preview: a **Per-language (tokens only)** text
   box, an **Actions** section with a set-name input + **Revert / Reset / Export / Import / Save set…** buttons, and a
   **My sets** section (showing "No saved sets yet." on a clean install).
 - Type a name → **Save set…** → the name appears under **My sets** immediately (proof the `savedSets` round-trip
-  works). Full persistence-across-reload + language-scoping checks are in step 10.
+  works). Full persistence-across-reload + language-scoping checks are in step 09.
 
 ## If it breaks
 - **Buttons/section don't appear** → stale EDH cache; <kbd>Shift</kbd>+<kbd>F5</kbd> then <kbd>F5</kbd>. Confirm

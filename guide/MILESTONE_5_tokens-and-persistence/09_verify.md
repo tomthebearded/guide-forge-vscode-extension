@@ -1,5 +1,5 @@
-# M5 · Step 10 of 10 — Verify the milestone + you're done
-> Nav: [← Package the .vsix](09_package.md) · [Overview](00_overview.md) · [Guide front door →](../README.md)
+# M5 · Step 09 of 9 — Verify the milestone (tokens + persistence)
+> Nav: [← Export / import](08_export-import.md) · [Overview](00_overview.md) · [M6 → Per-role color editing](../MILESTONE_6_per-role-color-editing/00_overview.md)
 
 ## Done-when gate (run every check)
 Do these in the Extension Development Host (press <kbd>F5</kbd>), in order. Each pairs an action with the **exact**
@@ -50,32 +50,26 @@ result you should see. Open a real `.ts` or `.js` file in the EDH first so you c
   and the **chrome is unchanged** by this scoped apply (chrome can't be language-scoped — [D2](../foundation/decision-log.md#d2--per-language-scoping-is-tokens-only)).
 - Clear the box (blank) and apply again → tokens go back to applying for all languages.
 
-### 6. Package the `.vsix`
-- In the project-root terminal: `vsce package`.
-- **Expected:** final line ends with **`van-code-0.0.1.vsix`**, and the file exists in the project root
-  (`Get-ChildItem *.vsix`).
+If all five pass, **M5 is done.**
 
-If all six pass, **M5 is done — and so is the build.**
-
-> 💡 **The status-bar exception disappears once you're not debugging.** Since M3 you've watched every surface but the
-> status bar recolor under <kbd>F5</kbd> — the EDH is a debugged window, so `statusBar.debugging*` overrode the
-> `statusBar.background` the engine writes ([M3/06](../MILESTONE_3_formula-engine-chrome/06_generate.md)). Install the
-> `.vsix` you just built (`code --install-extension van-code-0.0.1.vsix`, then reload) and apply a preset in an
-> ordinary window: **the status bar recolors with everything else.** It was an artifact of the dev loop, never a
-> defect in the extension.
+> 💡 **The status-bar exception is still open — and it closes in M7.** Since M3 you've watched every surface but the
+> status bar recolor under <kbd>F5</kbd> — the EDH is a debugged window, so `statusBar.debugging*` overrides the
+> `statusBar.background` the engine writes ([M3/06](../MILESTONE_3_formula-engine-chrome/06_generate.md)). That is a
+> dev-loop artifact, not a defect; [M7's gate](../MILESTONE_7_packaging/02_verify.md) proves it by installing the
+> packaged `.vsix` into an ordinary (undebugged) window, where the status bar recolors with everything else.
 
 ## What's automatable vs. checked by hand
 - **Engine (pure, no F5):** step 02's `node -e` check proves `generate()` emits seven token colors + 13 semantic
   types. That's the only part verifiable without VS Code.
 - **Everything else you check by hand in the EDH:** tokens recoloring, Revert/Reset, persistence-across-reload,
-  export/import, language scoping, and packaging all require the running extension / CLI and can't be simulated
-  from this guide. Verify them by eye against the expected outputs above.
+  export/import and language scoping all require the running extension and can't be simulated from this guide.
+  Verify them by eye against the expected outputs above.
 
 ## Files after this milestone (complete contents)
 The files **created or modified in M5**. Unchanged since earlier milestones and **not repeated here**:
 `src/engine/color.ts`, `combos.ts`, `profiles.ts` (M3–M4), `src/theme/settings.ts` (M2),
-`media/webview/styles.css` (M4, already includes `.badge`/`.text`/`.muted`), `media/icon.svg` (M1), and the
-generator files left as-is.
+`media/webview/styles.css` (M4, already includes `.badge`/`.text`/`.muted`), `media/icon.svg` (M1),
+`package.json` (untouched since M1 — M7 is the milestone that edits it), and the generator files left as-is.
 
 ### `src/engine/types.ts`
 ```ts
@@ -606,69 +600,6 @@ export function deactivate(): void {}
 })();
 ```
 
-### `package.json`
-```jsonc
-{
-  "name": "van-code",
-  "displayName": "Van Code",
-  "description": "Recolor the whole editor from a sidebar panel",
-  "version": "0.0.1",
-  "publisher": "example",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/example/van-code"
-  },
-  "engines": {
-    "vscode": "^1.128.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./out/extension.js",
-  "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "vanCode",
-          "title": "Van Code",
-          "icon": "media/icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "vanCode": [
-        {
-          "id": "vanCode.panel",
-          "name": "Van Code",
-          "icon": "media/icon.svg",
-          "type": "webview"
-        }
-      ]
-    }
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.128.0",
-    "@types/node": "24.x",
-    "@types/mocha": "^10.0.10",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^9.0.0",
-    "typescript": "^5.9.0",
-    "@vscode/test-cli": "^0.0.11",
-    "@vscode/test-electron": "^2.4.0"
-  }
-}
-```
-
 ## Troubleshooting sheet (M5 traps)
 | Symptom | Usual cause | Fix |
 |---------|-------------|-----|
@@ -679,33 +610,16 @@ export function deactivate(): void {}
 | Saved sets vanish on reload | forgot `await` on `globalState.update`, or key mismatch | all storage funnels through the one `KEY` constant + awaited updates (step 05) |
 | Language-scoped apply hits all files | missing `{ languageId }` scope or the `true` 4th arg | both are required together in `applyTokens`/`applySemantic` (step 03) |
 | Import does nothing / throws | file isn't a JSON array, or bytes not decoded | array only; decode `readFile` bytes with `Buffer.from(bytes).toString('utf8')` (step 08) |
-| `ERROR Missing publisher name` | no `publisher` in `package.json` | add `"publisher": "example"` (step 09) |
-| `vsce: command not found` | CLI not installed | `npm install -g @vscode/vsce` or `npx @vscode/vsce package` (step 09) |
-
-## You're done — what you built
-Over five milestones you built a complete, installable VS Code extension from an empty scaffold:
-
-- **M1** — a real extension with an Activity-Bar icon, a Webview sidebar panel, and two-way messaging.
-- **M2** — a non-destructive backbone: snapshot-before-write, Revert, Reset — one write path, always reversible.
-- **M3** — a pure, `vscode`-free color engine: hex↔HSL math, WCAG contrast, 5 starter combos, 9 generative
-  profiles that derive a full chrome palette from a seed.
-- **M4** — an externalized gallery UI (13 profiles incl. 4 signature presets) with live swatch preview and a WCAG
-  contrast readout — the reality-check gate where the tool became genuinely usable.
-- **M5** — syntax + semantic **token** recoloring, **saved sets** persisted in `globalState`, **JSON import/export**,
-  **per-language token scoping** (and the taught reason chrome can't be scoped), and a packaged
-  **`van-code-0.0.1.vsix`**.
-
-The architecture held the whole way: a pure engine you can unit-test in plain Node, a thin adapter that owns every
-side effect, and a single choke point for settings writes that kept "non-destructive" honest even as the surface
-grew from one workbench color to three full customization settings.
-
-**Where to go next (all deliberately out of scope here):** publish to the Marketplace with `vsce publish`
-(needs a registered publisher + token); add file-icon/product-icon theming; or reframe per-language scoping as
-per-*workspace* theming (chrome *can* vary per workspace — a different feature, noted in [D2](../foundation/decision-log.md#d2--per-language-scoping-is-tokens-only)).
 
 ## Next
-There is no M6 — this was the final milestone. Head back to the **[guide front door](../README.md)** for the
-one-page recap and the Updates log.
+The generator is complete: a combo + a style produce a whole coordinated theme — chrome, syntax tokens and
+semantic tokens — that you can save, export and scope per language. What you **cannot** do yet is disagree with
+it: if the formula's `bg` is a shade too blue, your only recourse is to pick a different profile.
+
+**[M6 — Per-role color editing](../MILESTONE_6_per-role-color-editing/00_overview.md)** adds that: a color picker
+for every one of the 28 roles the engine produces (8 palette roles, 7 token roles, 13 semantic types), layered
+*over* the formula rather than replacing it — so you can pin one role by hand and keep browsing styles for the
+rest. **M7** then packages the result as a `.vsix`.
 
 ---
-> Nav: [← Package the .vsix](09_package.md) · [Overview](00_overview.md) · [Guide front door →](../README.md)
+> Nav: [← Export / import](08_export-import.md) · [Overview](00_overview.md) · [M6 → Per-role color editing](../MILESTONE_6_per-role-color-editing/00_overview.md)

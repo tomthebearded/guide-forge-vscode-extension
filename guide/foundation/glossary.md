@@ -18,6 +18,9 @@ A number from 1:1 to 21:1 describing how distinguishable two colors are; AA text
 ### Custom set
 A user-saved, named theme (the full set of color customizations) persisted by the extension and shown in "My sets". *(Introduced in M5.)*
 
+### Effective color
+The color a role *ended up* with once the profile's formula ran and any [role override](#role-override) was layered on top — i.e. what the editor is actually painted with, and what a role's swatch in the panel must display. Only the extension can compute it, so it travels back to the webview on every `applied` message. *(Introduced in M6/04.)*
+
 ### Extension Development Host
 The second VS Code window that opens when you press F5, running your in-development extension. *(Introduced in M1.)*
 
@@ -26,6 +29,9 @@ A style whose full palette is *derived* from a seed color by the profile's rules
 
 ### HSL
 A color model of Hue (0–360°), Saturation (%), Lightness (%); easier than RGB for deriving coordinated palettes. *(Introduced in M3.)*
+
+### Role override
+One hand-picked color pinned to a named role (`bg`, `keywords`, the semantic `parameter`…), layered over whatever the profile computed for it. Overrides are a **sparse** map: a role that isn't in it is a role the formula still owns, and un-pinning deletes the key rather than blanking it. Because they're keyed by role and not by preset, they survive a style change. *(Introduced in M6/01.)*
 
 ### Seed color
 The single base color a generative profile expands into a full coordinated palette. *(Introduced in M3.)*

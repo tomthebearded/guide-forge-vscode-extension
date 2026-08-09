@@ -1,5 +1,5 @@
 # Milestone M4 — Preset gallery + panel UX  ⭐ reality-check gate
-> Core · milestone 4 of 5 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-persistence-packaging/00_overview.md)
+> Core · milestone 4 of 7 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md)
 
 ## Goal
 Turn the two bare dropdowns from M3 into the **full preset gallery** and make the panel something you'd actually
@@ -24,7 +24,7 @@ Still **chrome only** — the same boundary M3 drew.
   text (`editor.tokenColorCustomizations` / `editor.semanticTokenColorCustomizations`) is **M5**.
 - **No Save / import / export.** The panel applies live but persists nothing; named sets and JSON round-trips are **M5**.
 - **No per-language scoping.** One theme for everything; the per-language token input is **M5**.
-- **No packaging.** No `publisher` field, no `.vsix` — that's **M5**.
+- **No packaging.** No `publisher` field, no `.vsix` — that's **M7**.
 - The externalized `media/webview/main.js` we write here is the **M4 subset**: combos + styles + variant + preview
   + Revert/Reset only. It grows a language input, Save/Export/Import, and a saved-sets list in **M5**. (Recorded
   here so the smaller file isn't mistaken for drift.)
@@ -69,7 +69,7 @@ values inside each signature palette.)*
   9 generative ones, so they slot into the one registry — **new style = new data, not new control flow.**
   → [conventions.md](../foundation/conventions.md#data-vs-code), [decision-log.md](../foundation/decision-log.md#d4--all-13-styles-taught-in-full-data-driven)
 - **Webview assets live in `media/`, not `src/`.** The generator's `.vscodeignore` drops `src/**` from the package;
-  files under `media/` survive into the `.vsix`. Externalizing now (not in M5) keeps the M5 packaging step trap-free.
+  files under `media/` survive into the `.vsix`. Externalizing now (not later) keeps M7's packaging step trap-free.
   → [conventions.md](../foundation/conventions.md#structure--architecture)
 - **Data-driven, init-first rendering.** The provider owns the truth (which combos/profiles exist) and *pushes* it
   to the webview as an `init` message; the webview renders whatever it's told. Adding style #14 later never touches
@@ -116,11 +116,11 @@ all still non-destructive.
   `(extensionUri, context, history)`.
 
 ### Next milestone
-**[M5 — Tokens, persistence, packaging](../MILESTONE_5_tokens-persistence-packaging/00_overview.md):** recolor the
+**[M5 — Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md):** recolor the
 code text too (syntax + semantic tokens), **Save** named sets that survive reload, **export/import** as JSON,
 **scope tokens per language**, and build the shippable **`.vsix`**. Done-when: tokens recolor, a saved set
 survives a reload, export→import round-trips, a language-scoped set touches one language only, and `vsce package`
 emits `van-code-0.0.1.vsix`.
 
 ---
-> Core · milestone 4 of 5 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-persistence-packaging/00_overview.md)
+> Core · milestone 4 of 7 · prev: [M3](../MILESTONE_3_formula-engine-chrome/00_overview.md) · next: [M5](../MILESTONE_5_tokens-and-persistence/00_overview.md)

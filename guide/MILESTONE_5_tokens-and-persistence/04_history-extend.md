@@ -1,4 +1,4 @@
-# M5 · Step 04 of 10 — History captures all three settings
+# M5 · Step 04 of 9 — History captures all three settings
 > Nav: [← Apply tokens](03_apply-extend.md) · [Overview](00_overview.md) · [Save sets →](05_storage.md)
 
 ## Why / design
@@ -27,7 +27,7 @@ Note both token settings live under the `editor` section, so `capture`/`restore`
 This step edits **one file**: `src/theme/history.ts` — the M2 file. The mechanism is unchanged; you're widening the
 import, adding two fields to `Snapshot`, and adding two lines each to `capture()`/`restore()`. `apply`, `revert`,
 and `depth` stay **exactly** as M2 wrote them (don't re-type them). (The complete file is in
-[the M5 checkpoint](10_verify.md) under `### src/theme/history.ts`.)
+[the M5 checkpoint](09_verify.md) under `### src/theme/history.ts`.)
 
 > **Before you start:** M2's `src/theme/history.ts` must exist with the `ThemeHistory` class
 > (`capture`/`restore`/`apply`/`revert`/`reset`/`depth`) capturing **chrome only**, and step 01's types in place.
@@ -80,7 +80,7 @@ is what makes Reset *delete* keys. The private method names are cosmetic.
 
 ## Done when (this step)
 - `src/theme/history.ts` matches the checkpoint version and the project compiles clean.
-- Behavior is verified in step 10: after applying a themed set (chrome + tokens + semantic), **Revert** restores
+- Behavior is verified in step 09: after applying a themed set (chrome + tokens + semantic), **Revert** restores
   the previous state of *all three* settings, and **Reset** removes all three from `settings.json` entirely.
 
 ## If it breaks

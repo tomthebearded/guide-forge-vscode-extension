@@ -41,7 +41,9 @@ API and color math get taught; the language and npm do not.)
 ### Scope boundaries (out of scope — deliberately)
 - Publishing to the Marketplace. **Packaging a `.vsix` is the finish line**; publishing is not.
 - File-icon themes and product-icon themes (**colors only**).
-- Building a settings-JSON editor UI.
+- Building a settings-JSON editor UI. *(M6 lets the reader hand-pick colors, but only for the **28 roles the engine
+  emits** — not a searchable editor over VS Code's ~600 theme-color keys, which is what this boundary rules out.
+  → [decision-log.md D9](foundation/decision-log.md#d9--overrides-are-role-level-not-vs-code-key-level))*
 - Multi-window / settings-sync behavior.
 - Distributing or contributing a full `.tmTheme`/theme-extension file (we write *customizations*, not a theme extension).
 
@@ -165,7 +167,9 @@ The **reality-check gate is M4** — the first point the extension is genuinely 
 | **M2** | Non-destructive backbone | One workbench color applies live; snapshot + Revert + Reset work | M1 | Click "make status bar red" → it changes live; **Revert** restores exactly; **Reset** removes the customization entirely |
 | **M3** | Color-formula engine (chrome) | A seed color → a full coordinated **chrome** palette, via any of the **9 generative profiles**, applied live | M2 | Pick a starter combo + a generative profile → all chrome recolors coherently and live; Revert restores |
 | **M4** ⭐ *reality-check gate* | Preset gallery + panel UX | The full gallery (5 combos × 9 generative + **4 signature presets**) → full chrome theme live, with **swatch preview** + **contrast readout**, Revert/Reset | M3 | Every combo/style in the gallery yields a coherent live chrome theme; swatches + contrast ratio show; **stop and actually use it** |
-| **M5** | Tokens, persistence, packaging | Syntax + semantic tokens recolor too; **Save** named sets; **import/export** JSON; **per-language token scoping**; a built **`.vsix`** | M4 | Tokens recolor; a saved set survives reload; export→import round-trips; a language-scoped token set applies to one language only; `vsce package` emits `van-code-x.y.z.vsix` |
+| **M5** | Tokens and persistence | Syntax + semantic tokens recolor too; **Save** named sets; **import/export** JSON; **per-language token scoping** | M4 | Tokens recolor; a saved set survives reload; export→import round-trips; a language-scoped token set applies to one language only |
+| **M6** | Per-role color editing | A picker for **each of the 28 roles** the engine emits, layered *over* the formula as sparse overrides; pinned roles survive a style change and are saved with the set | M5 | 28 rows render; pinning a role recolors on release and moves everything derived from it; ↺ / Clear all return roles to the formula; Revert stays one-step-per-edit; a saved set restores its pins |
+| **M7** | Packaging | A built, installable **`.vsix`** | M6 | `vsce package` emits `van-code-x.y.z.vsix`; installing it in an ordinary window gives a working panel — status bar included |
 
 ### Sittings (natural pause points inside the big milestones)
 - **M3** — (a) color utilities: hex↔HSL, lighten/darken, mix, contrast ratio; (b) the `StyleProfile` type + registry
@@ -175,7 +179,13 @@ The **reality-check gate is M4** — the first point the extension is genuinely 
   readout; (d) the 4 signature presets (fixed-identity path); (e) **reality-check**: use it for real, decide it's worth finishing.
 - **M5** — (a) extend the engine to emit `editor.tokenColorCustomizations` (TextMate) for all profiles; (b) semantic
   token customizations + the "silently does nothing" failure-note; (c) Save/list custom sets via `globalState`; (d)
-  export/import JSON; (e) per-language token scoping (+ teach the workbench-vs-editor limit); (f) package the `.vsix`.
+  export/import JSON; (e) per-language token scoping (+ teach the workbench-vs-editor limit).
+- **M6** — (a) the `ThemeOverrides` type + the pure `overrides.ts` (hex guard + sparse merge), Node-checkable;
+  (b) the three merge points inside `generate()` + the provider echoing effective colors; (c) the role-row UI for
+  the 8 chrome roles; (d) the 7 token roles + 13 semantic types; (e) un-pin / clear-all + the Revert-vs-un-pin
+  mental model; (f) overrides persisted in the saved set.
+- **M7** — (a) `publisher` + `repository` in the manifest and `vsce package`; (b) install the `.vsix` in an ordinary
+  window and close the M3 status-bar exception.
 
 ---
 
@@ -250,7 +260,9 @@ examples/vscode-extension/
     MILESTONE_2_nondestructive-backbone/
     MILESTONE_3_formula-engine-chrome/
     MILESTONE_4_gallery-and-ux/
-    MILESTONE_5_tokens-persistence-packaging/
+    MILESTONE_5_tokens-and-persistence/
+    MILESTONE_6_per-role-color-editing/
+    MILESTONE_7_packaging/
 ```
 
 The extension source the guide builds (created *inside* the steps, not scaffolded now) will live under the reader's
@@ -269,7 +281,7 @@ van-code/
 
 ## 8. First move
 
-`/draft-milestone` drafts the **whole guide in one pass** — every milestone M1→M5 in ladder order, back-to-back —
+`/draft-milestone` drafts the **whole guide in one pass** — every milestone M1→M7 in ladder order, back-to-back —
 so you have the finished guide before you build. Once it's drafted I reconcile `status.md` + the README Updates log +
 `examples/README.md` and run a dead-link check. You then follow the guide, building each milestone and verifying its
 Done-when gate as you go (M1's F5 gate is the first checkpoint).
@@ -277,4 +289,4 @@ Done-when gate as you go (M1's F5 gate is the first checkpoint).
 **Do not draft yet.** This plan is the deliverable. Next steps in order:
 1. You approve (or adjust) this plan.
 2. `/scaffold-guide` stamps the README + 5 foundation docs + milestone overview placeholders.
-3. `/draft-milestone` drafts the whole guide (M1→M5).
+3. `/draft-milestone` drafts the whole guide (M1→M7).

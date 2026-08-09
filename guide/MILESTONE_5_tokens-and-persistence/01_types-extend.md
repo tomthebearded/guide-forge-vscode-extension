@@ -1,4 +1,4 @@
-# M5 · Step 01 of 10 — Extend the engine types (tokens + semantic)
+# M5 · Step 01 of 9 — Extend the engine types (tokens + semantic)
 > Nav: — · [Overview](00_overview.md) · [Generate tokens →](02_generate-extend.md)
 
 ## Glossary for this step
@@ -26,7 +26,7 @@ The three new type members map 1:1 to the two token settings VS Code exposes:
 ## Do this
 This step edits **one file**: `src/engine/types.ts` — the M3 file. You're **adding** two type definitions and two
 fields; `StarterCombo`, `Palette`, `ChromeColors`, and `StyleProfile` stay exactly as M3 wrote them. (The complete
-file is in [the M5 checkpoint](10_verify.md) under `### src/engine/types.ts`.)
+file is in [the M5 checkpoint](09_verify.md) under `### src/engine/types.ts`.)
 
 > **Before you start:** M3's `src/engine/types.ts` must exist with `Hex`, `StarterCombo`, `Palette`,
 > `ChromeColors`, `StyleProfile`, and a `ThemeResult` carrying `palette` and `chrome`.

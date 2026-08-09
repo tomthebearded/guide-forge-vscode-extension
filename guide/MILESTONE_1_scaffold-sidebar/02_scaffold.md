@@ -56,7 +56,7 @@ before we change anything.
   prompt. Behind a corporate proxy, set `npm config set proxy …` first.
 - **The `"name"` came out different** (e.g. `vancode`) → the identifier answer wasn't `van-code`. Fix it now:
   edit `package.json`'s `"name"` to `van-code` before continuing, or re-run the generator. This name is
-  load-bearing (the `.vsix` in M5 is named from it).
+  load-bearing (the `.vsix` in M7 is named from it).
 - **Chose the wrong bundler** → it still works; unbundled just means plain `tsc`. If you picked webpack/esbuild the
   generated scripts differ from this guide's — re-run the generator and choose **unbundled** to stay in step.
 
