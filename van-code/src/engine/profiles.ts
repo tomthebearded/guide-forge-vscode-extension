@@ -1,33 +1,16 @@
-import {
-    Palette,
-    StarterCombo,
-    StyleProfile
-} from './types';
-import {
-    darken,
-    lighten,
-    saturate,
-    desaturate,
-    setHue,
-    mix,
-    ensureContrast
-} from './color';
+import { Palette, StarterCombo, StyleProfile } from './types';
+import { darken, lighten, saturate, desaturate, setHue, mix, ensureContrast } from './color';
 
 function base(combo: StarterCombo): Palette {
     return {
         bg: combo.bg,
         surface: combo.surface,
-        surfaceAlt: lighten(combo.surface,
-            0.04),
+        surfaceAlt: lighten(combo.surface, 0.04),
         text: combo.text,
-        textMuted: mix(combo.text,
-            combo.surface,
-            0.5),
+        textMuted: mix(combo.text, combo.surface, 0.5),
         accent1: combo.accent1,
         accent2: combo.accent2,
-        border: mix(combo.surface,
-            combo.text,
-            0.15),
+        border: mix(combo.surface, combo.text, 0.15),
     };
 }
 
@@ -38,6 +21,7 @@ export const GENERATIVE: StyleProfile[] = [
         family: 'generative',
         buildPalette: (combo) => {
             const palette = base(combo);
+
             return {
                 ...palette,
                 bg: darken(palette.bg, 0.03),
@@ -54,6 +38,7 @@ export const GENERATIVE: StyleProfile[] = [
         family: 'generative',
         buildPalette: (combo) => {
             const palette = base(combo);
+
             return {
                 ...palette,
                 surface: lighten(palette.surface, 0.06),
@@ -69,6 +54,7 @@ export const GENERATIVE: StyleProfile[] = [
         family: 'generative',
         buildPalette: (combo) => {
             const palette = base(combo);
+
             return {
                 ...palette,
                 bg: '#000000',
@@ -84,6 +70,7 @@ export const GENERATIVE: StyleProfile[] = [
         buildPalette: (combo) => {
             const palette = base(combo);
             const warm = (hex: string, amount: number) => mix(hex, '#c98a3c', amount);
+
             return {
                 ...palette,
                 bg: warm(palette.bg, 0.10),
@@ -102,6 +89,7 @@ export const GENERATIVE: StyleProfile[] = [
         family: 'generative',
         buildPalette: (combo) => {
             const palette = base(combo);
+
             return {
                 ...palette,
                 bg: '#121212',
@@ -123,6 +111,7 @@ export const GENERATIVE: StyleProfile[] = [
         buildPalette: (combo, variant = 'ocean') => {
             const palette = base(combo);
             const hue = variant === 'forest' ? 140 : 200;
+
             return {
                 ...palette,
                 bg: mix(palette.bg, setHue(palette.bg, hue), 0.5),
@@ -139,6 +128,7 @@ export const GENERATIVE: StyleProfile[] = [
         buildPalette: (combo) => {
             const palette = base(combo);
             const bg = darken(palette.bg, 0.02);
+
             return {
                 ...palette,
                 bg,
@@ -156,6 +146,7 @@ export const GENERATIVE: StyleProfile[] = [
         family: 'generative',
         buildPalette: (combo) => {
             const palette = base(combo);
+
             return {
                 ...palette,
                 text: desaturate(darken(palette.text, 0.05), 0.1),
@@ -171,6 +162,7 @@ export const GENERATIVE: StyleProfile[] = [
         buildPalette: (combo) => {
             const palette = base(combo);
             const gray = (hex: string) => desaturate(hex, 1);
+
             return {
                 bg: gray(palette.bg),
                 surface: gray(palette.surface),
@@ -184,8 +176,58 @@ export const GENERATIVE: StyleProfile[] = [
         },
     }
 ];
+export const SIGNATURE: StyleProfile[] = [
+    {
+        id: 'game-boy',
+        label: 'Game Boy',
+        family: 'signature',
+        variants: ['dmg', 'pocket', 'light'],
+        buildPalette: (_combo, variant = 'dmg') => {
+            if (variant === 'pocket')
+                return fixed('#0d0d0d', '#2b2b2b', '#8b8b8b', '#c4c4c4', '#5a5a5a');
+            if (variant === 'light')
+                return fixed('#c4cfa1', '#8b956d', '#4d533c', '#1f1f1f', '#4d533c');
 
-export const PROFILES: StyleProfile[] = [...GENERATIVE];
+            return fixed('#0f380f', '#306230', '#9bbc0f', '#8bac0f', '#306230'); // dmg
+        },
+    },
+    {
+        id: 'sixteen-bit',
+        label: '16-bit',
+        family: 'signature',
+        buildPalette: () => fixed('#1a1c2c', '#29366f', '#f4f4f4', '#ef7d57', '#41a6f6'),
+    },
+    {
+        id: 'synthwave',
+        label: 'Synthwave',
+        family: 'signature',
+        buildPalette: () => fixed('#241b2f', '#2a2139', '#f8f8f2', '#ff7edb', '#36f9f6'),
+    },
+    {
+        id: 'terminal',
+        label: 'Terminal / CRT',
+        family: 'signature',
+        variants: ['green', 'amber'],
+        buildPalette: (_combo, variant = 'green') => variant === 'amber'
+            ? fixed('#0a0600', '#1a1200', '#ffb000', '#ffc433', '#7a5200')
+            : fixed('#001100', '#002200', '#33ff33', '#66ff66', '#0a5a0a'),
+    },
+];
+
+function fixed(bg: string, surface: string, text: string, accent1: string, accent2: string): Palette {
+    return {
+        bg,
+        surface,
+        surfaceAlt: lighten(surface, 0.04),
+        text,
+        textMuted: mix(text, surface, 0.5),
+        accent1,
+        accent2,
+        border: mix(surface, text, 0.2),
+    };
+}
+
+export const PROFILES: StyleProfile[] = [...GENERATIVE, ...SIGNATURE];
 
 export function profileById(id: string): StyleProfile {
     return PROFILES.find((profile) => profile.id === id) ?? PROFILES[0];
