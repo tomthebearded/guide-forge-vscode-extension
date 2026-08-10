@@ -38,6 +38,8 @@ export type SemanticColors = Record<string, Hex>;
 export interface ThemeResult {
     palette: Palette;
     chrome: ChromeColors;
+    tokens: TokenColors;
+    semantic: SemanticColors;
 }
 
 export interface StyleProfile {

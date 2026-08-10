@@ -1,5 +1,5 @@
-import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult } from './types';
-import { readableOn } from './color';
+import { ensureContrast, mix, readableOn, rotate } from './color';
+import { ChromeColors, Palette, SemanticColors, StarterCombo, StyleProfile, ThemeResult, TokenColors } from './types';
 
 function paletteToChrome(palette: Palette): ChromeColors {
     return {
@@ -26,10 +26,44 @@ function paletteToChrome(palette: Palette): ChromeColors {
     };
 }
 
+function paletteToTokens(palette: Palette): TokenColors {
+    const readable = (hex: string) => ensureContrast(hex, palette.bg, 3);
+    return {
+        comments: readable(palette.textMuted),
+        keywords: readable(palette.accent1),
+        strings: readable(palette.accent2),
+        numbers: readable(rotate(palette.accent2, 20)),
+        types: readable(rotate(palette.accent1, -20)),
+        functions: readable(mix(palette.accent2, palette.text, 0.2)),
+        variables: readable(palette.text),
+    };
+}
+
+function paletteToSemantic(tokens: TokenColors): SemanticColors {
+    return {
+        variable: tokens.variables,
+        parameter: tokens.variables,
+        property: tokens.variables,
+        function: tokens.functions,
+        method: tokens.functions,
+        class: tokens.types,
+        type: tokens.types,
+        interface: tokens.types,
+        enum: tokens.types,
+        keyword: tokens.keywords,
+        string: tokens.strings,
+        number: tokens.numbers,
+        comment: tokens.comments,
+    };
+}
+
 export function generate(combo: StarterCombo, profile: StyleProfile, variant?: string): ThemeResult {
     const palette = profile.buildPalette(combo, variant);
+    const tokens = paletteToTokens(palette);
     return {
         palette,
         chrome: paletteToChrome(palette),
+        tokens,
+        semantic: paletteToSemantic(tokens),
     };
 }
