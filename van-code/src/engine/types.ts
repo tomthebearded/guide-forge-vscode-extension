@@ -23,6 +23,18 @@ export interface Palette {
 
 export type ChromeColors = Record<string, Hex>;
 
+export interface TokenColors {
+    comments: Hex;
+    keywords: Hex;
+    strings: Hex;
+    numbers: Hex;
+    types: Hex;
+    functions: Hex;
+    variables: Hex;
+}
+
+export type SemanticColors = Record<string, Hex>;
+
 export interface ThemeResult {
     palette: Palette;
     chrome: ChromeColors;
