@@ -1,5 +1,7 @@
-import { ensureContrast, mix, readableOn, rotate } from './color';
-import { ChromeColors, Palette, SemanticColors, StarterCombo, StyleProfile, ThemeResult, TokenColors } from './types';
+import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult, ThemeOverrides, TokenColors, SemanticColors } from './types';
+import { readableOn, mix, rotate, ensureContrast } from './color';
+import { overrideRoles } from './overrides';
+
 
 function paletteToChrome(palette: Palette): ChromeColors {
     return {
@@ -57,13 +59,19 @@ function paletteToSemantic(tokens: TokenColors): SemanticColors {
     };
 }
 
-export function generate(combo: StarterCombo, profile: StyleProfile, variant?: string): ThemeResult {
-    const palette = profile.buildPalette(combo, variant);
-    const tokens = paletteToTokens(palette);
+export function generate(
+    combo: StarterCombo,
+    profile: StyleProfile,
+    variant?: string,
+    overrides?: ThemeOverrides,
+): ThemeResult {
+    const palette = overrideRoles(profile.buildPalette(combo, variant), overrides?.palette);
+    const tokens = overrideRoles(paletteToTokens(palette), overrides?.tokens);
     return {
         palette,
         chrome: paletteToChrome(palette),
         tokens,
-        semantic: paletteToSemantic(tokens),
+        semantic: overrideRoles(paletteToSemantic(tokens), overrides?.semantic),
     };
 }
+
