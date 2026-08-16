@@ -42,6 +42,12 @@ export interface ThemeResult {
     semantic: SemanticColors;
 }
 
+export interface ThemeOverrides {
+    palette?: Partial<Palette>;
+    tokens?: Partial<TokenColors>;
+    semantic?: SemanticColors;
+}
+
 export interface StyleProfile {
     id: string;
     label: string;
