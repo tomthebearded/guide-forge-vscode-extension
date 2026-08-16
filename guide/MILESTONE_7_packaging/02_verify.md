@@ -144,7 +144,8 @@ Over seven milestones you built a complete, installable VS Code extension from a
 - **M4** — an externalized gallery UI (13 profiles incl. 4 signature presets) with live swatch preview and a WCAG
   contrast readout — the reality-check gate where the tool became genuinely usable.
 - **M5** — syntax + semantic **token** recoloring, **saved sets** persisted in `globalState`, **JSON
-  import/export**, and **per-language token scoping** (with the taught reason chrome can't be scoped).
+  import/export**, and **per-language token scoping** — the language carried **inside the setting value**
+  (`source.ts comment` scopes, `:typescript` rule keys), with the taught reason chrome can't be scoped at all.
 - **M6** — **per-role overrides**: a picker for each of the 28 roles the engine emits, validated and merged inside
   the pure engine, layered over the formula rather than replacing it, and saved with the set.
 - **M7** — a packaged, installable **`van-code-0.0.1.vsix`**.
@@ -153,7 +154,9 @@ The architecture held the whole way. A pure engine you can unit-test in plain No
 logic (a merge that must never blank a color) was provable with a one-line `node -e` before any UI existed. A thin
 adapter that owns every side effect. And a single choke point for settings writes that kept "non-destructive"
 honest even as the surface grew from one workbench color to three full customization settings *and* a hand-editable
-28-role palette: `src/theme/` has not changed since M5, and it never needed to.
+28-role palette. `src/theme/` earned exactly one change after M5 — the two token-apply functions, rewritten in M6's
+corrections when the per-language mechanism turned out to be the wrong one — and even that landed **behind the same
+choke point**, which is why Revert kept working through it without a line of history code moving.
 
 **Where to go next (all deliberately out of scope here):** publish to the Marketplace with `vsce publish` (needs a
 registered publisher + token); add file-icon/product-icon theming; reframe per-language scoping as per-*workspace*

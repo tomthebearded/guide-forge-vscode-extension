@@ -116,8 +116,11 @@ API and color math get taught; the language and npm do not.)
   **`editor.semanticTokenColorCustomizations`**.
 - Per-theme scoping inside a customization object uses a **`"[Theme Display Name]"`** key (wildcards `*`,
   multiple `[A][B]` = OR).
-- Per-**language** scoping uses a top-level **`"[languageId]"`** key and applies to `editor.*` settings only
-  (tokens), **not** `workbench.colorCustomizations`.
+- Per-**language** scoping is expressed **inside the value** of the two `editor.*` settings — semantic rule keys
+  take a `:languageId` suffix, TextMate needs `textMateRules` with language-qualified scopes (`source.ts comment`).
+  A `"[languageId]"` block does **not** work on any of the three settings (amended 2026-08-16 →
+  [D11](foundation/decision-log.md#d11--language-scoping-lives-inside-the-setting-value-and-a-scoped-apply-replaces-the-global-one)).
+  `workbench.colorCustomizations` still has no per-language form at all.
 - Write settings with **`vscode.workspace.getConfiguration().update(section, value, ConfigurationTarget.Global)`**
   (`Global = 1`, `Workspace = 2`); `await` it; changes apply **live**. Observe external edits with
   `vscode.workspace.onDidChangeConfiguration`.
@@ -171,7 +174,7 @@ The **reality-check gate is M4** — the first point the extension is genuinely 
 | **M3** | Color-formula engine (chrome) | A seed color → a full coordinated **chrome** palette, via any of the **9 generative profiles**, applied live | M2 | Pick a starter combo + a generative profile → all chrome recolors coherently and live; Revert restores |
 | **M4** ⭐ *reality-check gate* | Preset gallery + panel UX | The full gallery (5 combos × 9 generative + **4 signature presets**) → full chrome theme live, with **swatch preview** + **contrast readout**, Revert/Reset | M3 | Every combo/style in the gallery yields a coherent live chrome theme; swatches + contrast ratio show; **stop and actually use it** |
 | **M5** | Tokens and persistence | Syntax + semantic tokens recolor too; **Save** named sets; **import/export** JSON; **per-language token scoping** | M4 | Tokens recolor; a saved set survives reload; export→import round-trips; a language-scoped token set applies to one language only |
-| **M6** | Per-role color editing | A picker for **each of the 28 roles** the engine emits, layered *over* the formula as sparse overrides; pinned roles survive a style change and are saved with the set | M5 | 28 rows render; pinning a role recolors on release and moves everything derived from it; ↺ / Clear all return roles to the formula; Revert stays one-step-per-edit; a saved set restores its pins |
+| **M6** | Per-role color editing | A picker for **each of the 28 roles** the engine emits, layered *over* the formula as sparse overrides; pinned roles survive a style change and are saved with the set. **Also carries the 2026-08-16 correction to M5's per-language mechanism** (D11) | M5 | 28 rows render; pinning a role recolors on release and moves everything derived from it; ↺ / Clear all return roles to the formula; Revert stays one-step-per-edit; a saved set restores its pins; a `typescript`-scoped apply hits `.ts` only, with no `"[typescript]"` block written |
 | **M7** | Packaging | A built, installable **`.vsix`** | M6 | `vsce package` emits `van-code-x.y.z.vsix`; installing it in an ordinary window gives a working panel — status bar included |
 
 ### Sittings (natural pause points inside the big milestones)
@@ -182,7 +185,8 @@ The **reality-check gate is M4** — the first point the extension is genuinely 
   readout; (d) the 4 signature presets (fixed-identity path); (e) **reality-check**: use it for real, decide it's worth finishing.
 - **M5** — (a) extend the engine to emit `editor.tokenColorCustomizations` (TextMate) for all profiles; (b) semantic
   token customizations + the "silently does nothing" failure-note; (c) Save/list custom sets via `globalState`; (d)
-  export/import JSON; (e) per-language token scoping (+ teach the workbench-vs-editor limit).
+  export/import JSON; (e) per-language token scoping (+ teach the workbench-vs-editor limit). *(The scoping
+  mechanism is corrected in M6 — see D11; M5's own steps carry a superseded banner.)*
 - **M6** — (a) the `ThemeOverrides` type + the pure `overrides.ts` (hex guard + sparse merge), Node-checkable;
   (b) the three merge points inside `generate()` + the provider echoing effective colors; (c) the role-row UI for
   the 8 chrome roles; (d) the 7 token roles + 13 semantic types; (e) un-pin / clear-all + the Revert-vs-un-pin

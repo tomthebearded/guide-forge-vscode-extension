@@ -1,6 +1,12 @@
 # M5 · Step 09 of 9 — Verify the milestone (tokens + persistence)
 > Nav: [← Export / import](08_export-import.md) · [Overview](00_overview.md) · [M6 → Per-role color editing](../MILESTONE_6_per-role-color-editing/00_overview.md)
 
+> ⚠️ **Superseded 2026-08-16** — **check 5 tests a behaviour VS Code does not offer**: no `"[typescript]"` block is
+> ever written, because neither token setting is language-overridable. Checks 1–4 and the file checkpoint below are
+> still correct, except `src/theme/apply.ts`. Don't follow this step as written: the correction that brings it up to
+> date is under *Before you continue — corrections* in
+> [01_types-overrides.md](../MILESTONE_6_per-role-color-editing/01_types-overrides.md).
+
 ## Done-when gate (run every check)
 Do these in the Extension Development Host (press <kbd>F5</kbd>), in order. Each pairs an action with the **exact**
 result you should see. Open a real `.ts` or `.js` file in the EDH first so you can watch code recolor.

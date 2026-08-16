@@ -46,8 +46,20 @@ vsce package                  # emits van-code-<version>.vsix
   **`editor.semanticTokenColorCustomizations`**.
 - Per-theme scoping inside a customization object uses a **`"[Theme Display Name]"`** key (wildcards `*`,
   multiple `[A][B]` = OR).
-- Per-**language** scoping uses a top-level **`"[languageId]"`** key and applies to `editor.*` settings only
-  (tokens), **not** `workbench.colorCustomizations`.
+- Per-**language** scoping does **not** use a `"[languageId]"` block on any of the three settings — none of them is
+  a resource-language setting, so `update(..., overrideInLanguage)` is rejected with `CodeExpectedError: … is not a
+  resource language setting` (re-verified 2026-08-16: [vscode#124997](https://github.com/microsoft/vscode/issues/124997),
+  [vscode#66729](https://github.com/microsoft/vscode/issues/66729)). It is expressed **inside the value**, and only
+  for the two `editor.*` settings: semantic rule keys take the selector suffix
+  `(*|tokenType)(.tokenModifier)*(:tokenLanguage)?` — e.g. `variable:typescript`
+  ([Semantic Highlight Guide](https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide)) —
+  and `editor.tokenColorCustomizations` needs `textMateRules` with language-qualified scopes such as
+  `source.ts comment` (the seven named groups cannot carry a language). `workbench.colorCustomizations` has no
+  per-language form at all. → [D11](decision-log.md#d11--language-scoping-lives-inside-the-setting-value-and-a-scoped-apply-replaces-the-global-one)
+- A TextMate root scope names the **grammar**, not the languageId: `typescript` → `source.ts`, `csharp` →
+  `source.cs`, `markdown` → `text.html.markdown`. No official table exists; find any of them with
+  **Developer: Inspect Editor Tokens and Scopes**. *(UNVERIFIED as a complete list — the guide ships the ids that
+  differ plus a `source.<languageId>` fallback.)*
 - Write settings with **`vscode.workspace.getConfiguration().update(section, value, ConfigurationTarget.Global)`**
   (`Global = 1`, `Workspace = 2`); `await` it; changes apply **live**. Observe external edits with
   `vscode.workspace.onDidChangeConfiguration`.

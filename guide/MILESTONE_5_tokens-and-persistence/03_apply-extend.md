@@ -1,6 +1,11 @@
 # M5 · Step 03 of 9 — Apply tokens + semantic, and scope tokens per language
 > Nav: [← Generate tokens](02_generate-extend.md) · [Overview](00_overview.md) · [History extend →](04_history-extend.md)
 
+> ⚠️ **Superseded 2026-08-16** — per-language scoping no longer goes through `config.update`'s
+> `overrideInLanguage` argument: neither token setting is language-overridable, so that write throws. Don't follow
+> this step as written: the correction that brings it up to date is under *Before you continue — corrections* in
+> [01_types-overrides.md](../MILESTONE_6_per-role-color-editing/01_types-overrides.md).
+
 ## Why / design
 `src/theme/apply.ts` is the **one write path** — the only module that touches settings ([conventions.md](../foundation/conventions.md#structure--architecture)).
 M2 gave it `applyChrome`. Now we add `applyTokens` and `applySemantic` (the two `editor.*` settings) and a single

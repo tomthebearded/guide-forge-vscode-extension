@@ -1,6 +1,12 @@
 # Milestone M5 — Tokens and persistence
 > Core · milestone 5 of 7 · prev: [M4](../MILESTONE_4_gallery-and-ux/00_overview.md) · next: [M6](../MILESTONE_6_per-role-color-editing/00_overview.md) · start: [Extend the engine types](01_types-extend.md)
 
+> ⚠️ **Superseded 2026-08-16** — every statement below about a `"[languageId]"` block and the language-override 4th
+> argument is wrong: neither token setting is language-overridable. The feature itself survives — scoping moves
+> **inside the setting value** — but don't follow this milestone's per-language claims as written. The correction is
+> under *Before you continue — corrections* in
+> [01_types-overrides.md](../MILESTONE_6_per-role-color-editing/01_types-overrides.md).
+
 ## Goal
 M4 recolored the **chrome** (the editor's surrounding UI); M5 makes the extension recolor **the code itself** —
 syntax tokens (keywords, strings, comments) and semantic tokens (types, functions, variables) — then adds the

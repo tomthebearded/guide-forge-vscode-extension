@@ -54,6 +54,15 @@ The data object (rules or fixed values) defining one of the 13 styles; collected
 ### TextMate scope
 A dotted name (e.g. `comment.line`, `keyword.control`) identifying a class of syntax tokens, targeted by `editor.tokenColorCustomizations`. *(Introduced in M5.)*
 
+### TextMate scope selector
+The matching expression a `textMateRules` entry puts in its `scope`. A space between two names means *descendant* — `source.ts comment` matches a comment **only** inside a TypeScript document — a comma means *or*, and the most specific match wins ([TextMate manual](https://macromates.com/manual/en/scope_selectors)). This is how per-language token colors are expressed, since the seven named groups (`comments`, `keywords`, …) cannot carry a language. *(Introduced by the 2026-08-16 amendment, in [M6/01](../MILESTONE_6_per-role-color-editing/01_types-overrides.md).)*
+
+### TextMate root scope
+The scope naming the **grammar** that tokenizes a document, as opposed to the VS Code `languageId` naming the language: `typescript` is tokenized by `source.ts`, `csharp` by `source.cs`, `markdown` by `text.html.markdown`. They differ often enough to be a trap; **Developer: Inspect Editor Tokens and Scopes** shows the root of whatever is under the cursor. *(Introduced by the 2026-08-16 amendment, in [M6/01](../MILESTONE_6_per-role-color-editing/01_types-overrides.md).)*
+
+### Semantic token selector
+The key of a rule in `editor.semanticTokenColorCustomizations.rules`. Its grammar is `(*|tokenType)(.tokenModifier)*(:tokenLanguage)?`, so the optional `:` suffix scopes a rule to one language — `variable:typescript` colors variables in TypeScript only ([Semantic Highlight Guide](https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide)). *(Introduced by the 2026-08-16 amendment, in [M6/01](../MILESTONE_6_per-role-color-editing/01_types-overrides.md).)*
+
 ### View Container
 A grouping in the Activity Bar (or panel) that holds one or more Views; contributed via `contributes.viewsContainers`. *(Introduced in M1.)*
 

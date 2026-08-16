@@ -78,7 +78,7 @@ One manifest field, one command, one install — and seven milestones of work be
 - **M4** — an externalized gallery UI (13 profiles incl. 4 signature presets) with swatch preview and a WCAG
   contrast readout — the reality-check gate.
 - **M5** — syntax + semantic token recoloring, saved sets in `globalState`, JSON import/export, per-language token
-  scoping.
+  scoping (its mechanism corrected in M6 — the language rides **inside** the setting value).
 - **M6** — per-role overrides: a picker for each of the 28 roles, layered over the formula and saved with the set.
 - **M7** — a packaged, installable `van-code-0.0.1.vsix`.
 

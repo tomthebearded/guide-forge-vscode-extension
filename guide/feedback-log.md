@@ -46,7 +46,12 @@
 - **Note:** the guide's own README Updates entry of 2026-08-09 already listed this as an **open suspect** — "whether
   `editor.semanticTokenColorCustomizations` is truly language-overridable (M5/09 check 5 depends on it)". This report
   closes that suspect: it is not, and neither is the TextMate one.
-- **Status:** logged
+- **Status:** fixed via /amend-guide (2026-08-16) — treated as a change of intent rather than a defect, because M1–M5
+  were already executed and M5 could not be rewritten under the reader. The mechanism moves inside the setting value
+  (`:languageId` semantic rule keys; `textMateRules` with `source.ts …` scopes); M5/00, M5/03 and M5/09 carry a
+  superseded banner only, and the repair is the *Before you continue — corrections* section at the top of
+  [M6/01](MILESTONE_6_per-role-color-editing/01_types-overrides.md), proved by new gate check 10 in M6/10.
+  [D2](foundation/decision-log.md#d2--per-language-scoping-is-tokens-only) amended, [D11](foundation/decision-log.md#d11--language-scoping-lives-inside-the-setting-value-and-a-scoped-apply-replaces-the-global-one) added.
 
 ### 2026-08-10 · M5/06 · a failed apply surfaces as an unhandled-rejection stack, not a message
 - **Where:** M5 step 06 (`themePanelProvider.ts`, the `apply` message handler → `await this.history.apply(() => applyTheme(theme, m.languageId || undefined))`).

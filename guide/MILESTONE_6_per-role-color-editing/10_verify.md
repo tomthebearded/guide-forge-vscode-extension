@@ -94,7 +94,25 @@ type derived from it, and a semantic pin overrules that. `chrome keys: 20` confi
 - **Export** → the JSON has an `"overrides"` object holding only the pinned roles. Delete the set, **Import** the
   file → **Expected:** toast `Van Code: imported 1 set(s).` and the set returns with its pins intact.
 
-If all nine pass, **M6 is done.**
+### 10. Per-language scoping works through the value, not through a `"[languageId]"` block
+> This check exists because of the 2026-08-16 amendment. If you started the guide after that date, the corrections
+> section at the top of [step 01](01_types-overrides.md) does not apply to you, but this check still does — it is
+> how the shipped guide proves the feature.
+
+- Open a `.ts` file and a `.js` file side by side. Type `typescript` into the **Per-language (tokens only)** box,
+  then pick any combo/style.
+- **Expected:** no error in the extension-host console. In `settings.json`,
+  `editor.tokenColorCustomizations` holds a `textMateRules` array whose `scope` entries begin `source.ts ` —
+  `source.ts comment`, `source.ts keyword`, and so on — and `editor.semanticTokenColorCustomizations.rules` has
+  keys suffixed `:typescript`. **No `"[typescript]"` block exists anywhere in the file.**
+- **Expected in the editor:** the `.ts` file recolors; the `.js` file beside it does **not**; the chrome is
+  unchanged by this apply.
+- Click **Revert** once → the scoped value is undone in one step (the write was one whole-value replace, so M2's
+  snapshot captured it whole).
+- Clear the box and apply again → tokens recolor every language, and `editor.tokenColorCustomizations` is back to
+  the seven named keys.
+
+If all ten pass, **M6 is done.**
 
 ## What's automatable vs. checked by hand
 - **Engine (pure, no F5):** checks 1–2 prove the guard, the merge, the `undefined` trap, and all three merge points
@@ -105,8 +123,11 @@ If all nine pass, **M6 is done.**
 
 ## Files after this milestone (complete contents)
 The files **created or modified in M6**. Unchanged since earlier milestones and **not repeated here**:
-`src/engine/color.ts`, `combos.ts`, `profiles.ts` (M3–M4), `src/theme/settings.ts`, `apply.ts`, `history.ts` (M2/M5
-— **M6 touches none of them**), `src/extension.ts` (M5), `media/icon.svg` (M1), and `package.json` (M1; M7 edits it).
+`src/engine/color.ts`, `combos.ts`, `profiles.ts` (M3–M4), `src/theme/settings.ts`, `history.ts` (M2/M5 — **M6's
+own steps touch neither**), `src/extension.ts` (M5), `media/icon.svg` (M1), and `package.json` (M1; M7 edits it).
+`src/theme/apply.ts` **is** reproduced below: M6's steps don't touch it, but the corrections section at the top of
+[step 01](01_types-overrides.md) rewrites two of its functions, so this is the canonical copy to check yourself
+against.
 
 ### `src/engine/types.ts`
 ```ts
@@ -264,6 +285,90 @@ export function generate(
     // ③ pinned semantic types win last, so they can disagree with ②
     semantic: overrideRoles(paletteToSemantic(tokens), overrides?.semantic),
   };
+}
+```
+
+### `src/theme/apply.ts`
+> Unchanged by M6's own steps. This is the file **after** the corrections at the top of
+> [step 01](01_types-overrides.md) — `applyChrome` and `applyTheme` are exactly as M2/M5 wrote them; `applyTokens`
+> and `applySemantic` are the amended versions.
+
+```ts
+import * as vscode from 'vscode';
+import { CHROME, TOKENS, SEMANTIC, TARGET } from './settings';
+import { ThemeResult } from '../engine/types';
+
+// A TextMate root scope names the grammar, not the language: `typescript` is tokenized by `source.ts`.
+// Only the ids that differ need an entry; everything else falls back to `source.<languageId>`.
+const TEXTMATE_ROOT: Record<string, string> = {
+  typescript: 'source.ts',
+  typescriptreact: 'source.tsx',
+  javascript: 'source.js',
+  javascriptreact: 'source.js.jsx',
+  csharp: 'source.cs',
+  cpp: 'source.cpp',
+  shellscript: 'source.shell',
+  json: 'source.json',
+  jsonc: 'source.json.comments',
+  yaml: 'source.yaml',
+  html: 'text.html.basic',
+  markdown: 'text.html.markdown',
+};
+
+// The seven named groups of `editor.tokenColorCustomizations`, written out as the TextMate scopes they
+// stand for — this is what lets us qualify each one with a language root.
+const TOKEN_SCOPES: Array<[keyof ThemeResult['tokens'], string[]]> = [
+  ['comments', ['comment']],
+  ['keywords', ['keyword', 'storage']],
+  ['strings', ['string']],
+  ['numbers', ['constant.numeric']],
+  ['types', ['entity.name.type', 'support.type']],
+  ['functions', ['entity.name.function', 'support.function']],
+  ['variables', ['variable']],
+];
+
+function rootScope(languageId: string): string {
+  return TEXTMATE_ROOT[languageId] || `source.${languageId}`;
+}
+
+export async function applyChrome(chrome: Record<string, string>): Promise<void> {
+  await vscode.workspace.getConfiguration(CHROME.section).update(CHROME.key, chrome, TARGET);
+}
+
+export async function applyTokens(tokens: ThemeResult['tokens'], languageId?: string): Promise<void> {
+  const value = languageId
+    ? {
+        textMateRules: TOKEN_SCOPES.map(([role, scopes]) => ({
+          name: `van-code ${role} (${languageId})`,
+          scope: scopes.map((scope) => `${rootScope(languageId)} ${scope}`),
+          settings: { foreground: tokens[role] },
+        })),
+      }
+    : {
+        comments: tokens.comments, keywords: tokens.keywords, strings: tokens.strings,
+        numbers: tokens.numbers, types: tokens.types, functions: tokens.functions,
+        variables: tokens.variables,
+      };
+  await vscode.workspace.getConfiguration(TOKENS.section).update(TOKENS.key, value, TARGET);
+}
+
+export async function applySemantic(semantic: ThemeResult['semantic'], languageId?: string): Promise<void> {
+  const rules: Record<string, string> = {};
+  for (const [tokenType, hex] of Object.entries(semantic)) {
+    rules[languageId ? `${tokenType}:${languageId}` : tokenType] = hex;
+  }
+  await vscode.workspace.getConfiguration(SEMANTIC.section)
+    .update(SEMANTIC.key, { enabled: true, rules }, TARGET);
+}
+
+// Accepts anything carrying the three color maps — a generated ThemeResult OR a saved set.
+export async function applyTheme(
+  theme: Pick<ThemeResult, 'chrome' | 'tokens' | 'semantic'>,
+  languageId?: string,
+): Promise<void> {
+  if (!languageId) { await applyChrome(theme.chrome); } // chrome can't be language-scoped, at all
+  await applyTokens(theme.tokens, languageId);
+  await applySemantic(theme.semantic, languageId);
 }
 ```
 

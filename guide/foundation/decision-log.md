@@ -25,6 +25,15 @@
 - **Rules out / trade-off:** per-language chrome recoloring. Considered and rejected: reframing as per-*workspace*
   theming (chrome can vary per workspace) — a different feature, noted as a possible extension.
 - **Revisit if:** VS Code makes workbench colors language-scopable.
+- **Amended 2026-08-16 — the conclusion holds, the stated mechanism was wrong.** This entry justified tokens-only
+  scoping by saying the `"[languageId]"` block works for `editor.*` and not for `workbench.*`. It works for
+  **neither**: VS Code allows a language override only on settings declared *resource-language*-scoped, and both
+  `editor.tokenColorCustomizations` and `editor.semanticTokenColorCustomizations` are application-scoped
+  theme-customization settings, so the write is rejected outright
+  ([vscode#124997](https://github.com/microsoft/vscode/issues/124997),
+  [vscode#66729](https://github.com/microsoft/vscode/issues/66729)). The decision itself survives — scoping is still
+  tokens-only, and chrome still cannot be scoped by any route — but the mechanism is superseded by
+  [D11](#d11--language-scoping-lives-inside-the-setting-value-and-a-scoped-apply-replaces-the-global-one).
 
 ## D3 — Two-layer architecture: pure engine + thin adapter
 - **Date:** 2026-07-10
@@ -149,3 +158,31 @@
   the drag, which the M6 gate states as expected behaviour so it doesn't read as lag.
 - **Revisit if:** the history gains an explicit "coalesce until idle" mode — then a debounced `input` becomes
   cheap, and only then.
+
+## D11 — Language scoping lives inside the setting value, and a scoped apply replaces the global one
+- **Date:** 2026-08-16
+- **Source:** `/amend-guide`, driven by the 2026-08-10 reader report in [feedback-log.md](../feedback-log.md);
+  facts re-verified against the official docs the same day.
+- **Supersedes:** the mechanism half of [D2](#d2--per-language-scoping-is-tokens-only) (its tokens-only conclusion
+  stands).
+- **Decision:** per-language token scoping is expressed **inside the value** of the two `editor.*` settings, never
+  by a `"[languageId]"` block. Semantic rules take the documented selector suffix — the grammar is
+  `(*|tokenType)(.tokenModifier)*(:tokenLanguage)?`, so `variable` becomes `variable:typescript`
+  ([Semantic Highlight Guide](https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide)). The
+  seven named TextMate groups, which cannot carry a language at all, are swapped for `textMateRules` whose scopes
+  are qualified with the language's grammar root — `source.ts comment`, a descendant selector that matches only
+  inside that grammar ([TextMate — Scope Selectors](https://macromates.com/manual/en/scope_selectors)). A scoped
+  apply therefore **replaces** the setting's whole value rather than sitting beside a global one.
+- **Why:** the alternative — keeping both a global and a scoped set of colors alive in one value — forces
+  `applyTokens`/`applySemantic` to read the current setting, merge into it and write it back. That turns the single
+  write path into a read-modify-write, and M2's snapshot backbone ([D1](#d1--non-destructive-backbone-is-load-bearing))
+  is built on every write being a whole-value replace it can capture and restore verbatim. One correctness property
+  (Revert always undoes exactly one apply) was worth more than the convenience of layering two scopes at once.
+- **Rules out / trade-off:** having a global theme and a language-scoped one active simultaneously. Applying with a
+  language selected means "this theme, that language only"; every other language falls back to the base color
+  theme, and clearing the box restores the all-languages value. Also accepted: a hand-maintained
+  `languageId → TextMate root` map, because VS Code publishes no such table — it carries only the ids that differ
+  from `source.<languageId>`, and the guide teaches **Developer: Inspect Editor Tokens and Scopes** as the way to
+  find any other.
+- **Revisit if:** VS Code makes the two theme-customization settings resource-language-scoped (then the `[lang]`
+  block returns and layering becomes free), or publishes a languageId→grammar-root mapping API that retires the map.

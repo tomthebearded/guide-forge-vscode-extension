@@ -113,6 +113,8 @@ their M5 state before you start.
 - [ ] Saving a set stores its overrides; re-applying it re-fills the pickers and the exported JSON carries an
       `overrides` object. → step 09, 10
 - [ ] The engine's `node -e` check shows an overridden `bg` winning and an invalid hex being ignored. → steps 02–03, 10
+- [ ] A `typescript`-scoped apply recolors `.ts` only, writes **no** `"[typescript]"` block, and Revert undoes it in
+      one click — the per-language mechanism M5 got wrong, repaired here. → step 01 (corrections), 10
 
 ## Handoff
 ### Recap
@@ -126,7 +128,8 @@ path, or the history stack.
 - A non-destructive backbone: snapshot-before-write, Revert, Reset (M2).
 - A pure color engine: hex↔HSL math, WCAG contrast, 5 combos, 13 profiles (M3–M4).
 - A gallery UI with swatch preview + contrast readout (M4).
-- Syntax + semantic token recoloring, saved sets, JSON import/export, per-language scoping (M5).
+- Syntax + semantic token recoloring, saved sets, JSON import/export, per-language token scoping (M5 — with its
+  mechanism corrected at the top of [step 01](01_types-overrides.md)).
 - **New in M6:** per-role overrides — a picker for each of the 28 roles, layered over the formula, persisted with
   the set.
 

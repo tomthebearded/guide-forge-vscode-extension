@@ -23,8 +23,11 @@ full verified table + official docs + check date: **[foundation/stack.md](founda
   snapshot-before-every-write is the whole safety story. → [foundation/decision-log.md](foundation/decision-log.md#d1--non-destructive-backbone-is-load-bearing)
 - **One write path + a pure engine.** All settings writes funnel through one module; the color math lives in a
   `vscode`-free engine so it's unit-testable. → [foundation/decision-log.md](foundation/decision-log.md#d3--two-layer-architecture-pure-engine--thin-adapter)
-- **Per-language scoping is tokens-only.** `workbench.colorCustomizations` can't be language-scoped — a hard API
-  limit we teach rather than hide. → [foundation/decision-log.md](foundation/decision-log.md#d2--per-language-scoping-is-tokens-only)
+- **Per-language scoping is tokens-only, and lives inside the setting value.** `workbench.colorCustomizations`
+  can't be language-scoped at all, and no `"[languageId]"` block works on any of the three settings — so the
+  language rides in the value itself (`variable:typescript`, `source.ts comment`). A hard API limit we teach rather
+  than hide. → [D2](foundation/decision-log.md#d2--per-language-scoping-is-tokens-only) ·
+  [D11](foundation/decision-log.md#d11--language-scoping-lives-inside-the-setting-value-and-a-scoped-apply-replaces-the-global-one)
 - **All 13 styles taught in full**, via a data-driven `StyleProfile` registry (9 generative + 4 signature). →
   [foundation/decision-log.md](foundation/decision-log.md#d4--all-13-styles-taught-in-full-data-driven)
 - **Hand-picked colors are overrides, at role level.** M6 layers a sparse `role → hex` map over the formula rather
@@ -33,6 +36,17 @@ full verified table + official docs + check date: **[foundation/stack.md](founda
   [D10](foundation/decision-log.md#d10--role-edits-commit-on-change-not-on-input)
 
 ## Updates
+- 2026-08-16 — **amended: per-language token scoping moves inside the setting value** (M5 mechanism → repaired in
+  M6). A reader's 2026-08-10 report closed the open suspect below the wrong way round: **neither** token setting is
+  language-overridable, so M5/03's `overrideInLanguage` write throws and M5/09's check 5 tested something VS Code
+  does not do. The feature survives and is still tokens-only — semantic rule keys now take a `:languageId` suffix
+  and TextMate uses `textMateRules` with language-qualified scopes (`source.ts comment`). Because M1–M5 are already
+  executed, **M5 was not rewritten**: steps 00/03/09 carry a superseded banner, and the repair lives in a
+  *Before you continue — corrections* section at the top of
+  [M6/01](MILESTONE_6_per-role-color-editing/01_types-overrides.md), with a new gate check 10 and an `apply.ts`
+  copy in [M6/10](MILESTONE_6_per-role-color-editing/10_verify.md). [D2](foundation/decision-log.md#d2--per-language-scoping-is-tokens-only)
+  amended in place; new [D11](foundation/decision-log.md#d11--language-scoping-lives-inside-the-setting-value-and-a-scoped-apply-replaces-the-global-one).
+  **M6 and M7 need re-verification.**
 - 2026-08-09 — **Confirmation re-audit (M1–M7) → PASS-WITH-WARNINGS; all findings fixed.** Structure is mechanically clean (0 dead links, 0 dead glossary/decision anchors, 0 nav defects, consistent step counts and pinned versions), so every fix was a content one. Two fixes the previous pass *claimed* had not landed and now have: M6's third-person→"you" voice pass (11 survivors, including both in-code comments) and M3/06's `p.surfaceAlt` D8 leftover. Also: M4's handoff still sent packaging to M5 (now M7); M6/02 promised "three exported functions" where there are two; `ThemeHistory.depth` and `color.ts`'s `rotate` are now honestly marked `[unused]` / `[M5]` instead of reading as missing call sites; `conventions.md`'s naming rule is scoped to `src/engine/*` with the adapter carve-out spelled out; D7's pointers to the deleted `M5/10` now point at M7/02; `renderPreview()` is byte-identical across the M4/M5/M6 checkpoints; and M5/08 now performs the re-import its idempotency check asserts. **Doc-only — nothing about the build changed.** Two suspects stay open for `/review-before-follow` against a real EDH: the sandboxed `<input type="color">` dialog, and whether `editor.semanticTokenColorCustomizations` is truly language-overridable (M5/09 check 5 depends on it).
 - 2026-08-09 — **Whole-guide audit + fixes.** `/audit-guide` over M1–M7 returned FAIL; every finding is fixed. The structural ones: three steps ended on a build that didn't compile (M2/04, M4/04, M5/01) — each now closes green, which merged M4's step 05 into step 04 (**M4 is 4 steps + verify; `06_verify.md` is now `05_verify.md`**) — and M6 shipped an exported function nothing called (`countOverrides`, removed). Also: a wrong dev-tools pointer, an inaccurate load-bearing claim, the missing `start:` nav segment on all 7 overviews, second-person voice restored in M6, and assorted stale milestone references. One **open suspect** stays: whether a sandboxed webview surfaces the OS color dialog for `<input type="color">` — the hex box is documented as the fallback either way.
 - 2026-08-09 — **New milestone: M6 — Per-role color editing**, and the ladder grew to **7**. The reader can now
