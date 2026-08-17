@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import { contrastRatio } from '../engine/color';
 import { COMBOS, comboById } from '../engine/combos';
-import { generate } from '../engine/generate';
+import { generate, worstTextContrast } from '../engine/generate';
 import { PROFILES, profileById } from '../engine/profiles';
 import { SavedSet, deleteSet, exportSets, importSets, listSets, saveSet } from '../storage/sets';
 import { applyTheme } from '../theme/apply';
@@ -56,7 +55,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
         this.post({
           type: 'applied',
           palette: theme.palette,
-          contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
+          contrast: worstTextContrast(theme.chrome),
         });
         break;
       }
