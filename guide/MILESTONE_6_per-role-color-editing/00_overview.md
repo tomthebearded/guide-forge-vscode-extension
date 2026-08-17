@@ -115,6 +115,8 @@ their M5 state before you start.
 - [ ] The engine's `node -e` check shows an overridden `bg` winning and an invalid hex being ignored. → steps 02–03, 10
 - [ ] A `typescript`-scoped apply recolors `.ts` only, writes **no** `"[typescript]"` block, and Revert undoes it in
       one click — the per-language mechanism M5 got wrong, repaired here. → step 01 (corrections), 10
+- [ ] Every one of the 85 themes clears WCAG AA on its weakest text pair, and the panel badge grades **that** pair
+      — the readability defect M3–M5 shipped, repaired here. → step 04 (corrections), 10 (check 11)
 
 ## Handoff
 ### Recap
@@ -130,6 +132,9 @@ path, or the history stack.
 - A gallery UI with swatch preview + contrast readout (M4).
 - Syntax + semantic token recoloring, saved sets, JSON import/export, per-language token scoping (M5 — with its
   mechanism corrected at the top of [step 01](01_types-overrides.md)).
+- A readability floor that actually holds: every foreground clamped to AA against the background it sits on, and a
+  badge that grades the theme's weakest pair (M3–M5's engine, corrected at the top of
+  [step 04](04_provider-overrides.md)).
 - **New in M6:** per-role overrides — a picker for each of the 28 roles, layered over the formula, persisted with
   the set.
 

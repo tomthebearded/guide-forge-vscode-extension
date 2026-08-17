@@ -11,7 +11,7 @@ contrast readout**. Revert/Reset stay wired throughout. Still **chrome only**.
 
 **Observable end state:** press <kbd>F5</kbd> → open the Van Code panel → it shows a row of **combo chips**
 and a row of **13 style chips**. Click **Deep Sea** then **Neon** → the whole editor chrome recolors live, an
-**8-swatch strip** appears, and a badge reads something like `editor 15.87:1 · floor tab.inactive 4.56:1 AA`. Click **Game Boy** →
+**8-swatch strip** appears, and a badge reads something like `text/bg contrast 12.3:1 AAA`. Click **Game Boy** →
 the green DMG palette applies and a **variant row** (dmg / pocket / light) appears. **Revert** steps back through
 your picks; **Reset** removes all customizations.
 
@@ -81,7 +81,7 @@ values inside each signature palette.)*
 - [ ] `media/webview/styles.css` and `media/webview/main.js` exist under `media/webview/`. → steps 02–03
 - [ ] Opening the panel shows a row of **combo chips** and a row of **13 style chips** (no dropdowns). → steps 03–04
 - [ ] Picking **Deep Sea + Neon** recolors the chrome live, shows an **8-swatch strip**, and a badge like
-      `editor 15.87:1 · floor tab.inactive 4.56:1 AA`. → steps 03–04
+      `text/bg contrast 12.3:1 AAA`. → steps 03–04
 - [ ] Picking **Game Boy** applies the green DMG palette and shows a **variant row** (dmg / pocket / light);
       switching to **light** re-applies live. → steps 01, 03
 - [ ] **Revert** steps back one pick at a time; **Reset** removes all customizations. → step 04

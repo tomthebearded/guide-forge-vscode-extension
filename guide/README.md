@@ -36,17 +36,18 @@ full verified table + official docs + check date: **[foundation/stack.md](founda
   [D10](foundation/decision-log.md#d10--role-edits-commit-on-change-not-on-input)
 
 ## Updates
-- 2026-08-17 — **fixed: the generated themes were unreadable, and the contrast badge hid it** (M3/01, M3/06, M5/02,
-  M4/03–04 + every checkpoint copy). Measured over all 85 themes: 66 failed WCAG AA on the inactive-tab label
+- 2026-08-17 — **fixed: the generated themes were unreadable, and the contrast badge hid it** — repaired in the
+  *Before you continue — corrections* section at the top of **[M6/04](MILESTONE_6_per-role-color-editing/04_provider-overrides.md)**.
+  The steps that teach the defect (M3/01, M3/06, M4/03, M5/02) were **already executed and are left untouched**,
+  so this one section is the whole repair, wherever you are in the guide. Measured over all 85 themes: 66 failed WCAG AA on the inactive-tab label
   (worst **1.55:1**), 35 on at least one token color. Three causes — the token clamp used **3:1**, which is WCAG's
   threshold for *large* text and not for code; `paletteToChrome` never clamped its foregrounds at all; and
   `ensureContrast` picked one walk direction from the background's luminance, which cannot reach the target on a
   mid-tone background. A fourth defect hid them: the badge graded only the `text/bg` pair. Now every foreground is
   clamped to **4.5:1 against the background it actually sits on**, `ensureContrast` tries both directions, and the
   badge reports `worstTextContrast` — the weakest of the seven text pairs. Verified by compiling the guide's own
-  checkpoint code: **0/85 failures, lowest ratio 4.50**, with three `node -e` gates to keep it that way.
-  → [D12](foundation/decision-log.md#d12--every-foreground-is-clamped-against-its-own-background-and-the-badge-grades-the-weakest-pair).
-  **M3, M4, M5 and M6 need re-verification.**
+  checkpoint code: **0/85 failures, lowest ratio 4.50**, gated by the corrections' own sweeps and M6/10 check 11.
+  → [D12](foundation/decision-log.md#d12--the-readability-repair-is-delivered-at-the-frontier-not-back-in-m3-m5).
 - 2026-08-16 — **amended: per-language token scoping moves inside the setting value** (M5 mechanism → repaired in
   M6). A reader's 2026-08-10 report closed the open suspect below the wrong way round: **neither** token setting is
   language-overridable, so M5/03's `overrideInLanguage` write throws and M5/09's check 5 tested something VS Code

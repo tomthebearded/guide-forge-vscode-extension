@@ -2,8 +2,8 @@
 > Nav: [← Rewrite the provider](04_provider-externalize.md) · [Overview](00_overview.md) · [M5 → Tokens and persistence](../MILESTONE_5_tokens-and-persistence/00_overview.md)
 
 ## Done-when gate (run every check)
-Do these in order; each pairs an action with the **exact** result you should see. Checks 1–3 are the pure-engine
-verifications (no F5 needed); 4–9 run in the Extension Development Host.
+Do these in order; each pairs an action with the **exact** result you should see. Checks 1–2 are the pure-engine
+verifications (no F5 needed); 3–8 run in the Extension Development Host.
 
 1. **Registry holds 13** — in the project terminal (after `npm run compile`):
    ```powershell
@@ -15,51 +15,33 @@ verifications (no F5 needed); 4–9 run in the Extension Development Host.
    node -e "const {profileById}=require('./out/engine/profiles.js'); console.log(profileById('game-boy').buildPalette({},'dmg').bg, profileById('game-boy').buildPalette({},'light').bg)"
    ```
    → prints `#0f380f #c4cfa1` (dmg dark green, light olive).
-3. **The readability floor still holds with 13 profiles** — the same sweep [M3's gate](../MILESTONE_3_formula-engine-chrome/08_verify.md)
-   ran over 50 themes, now over all **85** (the 4 signature presets brought their own palettes, which never passed
-   through a generative profile's contrast work):
-   ```powershell
-   node -e "const {generate,worstTextContrast}=require('./out/engine/generate');const {COMBOS}=require('./out/engine/combos');const {PROFILES}=require('./out/engine/profiles');let worst={ratio:Infinity},n=0;for(const c of COMBOS)for(const p of PROFILES)for(const v of (p.variants&&p.variants.length?p.variants:[undefined])){n++;const w=worstTextContrast(generate(c,p,v).chrome);if(w.ratio<worst.ratio)worst={...w,id:c.id+'/'+p.id+(v?'/'+v:'')}}console.log('themes',n);console.log('lowest',worst.ratio,worst.pair,worst.id);console.log('all AA',worst.ratio>=4.5)"
-   ```
-   **Expected — exactly:**
-   ```
-   themes 85
-   lowest 4.5 activityBar deep-sea/sixteen-bit
-   all AA true
-   ```
-   `all AA true` is the line that matters. If a signature preset ever ships a palette the clamp can't rescue, this
-   is where it surfaces — before a reader stares at an unreadable sidebar and assumes they mistyped a hex.
-4. **Launch** — press <kbd>F5</kbd> → the **[Extension Development Host]** opens with no error notification; click
+3. **Launch** — press <kbd>F5</kbd> → the **[Extension Development Host]** opens with no error notification; click
    the Van Code palette icon in its Activity Bar.
-5. **Gallery renders** — the panel shows a **"Starter combination"** row with **5** combo chips
+4. **Gallery renders** — the panel shows a **"Starter combination"** row with **5** combo chips
    (Deep Sea, Ember, Grove, Orchid, Graphite) and a **"Style"** row with **13** style chips (the 9 generative +
    Game Boy, 16-bit, Synthwave, Terminal / CRT). **No dropdowns.** One chip in each row is highlighted (the
    `active` class), and the chrome is already recolored (enforced-on-select applied the defaults on load).
-6. **Generative combo recolors + preview** — click **Deep Sea**, then **Neon**:
+5. **Generative combo recolors + preview** — click **Deep Sea**, then **Neon**:
    - The whole editor chrome recolors live (editor background, side bar, activity bar, tabs, panels). **Not the
      status bar** — under <kbd>F5</kbd> it keeps the debug-orange, because `statusBar.debugging*` overrides the key
      the engine writes (see [M3/06](../MILESTONE_3_formula-engine-chrome/06_generate.md)). Expected, not a defect.
    - A **"Palette"** section shows an **8-swatch strip** (bg, surface, surfaceAlt, text, textMuted, accent1,
      accent2, border) — hover a swatch to see its role + hex in the tooltip.
-   - A badge reads **`editor 15.87:1 · floor tab.inactive 4.56:1 AA`** — the exact number varies by theme, but the *shape* does
-     not: the badge grades the **weakest** of the seven text pairs, not the editor's. Deep Sea's editor text is
-     well past 7:1, yet the theme is only as readable as its dimmest label, and that is what the badge reports.
-     **An amber `AA` is the expected steady state**, because `paletteToChrome` clamps every pair to exactly the
-     4.5:1 floor and no further. `FAIL` here means the clamp is not running — check `paletteToChrome` passes each
-     foreground its own background.
-7. **Signature + variant** — click **Game Boy**:
+   - A badge reads roughly **`text/bg contrast 12.3:1 AAA`** (exact number varies; Deep Sea's light text on its dark
+     background is well past 7:1, so **AAA**, green badge).
+6. **Signature + variant** — click **Game Boy**:
    - The chrome turns the Game Boy DMG greens; the swatch strip shows the green palette.
    - A **"Variant"** row appears with **dmg / pocket / light**. Click **light** → the chrome re-applies live to the
      olive light-screen palette (the swatch strip and contrast badge update). Click **Terminal / CRT** → the variant
      row changes to **green / amber**.
-8. **Revert** — after a few picks, click **Revert** repeatedly: **the very first click already steps the chrome
+7. **Revert** — after a few picks, click **Revert** repeatedly: **the very first click already steps the chrome
    back** to the previous selection's colors — one snapshot per pick, not two (if the first Revert looks inert,
    `render()` is double-applying; see step 03). Keep clicking and it walks back toward your pre-M4 state.
-9. **Reset** — click **Reset**: all color customizations are removed and the editor returns to its base theme.
+8. **Reset** — click **Reset**: all color customizations are removed and the editor returns to its base theme.
    (Confirm in **File → Preferences → Settings → open `settings.json`**: `workbench.colorCustomizations` is gone,
    not left as `{}`.)
 
-If all nine pass, M4's mechanics are done.
+If all eight pass, M4's mechanics are done.
 
 ## ⭐ Reality check — stop building and use it
 This is the milestone the whole ladder was pointing at: the first time Van Code is a **tool**, not a demo. Before
@@ -68,17 +50,10 @@ you touch M5, **actually use it.**
 1. Leave the Extension Development Host open as your editor for a real task — read some code, edit a file — for at
    least 10–15 minutes.
 2. Cycle through a few combos and styles as you work. Try at least: one dark generative (Neon or Midnight), one
-   accessible one (High Contrast), and two signature presets with their variants (Game Boy dmg/light, Terminal
-   green/amber).
-3. Watch the **contrast badge** as you go, and read the two halves differently:
-   - The **floor** (the graded half) reads **AA** on every theme, and barely moves — across all 85 themes it
-     spans `4.5:1` to `6.22:1`. That is not the badge failing to notice anything: it is `paletteToChrome`
-     clamping the weakest pair to the 4.5:1 minimum and rarely being handed anything better. **Amber is the
-     healthy state here.** A **FAIL** (red) would mean the clamp isn't running, and since no theme in the
-     gallery reaches **AAA** (≥7:1) on its weakest pair, a green badge would be news too.
-   - The **editor** half is the one that moves — `4.88:1` to `18.19:1` across the gallery. That's the number to
-     judge a style by: a theme whose floor is fine but whose editor text sits near it (Game Boy's light variant
-     bottoms out at `4.88`) will feel flat to read all day, even though nothing about it is inaccessible.
+   accessible one (High Contrast — note its badge should read **AAA**), and two signature presets with their
+   variants (Game Boy dmg/light, Terminal green/amber).
+3. Watch the **contrast badge** as you go. If a combo/style pair drops to **AA** (amber) or **FAIL** (red), that's
+   the readout doing its job — decide whether that pair is one you'd actually ship.
 4. Ask yourself the gate question honestly: **is this worth finishing?** M5 adds real weight — recoloring the code
    text (tokens), saving named sets, import/export and per-language scoping — with per-role editing (M6) and a
    packaged `.vsix` (M7) after it. Those are worth
@@ -366,10 +341,10 @@ h4 { margin: 12px 0 6px; font-size: 11px; text-transform: uppercase; letter-spac
       strip.append(sw);
     }
     box.append(strip);
-    const aa = contrast.ratio >= 4.5, aaa = contrast.ratio >= 7;
+    const aa = contrast >= 4.5, aaa = contrast >= 7;
     box.append(el('span', {
       className: 'badge ' + (aaa ? 'ok' : aa ? 'warn' : 'bad'),
-      textContent: 'editor ' + contrast.editor + ':1 · floor ' + contrast.pair + ' ' + contrast.ratio + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL'),
+      textContent: 'text/bg contrast ' + contrast + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL'),
     }));
   }
 
@@ -385,7 +360,7 @@ import { applyChrome } from '../theme/apply';
 import { COMBOS, comboById } from '../engine/combos';
 import { PROFILES, profileById } from '../engine/profiles';
 import { generate } from '../engine/generate';
-import { worstTextContrast } from '../engine/generate';
+import { contrastRatio } from '../engine/color';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'vanCode.panel';
@@ -426,7 +401,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
         this.post({
           type: 'applied',
           palette: theme.palette,
-          contrast: worstTextContrast(theme.chrome),
+          contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
         });
         break;
       }

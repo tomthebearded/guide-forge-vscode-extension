@@ -2,7 +2,7 @@
 > Nav: [← Saved sets remember overrides](09_persist-overrides.md) · [Overview](00_overview.md) · [M7 → Packaging](../MILESTONE_7_packaging/00_overview.md)
 
 ## Done-when gate (run every check)
-Checks 1–2 are pure engine and run in plain Node. Checks 3–10 run in the Extension Development Host
+Checks 1–2 and 11 are pure engine and run in plain Node. Checks 3–10 run in the Extension Development Host
 (<kbd>F5</kbd>) — open a **`.ts` file** in it first, because check 6 needs a language server.
 
 > 💡 **The status bar is still the one surface that won't move under <kbd>F5</kbd>** — including when you pin
@@ -112,22 +112,205 @@ type derived from it, and a semantic pin overrules that. `chrome keys: 20` confi
 - Clear the box and apply again → tokens recolor every language, and `editor.tokenColorCustomizations` is back to
   the seven named keys.
 
-If all ten pass, **M6 is done.**
+### 11. The readability floor holds across every theme (no F5)
+This check exists because of the corrections at the top of [step 04](04_provider-overrides.md). It is the one
+that proves the repair survived the whole milestone — a pinned role changes values inside `paletteToChrome`'s
+output, and the clamp has to still be there afterwards.
+```powershell
+node -e "const {generate,worstTextContrast}=require('./out/engine/generate');const {COMBOS}=require('./out/engine/combos');const {PROFILES}=require('./out/engine/profiles');let worst={ratio:Infinity},n=0;for(const c of COMBOS)for(const p of PROFILES)for(const v of (p.variants&&p.variants.length?p.variants:[undefined])){n++;const w=worstTextContrast(generate(c,p,v).chrome);if(w.ratio<worst.ratio)worst={...w,id:c.id+'/'+p.id+(v?'/'+v:'')}}console.log('themes',n);console.log('lowest',worst.ratio,worst.pair,worst.id);console.log('all AA',worst.ratio>=4.5)"
+```
+**Expected, exactly:**
+```
+themes 85
+lowest 4.5 activityBar deep-sea/sixteen-bit
+all AA true
+```
+`all AA true` is the line that matters. A `false` here means the corrections were skipped or a later edit undid
+them — go back to [step 04](04_provider-overrides.md)'s *Corrected when* list.
+
+If all eleven pass, **M6 is done.**
 
 ## What's automatable vs. checked by hand
 - **Engine (pure, no F5):** checks 1–2 prove the guard, the merge, the `undefined` trap, and all three merge points
-  propagating in the right order. That is the whole `src/engine/` half of this milestone, verified without VS Code.
+  propagating in the right order; check 11 sweeps all 85 themes for the readability floor. That is the whole
+  `src/engine/` half of this milestone, verified without VS Code.
 - **Everything else you check by hand in the EDH:** the 28 rows, the `change`-not-`input` timing, the hex
   validation, live recoloring, the badge, Revert/Reset semantics, and persistence — all need the running extension
   and a real color picker, and can't be simulated from this guide.
 
 ## Files after this milestone (complete contents)
 The files **created or modified in M6**. Unchanged since earlier milestones and **not repeated here**:
-`src/engine/color.ts`, `combos.ts`, `profiles.ts` (M3–M4), `src/theme/settings.ts`, `history.ts` (M2/M5 — **M6's
-own steps touch neither**), `src/extension.ts` (M5), `media/icon.svg` (M1), and `package.json` (M1; M7 edits it).
-`src/theme/apply.ts` **is** reproduced below: M6's steps don't touch it, but the corrections section at the top of
-[step 01](01_types-overrides.md) rewrites two of its functions, so this is the canonical copy to check yourself
-against.
+`combos.ts`, `profiles.ts` (M3–M4), `src/theme/settings.ts`, `history.ts` (M2/M5 — **M6's own steps touch
+neither**), `src/extension.ts` (M5), `media/icon.svg` (M1), and `package.json` (M1; M7 edits it).
+
+Two files M6's *steps* never touch are reproduced below anyway, because M6's two corrections sections rewrite
+parts of them — these are the canonical copies to check yourself against:
+- **`src/theme/apply.ts`** — `applyTokens` and `applySemantic` come from the corrections at the top of
+  [step 01](01_types-overrides.md) (per-language scoping); `applyChrome` and `applyTheme` are exactly as M2/M5
+  wrote them.
+- **`src/engine/color.ts`** — `ensureContrast` and the new `walkLightness` come from the corrections at the top
+  of [step 04](04_provider-overrides.md) (the readability repair); everything above them is M3 step 01 untouched.
+
+### `src/engine/color.ts`
+> Only the tail of this file moved. Everything down to `readableOn` is M3 step 01 as you wrote it; the final two
+> functions are the readability repair from the corrections at the top of [step 04](04_provider-overrides.md).
+
+```ts
+// Pure color math. No VS Code imports. Colors cross the boundary as "#rrggbb" strings.
+
+export interface Rgb { r: number; g: number; b: number; } // 0..255
+export interface Hsl { h: number; s: number; l: number; }  // h 0..360, s/l 0..1
+
+/** Force `value` into the range [min, max]. */
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+export function hexToRgb(hex: string): Rgb {
+  const digits = hex.replace('#', '');
+  // Shorthand "#f80" means "#ff8800" — each digit stands for the pair "dd".
+  const sixDigits = digits.length === 3 ? digits.split('').map((digit) => digit + digit).join('') : digits;
+  return {
+    r: parseInt(sixDigits.slice(0, 2), 16),
+    g: parseInt(sixDigits.slice(2, 4), 16),
+    b: parseInt(sixDigits.slice(4, 6), 16),
+  };
+}
+
+export function rgbToHex({ r, g, b }: Rgb): string {
+  // Channels arrive as floats (the math produces 254.7, -0.3…), so round + clamp before writing.
+  const toHexPair = (channel: number) => clamp(Math.round(channel), 0, 255).toString(16).padStart(2, '0');
+  return `#${toHexPair(r)}${toHexPair(g)}${toHexPair(b)}`;
+}
+
+export function hexToHsl(hex: string): Hsl {
+  const { r, g, b } = hexToRgb(hex);
+  // Work in 0..1 so the channels line up with saturation/lightness.
+  const red = r / 255, green = g / 255, blue = b / 255;
+  const brightest = Math.max(red, green, blue), darkest = Math.min(red, green, blue);
+  const lightness = (brightest + darkest) / 2;
+  // Chroma = how far apart the extremes are. Grey means all three are equal, so chroma 0 = no hue.
+  const chroma = brightest - darkest;
+  let hue = 0, saturation = 0;
+  if (chroma !== 0) {
+    // Saturation is chroma as a fraction of the most chroma possible at *this* lightness —
+    // that ceiling shrinks toward pure black and pure white.
+    const maxChromaAtThisLightness = lightness > 0.5 ? 2 - brightest - darkest : brightest + darkest;
+    saturation = chroma / maxChromaAtThisLightness;
+    // Whichever channel won says which pair of 60° slices we're in; the other two give the
+    // position inside it, in slice units (0..6).
+    switch (brightest) {
+      case red:   hue = ((green - blue) / chroma + (green < blue ? 6 : 0)); break;
+      case green: hue = ((blue - red) / chroma + 2); break;
+      default:    hue = ((red - green) / chroma + 4); break;   // blue won
+    }
+    hue *= 60;   // slices -> degrees
+  }
+  return { h: hue, s: saturation, l: lightness };
+}
+
+export function hslToHex({ h, s, l }: Hsl): string {
+  // Hue is an angle, so it wraps (400° -> 40°); the double modulo fixes JS's signed `%`.
+  const hue = ((h % 360) + 360) % 360;
+  const saturation = clamp(s, 0, 1);
+  const lightness = clamp(l, 0, 1);
+  // Same ceiling as in hexToHsl, solved for chroma instead of saturation.
+  const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
+  // Every hue has one channel at full chroma, one at 0, and one ramping between — the secondary.
+  const secondary = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  // The triple below is centred on lightness 0.5; this slides it to the requested lightness.
+  const lightnessOffset = lightness - chroma / 2;
+  let red = 0, green = 0, blue = 0;
+  switch (Math.floor(hue / 60)) {
+    case 0:  red = chroma;    green = secondary; break;   //   0–60°  red -> yellow
+    case 1:  red = secondary; green = chroma;    break;   //  60–120° yellow -> green
+    case 2:  green = chroma;    blue = secondary; break;  // 120–180° green -> cyan
+    case 3:  green = secondary; blue = chroma;    break;  // 180–240° cyan -> blue
+    case 4:  red = secondary;   blue = chroma;    break;  // 240–300° blue -> magenta
+    default: red = chroma;      blue = secondary; break;  // 300–360° magenta -> red
+  }
+  return rgbToHex({
+    r: (red + lightnessOffset) * 255,
+    g: (green + lightnessOffset) * 255,
+    b: (blue + lightnessOffset) * 255,
+  });
+}
+
+// The dial operations: go to HSL, move exactly one dial, come back.
+export function lighten(hex: string, amount: number): string {
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, l: hsl.l + amount });
+}
+export function darken(hex: string, amount: number): string {
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, l: hsl.l - amount });
+}
+export function saturate(hex: string, amount: number): string {
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, s: hsl.s + amount });
+}
+export function desaturate(hex: string, amount: number): string {
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, s: hsl.s - amount });
+}
+export function rotate(hex: string, degrees: number): string {
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, h: hsl.h + degrees });
+}
+export function setHue(hex: string, hue: number): string {
+  const hsl = hexToHsl(hex); return hslToHex({ ...hsl, h: hue });
+}
+/** `amount` 0 returns `fromHex`, 1 returns `toHex`, 0.5 the halfway point. */
+export function mix(fromHex: string, toHex: string, amount: number): string {
+  const from = hexToRgb(fromHex), to = hexToRgb(toHex);
+  return rgbToHex({
+    r: from.r + (to.r - from.r) * amount,
+    g: from.g + (to.g - from.g) * amount,
+    b: from.b + (to.b - from.b) * amount,
+  });
+}
+
+// WCAG relative luminance + contrast ratio.
+function channelLuminance(channel: number): number {
+  // Undo the sRGB gamma curve so the channel is proportional to physical light.
+  const normalized = channel / 255;
+  return normalized <= 0.03928
+    ? normalized / 12.92
+    : Math.pow((normalized + 0.055) / 1.055, 2.4);
+}
+export function relativeLuminance(hex: string): number {
+  const { r, g, b } = hexToRgb(hex);
+  return 0.2126 * channelLuminance(r) + 0.7152 * channelLuminance(g) + 0.0722 * channelLuminance(b);
+}
+export function contrastRatio(hexA: string, hexB: string): number {
+  const luminanceA = relativeLuminance(hexA), luminanceB = relativeLuminance(hexB);
+  const brighter = Math.max(luminanceA, luminanceB), darker = Math.min(luminanceA, luminanceB);
+  return (brighter + 0.05) / (darker + 0.05);
+}
+
+// Return near-black or near-white, whichever reads better on `background`.
+export function readableOn(background: string): string {
+  return contrastRatio('#ffffff', background) >= contrastRatio('#111111', background) ? '#ffffff' : '#111111';
+}
+
+// Nudge `foreground` lighter OR darker until it clears `targetRatio` against `background`.
+// Both directions get tried: against a mid-tone background only one of them can reach the bar,
+// and which one is not something the background's luminance alone can tell you.
+export function ensureContrast(foreground: string, background: string, targetRatio: number): string {
+  if (contrastRatio(foreground, background) >= targetRatio) return foreground;
+  const lighter = walkLightness(foreground, background, targetRatio, +0.01);
+  if (contrastRatio(lighter, background) >= targetRatio) return lighter;
+  const darker = walkLightness(foreground, background, targetRatio, -0.01);
+  if (contrastRatio(darker, background) >= targetRatio) return darker;
+  // Neither direction reaches it — hand back the better of the two extremes.
+  return contrastRatio(lighter, background) >= contrastRatio(darker, background) ? lighter : darker;
+}
+
+// Step lightness by `delta` until the ratio clears, or until the axis runs out.
+function walkLightness(foreground: string, background: string, targetRatio: number, delta: number): string {
+  let hsl = hexToHsl(foreground);
+  for (let step = 0; step < 100; step++) {
+    hsl = { ...hsl, l: clamp(hsl.l + delta, 0, 1) };
+    const candidate = hslToHex(hsl);
+    if (contrastRatio(candidate, background) >= targetRatio) return candidate;
+    if (hsl.l <= 0 || hsl.l >= 1) break;
+  }
+  return hslToHex(hsl);
+}
+```
 
 ### `src/engine/types.ts`
 ```ts

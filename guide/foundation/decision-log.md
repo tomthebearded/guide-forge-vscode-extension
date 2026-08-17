@@ -187,12 +187,27 @@
 - **Revisit if:** VS Code makes the two theme-customization settings resource-language-scoped (then the `[lang]`
   block returns and layering becomes free), or publishes a languageId→grammar-root mapping API that retires the map.
 
-## D12 — Every foreground is clamped against its own background, and the badge grades the weakest pair
+## D12 — The readability repair is delivered at the frontier, not back in M3-M5
 - **Date:** 2026-08-17
 - **Source:** field report (a reader applied a theme and could not read the sidebar, tabs or comments), measured
   over all 85 combo × profile × variant themes; WCAG thresholds re-verified against
   [Understanding SC 1.4.3](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) the same day.
-- **Decision:** the readability floor is **4.5:1**, not 3:1, and it is enforced **per pair**: `paletteToChrome`
+- **Decision — where the fix lives.** The four edits below repair code taught in **M3/01, M3/06, M4/03 and
+  M5/02**, all of which the reader had already executed. Those steps are **left exactly as they were executed**;
+  the entire repair is delivered once, in a *Before you continue — corrections* section at the top of
+  **M6/04**, the first unexecuted step, with `M6/10` check 11 as its standing gate.
+- **Why there and not at the source:** a first pass did fix the four steps in place. That is correct for the
+  *guide* and wrong for the *reader holding a project built from it*: eleven files changed across four
+  milestones, and their working extension silently stopped matching the instructions that produced it, with no
+  single place to work from. Correctness of the text is not the only thing a guide owes someone who is halfway
+  through it. Delivering the repair at the frontier gives them one ordered list of edits, one gate, and nothing
+  behind them that moved.
+- **The cost, accepted knowingly:** M3–M5 now **teach a defective engine as written**. A reader starting fresh
+  builds the unreadable version, follows it through two more milestones, and repairs it at M6/04 — later than
+  necessary, and with the defect's own steps still asserting the wrong thing. That is worse for a new reader
+  than fixing the source would have been, and it is the price of not rewriting executed work twice. Revisit
+  when the guide is next read by someone other than its author.
+- **Decision — the fix itself:** the readability floor is **4.5:1**, not 3:1, and it is enforced **per pair**: `paletteToChrome`
   clamps each text foreground against the background that key actually paints on, `paletteToTokens` clamps every
   token against `palette.bg`, and `ensureContrast` tries both lightness directions before giving up. The panel's
   badge reports `worstTextContrast(chrome)` — the weakest of the seven text pairs — instead of sampling

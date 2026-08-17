@@ -17,11 +17,8 @@
 
 ## Current position
 - **Last executed:** M6 / `03_generate-overrides.md`.
-- **Next up:** M6 / `04_provider-overrides.md`.
-- ⚠️ **Re-work pending, ahead of nothing:** the 2026-08-17 report-issue pass changed engine code inside steps
-  already executed (M3/01, M3/06, M4/03, M4/04, M5/02, M6/03). Those rows stay `[x]` — they *were* executed — but
-  the project no longer matches the guide until the new `color.ts` / `generate.ts` / provider / `main.js` code is
-  re-applied and M3/08 + M4/05 + M5/02's readability gates re-run. See [`status.md`](status.md) § Drift log.
+- **Next up:** M6 / `04_provider-overrides.md` — **start with its *Before you continue — corrections* section**,
+  which carries the whole readability repair (2026-08-17). Nothing behind this line was rewritten.
 
 ## MILESTONE_1 — Scaffold + sidebar panel
 - [x] `01_prerequisites.md` — Check your prerequisites · 2026-08-16
@@ -74,8 +71,8 @@
 ## MILESTONE_6 — Per-role color editing
 - [x] `01_types-overrides.md` — Add the `ThemeOverrides` type · 2026-08-17 (including its *Before you continue — corrections* section)
 - [x] `02_overrides-module.md` — `src/engine/overrides.ts` — validate a hex, merge a sparse patch · 2026-08-17
-- [x] `03_generate-overrides.md` — Thread overrides through `generate()` · 2026-08-17 — ⚠️ **re-apply:** the 2026-08-17 report-issue pass changed this step's `generate.ts` import line and the clamping inside `paletteToChrome`
-- [ ] `04_provider-overrides.md` — The provider passes overrides through and echoes the effective colors back
+- [x] `03_generate-overrides.md` — Thread overrides through `generate()` · 2026-08-17
+- [ ] `04_provider-overrides.md` — The provider passes overrides through and echoes the effective colors back — **carries the readability corrections (2026-08-17); apply them first**
 - [ ] `05_styles-editor.md` — Style the role rows
 - [ ] `06_webview-chrome-editor.md` — The webview holds overrides + effective colors, and edits the 8 chrome roles
 - [ ] `07_webview-token-editor.md` — Extend the editor to the 7 token roles + 13 semantic types

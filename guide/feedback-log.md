@@ -31,14 +31,18 @@
 - **Tags:** `M3` `M3/01` `M3/06` `M5/02` `M4/03` `wcag` `contrast` `accessibility` `ensureContrast` `false-negative`
   `readout` `swept`
 - **Quote:** "check the current colors, i don't think are readable"
-- **Status:** fixed via /report-issue (2026-08-17) — token clamp 3 → 4.5; `paletteToChrome` clamps all six text
-  foregrounds against **their own** backgrounds; `ensureContrast` walks both directions via a new `walkLightness`;
-  new exported `worstTextContrast(chrome)` grades the weakest of seven pairs and drives the badge. Applied to the
-  teaching steps and every checkpoint copy, then verified by compiling the guide's own code and re-sweeping:
-  **0/85 failures, lowest ratio 4.50**. Three `node -e` gates added so it cannot regress silently.
-  [D12](foundation/decision-log.md#d12--every-foreground-is-clamped-against-its-own-background-and-the-badge-grades-the-weakest-pair).
+- **Status:** fixed via /report-issue (2026-08-17), **re-delivered the same day** — token clamp 3 → 4.5;
+  `paletteToChrome` clamps all six text foregrounds against **their own** backgrounds; `ensureContrast` walks both
+  directions via a new `walkLightness`; new exported `worstTextContrast(chrome)` grades the weakest of seven pairs
+  and drives the badge. Verified by compiling the guide's own code and re-sweeping: **0/85 failures, lowest ratio
+  4.50**. ⚠️ **The first pass wrote all of this into steps the reader had already executed** (M3/01, M3/06, M4/03,
+  M5/02 + their checkpoints); those files were reverted and the whole repair now lives in one *Before you continue
+  — corrections* section at the top of **M6/04**, gated there and by M6/10 check 11.
+  [D12](foundation/decision-log.md#d12--the-readability-repair-is-delivered-at-the-frontier-not-back-in-m3-m5).
   **Deliberately not fixed:** 17/85 themes with duplicate token colors — all `monochrome`/`game-boy`, where a
-  limited palette is the style.
+  limited palette is the style. **Second friction, logged against the method, not the guide:** the reader had to
+  ask for the repair to be moved — the skill never offered the choice. That gap is closed upstream in GuideForge
+  (`reference/frontier-gate.md`).
 
 ### 2026-08-10 · M5/03 (+ D2, M5/00, M5/09 check 5) · `overrideInLanguage` throws — the two token settings are NOT language-overridable
 - **Where:** M5 step 03 (`applyTokens` / `applySemantic` → `cfg.update(KEY, value, TARGET, languageId ? true : undefined)`,

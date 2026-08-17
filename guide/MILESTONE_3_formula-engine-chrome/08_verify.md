@@ -17,27 +17,6 @@ the rest run in the Extension Development Host.
    ```
    (Round-trip is lossless; black-on-white contrast is the maximum `21`.)
 
-   Then the **readability floor** — the one check that proves the clamping in `paletteToChrome` actually holds,
-   across every theme the engine can produce, without opening VS Code once:
-   ```powershell
-   node -e "const {generate,worstTextContrast}=require('./out/engine/generate');const {COMBOS}=require('./out/engine/combos');const {PROFILES}=require('./out/engine/profiles');let worst={ratio:Infinity},n=0;for(const c of COMBOS)for(const p of PROFILES)for(const v of (p.variants&&p.variants.length?p.variants:[undefined])){n++;const w=worstTextContrast(generate(c,p,v).chrome);if(w.ratio<worst.ratio)worst={...w,id:c.id+'/'+p.id+(v?'/'+v:'')}}console.log('themes',n);console.log('lowest',worst.ratio,worst.pair,worst.id);console.log('all AA',worst.ratio>=4.5)"
-   ```
-   **Expected — exactly:**
-   ```
-   themes 50
-   lowest 4.5 tab.inactive ember/warm-sepia
-   all AA true
-   ```
-   > 🧠 **New concept — clamp against the background a color actually sits on.** A theme is not readable because
-   > its *editor* text passes; it is readable when **every** foreground clears 4.5:1 against **its own**
-   > background. `sideBar.foreground` sits on `sideBar.background`, not on `editor.background` — checking it
-   > against the wrong one is how a sidebar ends up at 2.5:1 while the badge says AA. `paletteToChrome` therefore
-   > clamps each foreground against its real partner, and `worstTextContrast` reports the weakest of the seven
-   > pairs so nothing can hide behind an average. `all AA true` is the assertion; the `lowest` line tells you
-   > which pair is closest to the edge. **The number after `themes` is 50 at M3 (5 combos × the 9 generative
-   > profiles, counting each profile's variants separately) and becomes 85 once M4 adds the 4 signature presets —
-   > M4's gate re-runs it with the new total.**
-
 2. **Engine wiring (Node, no F5)** — prove `generate` produces a full chrome object:
    ```powershell
    node -e "const {generate}=require('./out/engine/generate'); const {comboById}=require('./out/engine/combos'); const {profileById}=require('./out/engine/profiles'); const theme=generate(comboById('deep-sea'),profileById('midnight')); console.log('keys', Object.keys(theme.chrome).length); console.log('bg', theme.chrome['editor.background'])"
@@ -223,29 +202,18 @@ export function readableOn(background: string): string {
   return contrastRatio('#ffffff', background) >= contrastRatio('#111111', background) ? '#ffffff' : '#111111';
 }
 
-// Nudge `foreground` lighter OR darker until it clears `targetRatio` against `background`.
-// Both directions get tried: against a mid-tone background only one of them can reach the bar,
-// and which one is not something the background's luminance alone can tell you.
+// Nudge `foreground` lighter/darker until it clears `targetRatio` against `background` (or clamps).
 export function ensureContrast(foreground: string, background: string, targetRatio: number): string {
   if (contrastRatio(foreground, background) >= targetRatio) return foreground;
-  const lighter = walkLightness(foreground, background, targetRatio, +0.01);
-  if (contrastRatio(lighter, background) >= targetRatio) return lighter;
-  const darker = walkLightness(foreground, background, targetRatio, -0.01);
-  if (contrastRatio(darker, background) >= targetRatio) return darker;
-  // Neither direction reaches it — hand back the better of the two extremes.
-  return contrastRatio(lighter, background) >= contrastRatio(darker, background) ? lighter : darker;
-}
-
-// Step lightness by `delta` until the ratio clears, or until the axis runs out.
-function walkLightness(foreground: string, background: string, targetRatio: number, delta: number): string {
+  const goLighter = relativeLuminance(background) < 0.5;
   let hsl = hexToHsl(foreground);
   for (let step = 0; step < 100; step++) {
-    hsl = { ...hsl, l: clamp(hsl.l + delta, 0, 1) };
+    hsl = { ...hsl, l: clamp(hsl.l + (goLighter ? 0.01 : -0.01), 0, 1) };
     const candidate = hslToHex(hsl);
     if (contrastRatio(candidate, background) >= targetRatio) return candidate;
     if (hsl.l <= 0 || hsl.l >= 1) break;
   }
-  return hslToHex(hsl);
+  return goLighter ? '#ffffff' : '#111111';
 }
 ```
 
@@ -441,66 +409,31 @@ export function profileById(id: string): StyleProfile {
 ```ts
 // [M3 version] returns { palette, chrome } only. [M5] adds tokens + semantic.
 import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult } from './types';
-import { readableOn, ensureContrast, contrastRatio } from './color';
+import { readableOn } from './color';
 
 function paletteToChrome(palette: Palette): ChromeColors {
   const onAccent = readableOn(palette.accent1);
-  // WCAG 1.4.3: body text needs 4.5:1. Every foreground below is clamped against the
-  // background it actually sits on — not against the editor background it never touches.
-  const on = (foreground: string, background: string) => ensureContrast(foreground, background, 4.5);
   return {
     'editor.background': palette.bg,
-    'editor.foreground': on(palette.text, palette.bg),
+    'editor.foreground': palette.text,
     'sideBar.background': palette.surface,
-    'sideBar.foreground': on(palette.text, palette.surface),
+    'sideBar.foreground': palette.text,
     'sideBarSectionHeader.background': palette.surfaceAlt,
     'activityBar.background': palette.surfaceAlt,
-    'activityBar.foreground': on(palette.accent1, palette.surfaceAlt),
+    'activityBar.foreground': palette.accent1,
     'activityBar.activeBorder': palette.accent1,
     'statusBar.background': palette.accent1,
     'statusBar.foreground': onAccent,
     'titleBar.activeBackground': palette.surfaceAlt,
-    'titleBar.activeForeground': on(palette.text, palette.surfaceAlt),
+    'titleBar.activeForeground': palette.text,
     'tab.activeBackground': palette.bg,
     'tab.inactiveBackground': palette.surface,
-    'tab.activeForeground': on(palette.text, palette.bg),
-    'tab.inactiveForeground': on(palette.textMuted, palette.surface),
+    'tab.activeForeground': palette.text,
+    'tab.inactiveForeground': palette.textMuted,
     'editorGroupHeader.tabsBackground': palette.surface,
     'panel.background': palette.surface,
     'panel.border': palette.border,
     'focusBorder': palette.accent2,
-  };
-}
-
-// The chrome pairs that paint text on a background — exactly the ones `paletteToChrome` clamps.
-const TEXT_PAIRS: Array<[string, string, string]> = [
-  ['editor', 'editor.foreground', 'editor.background'],
-  ['sideBar', 'sideBar.foreground', 'sideBar.background'],
-  ['activityBar', 'activityBar.foreground', 'activityBar.background'],
-  ['statusBar', 'statusBar.foreground', 'statusBar.background'],
-  ['titleBar', 'titleBar.activeForeground', 'titleBar.activeBackground'],
-  ['tab.active', 'tab.activeForeground', 'tab.activeBackground'],
-  ['tab.inactive', 'tab.inactiveForeground', 'tab.inactiveBackground'],
-];
-
-// [M4] What the panel badge reports. `ratio` is the WEAKEST text pair in the theme — the floor the
-// whole theme is guaranteed to clear, and what the badge grades. `editor` is the editor's own
-// text-on-background pair, kept alongside it because that is the number a reader watches swing as
-// they cycle styles; the floor barely moves, since the clamp stops at exactly 4.5:1.
-export function worstTextContrast(
-  chrome: ChromeColors,
-): { pair: string; ratio: number; editor: number } {
-  let worstPair = TEXT_PAIRS[0][0];
-  let worstRatio = Infinity;
-  for (const [label, foreground, background] of TEXT_PAIRS) {
-    const ratio = contrastRatio(chrome[foreground], chrome[background]);
-    if (ratio < worstRatio) { worstRatio = ratio; worstPair = label; }
-  }
-  const round = (value: number) => Math.round(value * 100) / 100;
-  return {
-    pair: worstPair,
-    ratio: round(worstRatio),
-    editor: round(contrastRatio(chrome['editor.foreground'], chrome['editor.background'])),
   };
 }
 
