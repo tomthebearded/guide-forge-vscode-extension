@@ -8,7 +8,8 @@
 ## Why / design
 The provider stops embedding HTML+JS+CSS as a string and instead serves the two files you just wrote, then speaks
 the message protocol from step 03: reply to `ready` with `init`, and after each `apply` send back `applied` with
-the palette and contrast ratio. The engine already exists — this step is pure adapter wiring.
+the palette and the theme's contrast readout — `worstTextContrast(theme.chrome)`, which is `{ pair, ratio, editor }`:
+the weakest text pair in the whole theme, and the editor's own pair beside it. The engine already exists — this step is pure adapter wiring.
 
 > 🧠 **New concept — `asWebviewUri` & why a plain file path fails.** A webview runs on an opaque internal origin
 > (something like `vscode-webview://…`), **not** on your filesystem. So a normal path or `file://` URL in
@@ -72,7 +73,7 @@ checkpoint too — don't re-type it).
    import { COMBOS, comboById } from '../engine/combos';
    import { PROFILES, profileById } from '../engine/profiles';
    import { generate } from '../engine/generate';
-   import { contrastRatio } from '../engine/color';
+   import { worstTextContrast } from '../engine/generate';
 
    export class ThemePanelProvider implements vscode.WebviewViewProvider {
      public static readonly viewType = 'vanCode.panel';
@@ -105,8 +106,8 @@ checkpoint too — don't re-type it).
      }
    ```
 3. **`onMessage`** handles the M4 protocol: **`ready`** → post `init` (combos + all **`PROFILES`**); **`apply`** →
-   generate, apply chrome via history, then post **`applied`** with the palette and the rounded text-on-background
-   contrast; **`revert`**/**`reset`** unchanged. Note the apply is still **`applyChrome(theme.chrome)`** — chrome
+   generate, apply chrome via history, then post **`applied`** with the palette and **`worstTextContrast(theme.chrome)`**
+   (the engine rounds both ratios; the badge grades the weakest pair, never the editor's); **`revert`**/**`reset`** unchanged. Note the apply is still **`applyChrome(theme.chrome)`** — chrome
    only, no tokens (`applyTheme` arrives in M5). As the next class member:
    ```ts
      private async onMessage(m: any): Promise<void> {
@@ -124,7 +125,7 @@ checkpoint too — don't re-type it).
            this.post({
              type: 'applied',
              palette: theme.palette,
-             contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
+             contrast: worstTextContrast(theme.chrome),
            });
            break;
          }

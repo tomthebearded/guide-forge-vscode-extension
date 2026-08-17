@@ -27,7 +27,7 @@ within two steps:
   hex — `editor.background`, `tab.activeBackground`, and the rest — instead of only the one key literally named
   "background". That is the payoff of overriding a **role** rather than a VS Code key
   (→ [D9](../foundation/decision-log.md#d9--overrides-are-role-level-not-vs-code-key-level)).
-- **① also re-runs the readability floor.** `paletteToTokens` clamps every token color to ≥ 3:1 against
+- **① also re-runs the readability floor.** `paletteToTokens` clamps every token color to ≥ 4.5:1 against
   `palette.bg` via `ensureContrast` (M5 step 02). Because the override lands *before* that call, pinning a
   near-white `bg` makes the token colors darken to stay legible on it. Contrast protection keeps working on colors
   the formula never chose.
@@ -53,7 +53,7 @@ This step edits **one file**: `src/engine/generate.ts` — the M5 version. `pale
    existing import lines at the top with these three:
    ```ts
    import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult, ThemeOverrides, TokenColors, SemanticColors } from './types';
-   import { readableOn, mix, rotate, ensureContrast } from './color';
+   import { readableOn, mix, rotate, ensureContrast, contrastRatio } from './color';
    import { overrideRoles } from './overrides';
    ```
 3. **Leave `paletteToChrome`, `paletteToTokens` and `paletteToSemantic` completely alone.** Scroll past them.

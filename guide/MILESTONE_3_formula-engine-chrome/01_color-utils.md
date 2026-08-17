@@ -66,8 +66,15 @@ This step creates **one file**: `src/engine/color.ts`.
    - **`relativeLuminance` / `contrastRatio`** — the WCAG math from the callout above.
    - **`readableOn`** — returns near-white or near-black, whichever has more contrast on a given background. *Why:*
      status-bar text that stays legible whatever the accent color is.
-   - **`ensureContrast`** — nudges a foreground's lightness step by step until it clears a target ratio (or clamps at
-     pure white/black). *Why:* the High-Contrast profile (step 05) leans on it to hit AAA.
+   - **`ensureContrast`** — nudges a foreground's lightness step by step until it clears a target ratio, trying
+     **both** directions and keeping the better one if neither gets there. *Why:* the High-Contrast profile
+     (step 05) leans on it to hit AAA, and every chrome and token color in the guide leans on it to hit AA.
+     > 🧠 **Why both directions, and not "lighten on dark, darken on light".** That shortcut works at the two
+     > ends of the scale and fails in the middle. Take a mid-tone olive background: lightening a dark foreground
+     > walks it *through* the background's own luminance — contrast gets worse before it gets better — and the
+     > walk can hit pure white still short of the bar, while darkening would have cleared it in a few steps.
+     > Picking the direction from `relativeLuminance(background) < 0.5` looks principled and quietly returns an
+     > unreadable color. Trying both costs one extra loop and always finds the reachable side.
 3. Save the file. With the `watch` task running (or `npm run compile`) it should compile with **no** errors.
 
 ## Code
@@ -204,18 +211,29 @@ export function readableOn(background: string): string {
   return contrastRatio('#ffffff', background) >= contrastRatio('#111111', background) ? '#ffffff' : '#111111';
 }
 
-// Nudge `foreground` lighter/darker until it clears `targetRatio` against `background` (or clamps).
+// Nudge `foreground` lighter OR darker until it clears `targetRatio` against `background`.
+// Both directions get tried: against a mid-tone background only one of them can reach the bar,
+// and which one is not something the background's luminance alone can tell you.
 export function ensureContrast(foreground: string, background: string, targetRatio: number): string {
   if (contrastRatio(foreground, background) >= targetRatio) return foreground;
-  const goLighter = relativeLuminance(background) < 0.5;
+  const lighter = walkLightness(foreground, background, targetRatio, +0.01);
+  if (contrastRatio(lighter, background) >= targetRatio) return lighter;
+  const darker = walkLightness(foreground, background, targetRatio, -0.01);
+  if (contrastRatio(darker, background) >= targetRatio) return darker;
+  // Neither direction reaches it — hand back the better of the two extremes.
+  return contrastRatio(lighter, background) >= contrastRatio(darker, background) ? lighter : darker;
+}
+
+// Step lightness by `delta` until the ratio clears, or until the axis runs out.
+function walkLightness(foreground: string, background: string, targetRatio: number, delta: number): string {
   let hsl = hexToHsl(foreground);
   for (let step = 0; step < 100; step++) {
-    hsl = { ...hsl, l: clamp(hsl.l + (goLighter ? 0.01 : -0.01), 0, 1) };
+    hsl = { ...hsl, l: clamp(hsl.l + delta, 0, 1) };
     const candidate = hslToHex(hsl);
     if (contrastRatio(candidate, background) >= targetRatio) return candidate;
     if (hsl.l <= 0 || hsl.l >= 1) break;
   }
-  return goLighter ? '#ffffff' : '#111111';
+  return hslToHex(hsl);
 }
 ```
 

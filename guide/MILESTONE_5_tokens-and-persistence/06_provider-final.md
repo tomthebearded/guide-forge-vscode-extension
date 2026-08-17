@@ -45,7 +45,7 @@ regions that changed from M4.
    import { COMBOS, comboById } from '../engine/combos';
    import { PROFILES, profileById } from '../engine/profiles';
    import { generate } from '../engine/generate';
-   import { contrastRatio } from '../engine/color';
+   import { worstTextContrast } from '../engine/generate';
    import { listSets, saveSet, deleteSet, exportSets, importSets, SavedSet } from '../storage/sets';
    ```
 2. **Add the `last` field and widen the constructor** to `(extensionUri, context, history)` — `context` is new
@@ -87,7 +87,7 @@ regions that changed from M4.
            this.post({
              type: 'applied',
              palette: theme.palette,
-             contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
+             contrast: worstTextContrast(theme.chrome),
            });
            break;
          }

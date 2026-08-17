@@ -8,6 +8,38 @@
 > Written by `/log-feedback` (capture) and, when a fix ships, by `/report-issue`. Newest entries on top; one
 > entry per distinct piece of friction. Use absolute dates (`2026-07-09`), never "today".
 
+### 2026-08-17 · M3/06 + M5/02 + M3/01 (+ M4/03 badge) · the generated themes are unreadable, and the badge says AA
+- **Where:** M3 step 06 (`paletteToChrome` — every foreground assigned raw: `'sideBar.foreground': palette.text`,
+  `'tab.inactiveForeground': palette.textMuted`), M5 step 02 (`paletteToTokens` → `ensureContrast(hex, palette.bg, 3)`),
+  M3 step 01 (`ensureContrast`'s `const goLighter = relativeLuminance(background) < 0.5`), and M4 step 03's badge
+  (`'text/bg contrast ' + contrast`).
+- **Reader:** the guide's target reader, following M1–M5 end-to-end and into M6, applying themes from the panel.
+- **What happened:** applied `graphite / game-boy / light` and could not read the editor. Measured: the inactive-tab
+  label sat at **1.55:1**, the sidebar at **2.53:1**, the title bar at **2.84:1**, comments at **3.13:1**, and three
+  of the seven token roles were the *same hex* (`strings`, `functions`, `variables` all `#4d533c`; `numbers` 1.02:1
+  away from `strings`). The panel badge read **`text/bg contrast 4.88:1 AA`** in green throughout.
+  Swept across the whole engine: **66/85 themes** failed AA on the inactive tab, **35/85** on at least one token.
+- **Suspected class:** three defects, one of them a **capability claimed at the wrong threshold**. (a) `3:1` is WCAG
+  1.4.3's allowance for **large** text (≥18pt / 14pt bold); code is normal-size text and needs **4.5:1** — the guide
+  quoted a real standard at the wrong number. (b) `paletteToChrome` never clamped at all, so the clamping the guide
+  *described* only ever covered tokens. (c) `ensureContrast` chose its walk direction from the background's
+  luminance, which cannot reach the target against a mid-tone background — lightening walks *through* the
+  background's own luminance and caps at white still short of the bar. And a fourth, which is why nobody caught the
+  first three: the badge graded **one** pair and generalized to the theme.
+- **Severity:** blocker (the product the guide builds is unusable on most of its own presets, and its only quality
+  readout reports success).
+- **Tags:** `M3` `M3/01` `M3/06` `M5/02` `M4/03` `wcag` `contrast` `accessibility` `ensureContrast` `false-negative`
+  `readout` `swept`
+- **Quote:** "check the current colors, i don't think are readable"
+- **Status:** fixed via /report-issue (2026-08-17) — token clamp 3 → 4.5; `paletteToChrome` clamps all six text
+  foregrounds against **their own** backgrounds; `ensureContrast` walks both directions via a new `walkLightness`;
+  new exported `worstTextContrast(chrome)` grades the weakest of seven pairs and drives the badge. Applied to the
+  teaching steps and every checkpoint copy, then verified by compiling the guide's own code and re-sweeping:
+  **0/85 failures, lowest ratio 4.50**. Three `node -e` gates added so it cannot regress silently.
+  [D12](foundation/decision-log.md#d12--every-foreground-is-clamped-against-its-own-background-and-the-badge-grades-the-weakest-pair).
+  **Deliberately not fixed:** 17/85 themes with duplicate token colors — all `monochrome`/`game-boy`, where a
+  limited palette is the style.
+
 ### 2026-08-10 · M5/03 (+ D2, M5/00, M5/09 check 5) · `overrideInLanguage` throws — the two token settings are NOT language-overridable
 - **Where:** M5 step 03 (`applyTokens` / `applySemantic` → `cfg.update(KEY, value, TARGET, languageId ? true : undefined)`,
   and the 🧠 concept note "the language-override 4th argument to `config.update`"). Same premise in M5/00's

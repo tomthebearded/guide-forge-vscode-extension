@@ -87,7 +87,7 @@ and `media/webview/main.js` (one message branch). (All three complete files are 
        comboId: set.comboId, profileId: set.profileId, variant: set.variant,
        overrides: set.overrides || {},
        palette: theme.palette, tokens: theme.tokens, semantic: theme.semantic,
-       contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
+       contrast: worstTextContrast(theme.chrome),
      });
      break;
    }

@@ -156,7 +156,11 @@ This step creates **one file**: `media/webview/main.js`. It's built as a single 
    }
    ```
 6. Add **`renderPreview(palette, contrast)`** — it draws the 8 swatches in a fixed role order and the contrast
-   badge, choosing `ok`/`warn`/`bad` by the AAA (≥7) / AA (≥4.5) / fail thresholds.
+   badge, choosing `ok`/`warn`/`bad` by the AAA (≥7) / AA (≥4.5) / fail thresholds. **`contrast` is an object, not
+   a number:** the provider sends `{ pair, ratio, editor }` — `ratio` is the theme's weakest text pair and `pair`
+   names it, `editor` is the editor's own text-on-background pair. The badge **grades `ratio`**, because a theme is
+   only as readable as its worst surface; `editor` is shown beside it as the number that visibly swings when you
+   change style.
 
    In `main.js`, **below `render()`**:
    ```js
@@ -172,10 +176,10 @@ This step creates **one file**: `media/webview/main.js`. It's built as a single 
        strip.append(sw);
      }
      box.append(strip);
-     const aa = contrast >= 4.5, aaa = contrast >= 7;
+     const aa = contrast.ratio >= 4.5, aaa = contrast.ratio >= 7;
      box.append(el('span', {
        className: 'badge ' + (aaa ? 'ok' : aa ? 'warn' : 'bad'),
-       textContent: 'text/bg contrast ' + contrast + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL'),
+       textContent: 'editor ' + contrast.editor + ':1 · floor ' + contrast.pair + ' ' + contrast.ratio + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL'),
      }));
    }
    ```
@@ -199,7 +203,7 @@ This step creates **one file**: `media/webview/main.js`. It's built as a single 
 - **The swatch key order** `['bg','surface','surfaceAlt','text','textMuted','accent1','accent2','border']` is the
   fixed 8-role `Palette` shape from the engine; that's why the strip is always 8 swatches.
 - **The badge thresholds** encode WCAG: `contrast >= 7` → `AAA` (green `ok`), `>= 4.5` → `AA` (amber `warn`), else
-  `FAIL` (red `bad`). The extension pre-rounds `contrast` to two decimals before sending it.
+  `FAIL` (red `bad`). The extension pre-rounds both of `contrast`'s ratios to two decimals before sending them.
 
 ## Done when (this step)
 - The file **`media/webview/main.js`** exists with the content above, alongside `styles.css`.

@@ -55,10 +55,16 @@ This step creates **one file**: `src/engine/generate.ts`.
 
 1. Create **`src/engine/generate.ts`** next to `profiles.ts`.
 2. Paste the **Code** block below.
-   - It imports the types it needs and `readableOn` from `./color` (the only color helper the M3 mapping uses).
-   - `paletteToChrome` is a plain function (not exported) — `generate` is the only public surface.
+   - It imports the types it needs plus `readableOn`, `ensureContrast` and `contrastRatio` from `./color`.
+   - `paletteToChrome` is a plain function (not exported); the file exports exactly two things, `generate` and
+     `worstTextContrast`.
    - `generate` calls `profile.buildPalette(combo, variant)` then wraps the result: `{ palette, chrome:
      paletteToChrome(palette) }`. **Nothing else** — the token/semantic lines are M5.
+   - **`TEXT_PAIRS` + `worstTextContrast`** are the readability readout: the table names the seven keys that paint
+     text on a background — the same six `on(...)` calls plus the status bar — and the function returns the
+     weakest of them, together with the editor's own pair. Nothing calls it yet; the `[M4]` marker says why. The
+     panel's contrast badge (M4 step 04) is its only consumer, and [step 08](08_verify.md)'s readability gate
+     leans on it to prove the clamp across every theme the engine can build.
 3. Keep the `[M5]` comment on `ThemeResult` in mind but add no token code. Save; it compiles against `types.ts`,
    `color.ts`.
 
@@ -67,31 +73,66 @@ This step creates **one file**: `src/engine/generate.ts`.
 ```ts
 // [M3 version] returns { palette, chrome } only. [M5] adds tokens + semantic.
 import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult } from './types';
-import { readableOn } from './color';
+import { readableOn, ensureContrast, contrastRatio } from './color';
 
 function paletteToChrome(palette: Palette): ChromeColors {
   const onAccent = readableOn(palette.accent1);
+  // WCAG 1.4.3: body text needs 4.5:1. Every foreground below is clamped against the
+  // background it actually sits on — not against the editor background it never touches.
+  const on = (foreground: string, background: string) => ensureContrast(foreground, background, 4.5);
   return {
     'editor.background': palette.bg,
-    'editor.foreground': palette.text,
+    'editor.foreground': on(palette.text, palette.bg),
     'sideBar.background': palette.surface,
-    'sideBar.foreground': palette.text,
+    'sideBar.foreground': on(palette.text, palette.surface),
     'sideBarSectionHeader.background': palette.surfaceAlt,
     'activityBar.background': palette.surfaceAlt,
-    'activityBar.foreground': palette.accent1,
+    'activityBar.foreground': on(palette.accent1, palette.surfaceAlt),
     'activityBar.activeBorder': palette.accent1,
     'statusBar.background': palette.accent1,
     'statusBar.foreground': onAccent,
     'titleBar.activeBackground': palette.surfaceAlt,
-    'titleBar.activeForeground': palette.text,
+    'titleBar.activeForeground': on(palette.text, palette.surfaceAlt),
     'tab.activeBackground': palette.bg,
     'tab.inactiveBackground': palette.surface,
-    'tab.activeForeground': palette.text,
-    'tab.inactiveForeground': palette.textMuted,
+    'tab.activeForeground': on(palette.text, palette.bg),
+    'tab.inactiveForeground': on(palette.textMuted, palette.surface),
     'editorGroupHeader.tabsBackground': palette.surface,
     'panel.background': palette.surface,
     'panel.border': palette.border,
     'focusBorder': palette.accent2,
+  };
+}
+
+// The chrome pairs that paint text on a background — exactly the ones `paletteToChrome` clamps.
+const TEXT_PAIRS: Array<[string, string, string]> = [
+  ['editor', 'editor.foreground', 'editor.background'],
+  ['sideBar', 'sideBar.foreground', 'sideBar.background'],
+  ['activityBar', 'activityBar.foreground', 'activityBar.background'],
+  ['statusBar', 'statusBar.foreground', 'statusBar.background'],
+  ['titleBar', 'titleBar.activeForeground', 'titleBar.activeBackground'],
+  ['tab.active', 'tab.activeForeground', 'tab.activeBackground'],
+  ['tab.inactive', 'tab.inactiveForeground', 'tab.inactiveBackground'],
+];
+
+// [M4] What the panel badge reports. `ratio` is the WEAKEST text pair in the theme — the floor the
+// whole theme is guaranteed to clear, and what the badge grades. `editor` is the editor's own
+// text-on-background pair, kept alongside it because that is the number a reader watches swing as
+// they cycle styles; the floor barely moves, since the clamp stops at exactly 4.5:1.
+export function worstTextContrast(
+  chrome: ChromeColors,
+): { pair: string; ratio: number; editor: number } {
+  let worstPair = TEXT_PAIRS[0][0];
+  let worstRatio = Infinity;
+  for (const [label, foreground, background] of TEXT_PAIRS) {
+    const ratio = contrastRatio(chrome[foreground], chrome[background]);
+    if (ratio < worstRatio) { worstRatio = ratio; worstPair = label; }
+  }
+  const round = (value: number) => Math.round(value * 100) / 100;
+  return {
+    pair: worstPair,
+    ratio: round(worstRatio),
+    editor: round(contrastRatio(chrome['editor.foreground'], chrome['editor.background'])),
   };
 }
 
@@ -118,7 +159,18 @@ export function generate(combo: StarterCombo, profile: StyleProfile, variant?: s
   are `{ palette, chrome }` only; keep the token lines commented.
 - **A key value is `undefined` when applied** → a typo in a palette role name (e.g. `palette.surfaceAlt` misspelled). The
   8 role names are load-bearing and must match `types.ts` exactly.
-- **`readableOn` not found** → import it from `./color`; it's the only color helper this file needs.
+- **`readableOn` / `ensureContrast` / `contrastRatio` not found** → widen the import from `./color`; this file
+  needs all three (`readableOn` for the status bar, `ensureContrast` for the clamp, `contrastRatio` for
+  `worstTextContrast`).
+- **The sidebar, title bar or an inactive tab label is hard to read, but the editor text is fine** → a foreground
+  is being clamped against the wrong background. Each `on(...)` call takes the background that key actually sits
+  on: `sideBar.foreground` on `palette.surface`, `titleBar.activeForeground` on `palette.surfaceAlt`,
+  `tab.inactiveForeground` on `palette.surface`. Clamping them all against `palette.bg` compiles fine and looks
+  right in the editor while leaving every panel unreadable — run the readability-floor check in
+  [step 08](08_verify.md) and it will name the failing pair.
+- **The check says `all AA false` and the failing pair sits on a mid-tone background** → `ensureContrast` has to
+  try **both** directions. A version that picks one direction from the background's luminance gives up against
+  mid-tones, where lightening a dark foreground passes *through* the background before it ever clears the bar.
 
 ---
 > Nav: [← Generative profiles II](05_profiles-generative-2.md) · [Overview](00_overview.md) · [Panel: two dropdowns →](07_panel-selects.md)

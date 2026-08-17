@@ -2,7 +2,7 @@
 > Nav: [← Saved sets remember overrides](09_persist-overrides.md) · [Overview](00_overview.md) · [M7 → Packaging](../MILESTONE_7_packaging/00_overview.md)
 
 ## Done-when gate (run every check)
-Checks 1–2 are pure engine and run in plain Node. Checks 3–9 run in the Extension Development Host
+Checks 1–2 are pure engine and run in plain Node. Checks 3–10 run in the Extension Development Host
 (<kbd>F5</kbd>) — open a **`.ts` file** in it first, because check 6 needs a language server.
 
 > 💡 **The status bar is still the one surface that won't move under <kbd>F5</kbd>** — including when you pin
@@ -217,28 +217,31 @@ export function overrideRoles<T extends object>(base: T, chosen?: Partial<T>): T
 ### `src/engine/generate.ts`
 ```ts
 import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult, ThemeOverrides, TokenColors, SemanticColors } from './types';
-import { readableOn, mix, rotate, ensureContrast } from './color';
+import { readableOn, mix, rotate, ensureContrast, contrastRatio } from './color';
 import { overrideRoles } from './overrides';
 
 function paletteToChrome(palette: Palette): ChromeColors {
   const onAccent = readableOn(palette.accent1);
+  // WCAG 1.4.3: body text needs 4.5:1. Every foreground below is clamped against the
+  // background it actually sits on — not against the editor background it never touches.
+  const on = (foreground: string, background: string) => ensureContrast(foreground, background, 4.5);
   return {
     'editor.background': palette.bg,
-    'editor.foreground': palette.text,
+    'editor.foreground': on(palette.text, palette.bg),
     'sideBar.background': palette.surface,
-    'sideBar.foreground': palette.text,
+    'sideBar.foreground': on(palette.text, palette.surface),
     'sideBarSectionHeader.background': palette.surfaceAlt,
     'activityBar.background': palette.surfaceAlt,
-    'activityBar.foreground': palette.accent1,
+    'activityBar.foreground': on(palette.accent1, palette.surfaceAlt),
     'activityBar.activeBorder': palette.accent1,
     'statusBar.background': palette.accent1,
     'statusBar.foreground': onAccent,
     'titleBar.activeBackground': palette.surfaceAlt,
-    'titleBar.activeForeground': palette.text,
+    'titleBar.activeForeground': on(palette.text, palette.surfaceAlt),
     'tab.activeBackground': palette.bg,
     'tab.inactiveBackground': palette.surface,
-    'tab.activeForeground': palette.text,
-    'tab.inactiveForeground': palette.textMuted,
+    'tab.activeForeground': on(palette.text, palette.bg),
+    'tab.inactiveForeground': on(palette.textMuted, palette.surface),
     'editorGroupHeader.tabsBackground': palette.surface,
     'panel.background': palette.surface,
     'panel.border': palette.border,
@@ -246,8 +249,40 @@ function paletteToChrome(palette: Palette): ChromeColors {
   };
 }
 
+// The chrome pairs that paint text on a background — exactly the ones `paletteToChrome` clamps.
+const TEXT_PAIRS: Array<[string, string, string]> = [
+  ['editor', 'editor.foreground', 'editor.background'],
+  ['sideBar', 'sideBar.foreground', 'sideBar.background'],
+  ['activityBar', 'activityBar.foreground', 'activityBar.background'],
+  ['statusBar', 'statusBar.foreground', 'statusBar.background'],
+  ['titleBar', 'titleBar.activeForeground', 'titleBar.activeBackground'],
+  ['tab.active', 'tab.activeForeground', 'tab.activeBackground'],
+  ['tab.inactive', 'tab.inactiveForeground', 'tab.inactiveBackground'],
+];
+
+// [M4] What the panel badge reports. `ratio` is the WEAKEST text pair in the theme — the floor the
+// whole theme is guaranteed to clear, and what the badge grades. `editor` is the editor's own
+// text-on-background pair, kept alongside it because that is the number a reader watches swing as
+// they cycle styles; the floor barely moves, since the clamp stops at exactly 4.5:1.
+export function worstTextContrast(
+  chrome: ChromeColors,
+): { pair: string; ratio: number; editor: number } {
+  let worstPair = TEXT_PAIRS[0][0];
+  let worstRatio = Infinity;
+  for (const [label, foreground, background] of TEXT_PAIRS) {
+    const ratio = contrastRatio(chrome[foreground], chrome[background]);
+    if (ratio < worstRatio) { worstRatio = ratio; worstPair = label; }
+  }
+  const round = (value: number) => Math.round(value * 100) / 100;
+  return {
+    pair: worstPair,
+    ratio: round(worstRatio),
+    editor: round(contrastRatio(chrome['editor.foreground'], chrome['editor.background'])),
+  };
+}
+
 function paletteToTokens(palette: Palette): TokenColors {
-  const readable = (hex: string) => ensureContrast(hex, palette.bg, 3);
+  const readable = (hex: string) => ensureContrast(hex, palette.bg, 4.5);
   return {
     comments: readable(palette.textMuted),
     keywords: readable(palette.accent1),
@@ -428,7 +463,7 @@ import { COMBOS, comboById } from '../engine/combos';
 import { PROFILES, profileById } from '../engine/profiles';
 import { generate } from '../engine/generate';
 import { ThemeOverrides } from '../engine/types';
-import { contrastRatio } from '../engine/color';
+import { worstTextContrast } from '../engine/generate';
 import { listSets, saveSet, deleteSet, exportSets, importSets, SavedSet } from '../storage/sets';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
@@ -476,7 +511,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
           palette: theme.palette,
           tokens: theme.tokens,
           semantic: theme.semantic,
-          contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
+          contrast: worstTextContrast(theme.chrome),
         });
         break;
       }
@@ -512,7 +547,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
           comboId: set.comboId, profileId: set.profileId, variant: set.variant,
           overrides: set.overrides || {},
           palette: theme.palette, tokens: theme.tokens, semantic: theme.semantic,
-          contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
+          contrast: worstTextContrast(theme.chrome),
         });
         break;
       }
@@ -742,10 +777,10 @@ details > summary {
       strip.append(sw);
     }
     box.append(strip);
-    const aa = contrast >= 4.5, aaa = contrast >= 7;
+    const aa = contrast.ratio >= 4.5, aaa = contrast.ratio >= 7;
     box.append(el('span', {
       className: 'badge ' + (aaa ? 'ok' : aa ? 'warn' : 'bad'),
-      textContent: 'text/bg contrast ' + contrast + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL'),
+      textContent: 'editor ' + contrast.editor + ':1 · floor ' + contrast.pair + ' ' + contrast.ratio + ':1 ' + (aaa ? 'AAA' : aa ? 'AA' : 'FAIL'),
     }));
   }
 

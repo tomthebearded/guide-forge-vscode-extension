@@ -19,7 +19,7 @@ between them, and it carries traffic in **both** directions:
 > 🧠 **New concept — the picker needs the *effective* color, and only the extension knows it.** A role's swatch
 > has to show the color that role currently *is*. For a pinned role that's your own hex, which the webview
 > obviously knows. For the other 25 it's a value the formula computed — `#3ec6ff` rotated by −20° and clamped to
-> 3:1 against the background — and the webview has no engine, no combos and no profiles. It literally cannot
+> 4.5:1 against the background — and the webview has no engine, no combos and no profiles. It literally cannot
 > compute it. So the extension sends all three finished maps back after every apply, and the webview's rule for
 > what to display becomes a single line it can execute with no color knowledge at all:
 >
@@ -44,7 +44,7 @@ are untouched here — `save` and `applySet` get their own edits in step 09. (Th
 
 > **Before you start:** step 03 must compile — this step calls `generate()` with a 4th argument, which is a type
 > error until `generate` accepts one. `src/panel/ThemePanelProvider.ts` must be at its M5 state (it already
-> imports `generate`, `contrastRatio` and the storage helpers).
+> imports `generate`, `worstTextContrast` and the storage helpers).
 
 1. Open `src/panel/ThemePanelProvider.ts`.
 2. **Add one import.** The provider needs the `ThemeOverrides` type to remember the last selection. Add this line
@@ -69,7 +69,7 @@ are untouched here — `save` and `applySet` get their own edits in step 09. (Th
        palette: theme.palette,
        tokens: theme.tokens,        // NEW — the 7 effective syntax-token colors
        semantic: theme.semantic,    // NEW — the 13 effective semantic-type colors
-       contrast: Math.round(contrastRatio(theme.palette.text, theme.palette.bg) * 100) / 100,
+       contrast: worstTextContrast(theme.chrome),
      });
      break;
    }

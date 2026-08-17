@@ -23,7 +23,8 @@ Two color families, two VS Code settings — and their value shapes differ, whic
 >   and the [Semantic Highlight guide](https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide).
 
 Both functions run every color through `ensureContrast(color, bg, 3)` (from `color.ts`) so code text keeps at
-least a 3:1 ratio against the background — a color that's invisible on the theme's `bg` is a bug, not a style.
+least a 4.5:1 ratio against the background — WCAG 1.4.3's threshold for normal-size text, which is what code is.
+A color that's invisible on the theme's `bg` is a bug, not a style.
 `paletteToSemantic` takes the *already-built* `TokenColors` (not the palette) so syntax and semantic coloring
 agree: a keyword and the semantic `keyword` type get the same hex.
 
@@ -50,13 +51,13 @@ re-type it). (Both complete files are in [the M5 checkpoint](09_verify.md).)
    **Replace the two import lines at the top** with:
    ```ts
    import { ChromeColors, Palette, StarterCombo, StyleProfile, ThemeResult, TokenColors, SemanticColors } from './types';
-   import { readableOn, mix, rotate, ensureContrast } from './color';
+   import { readableOn, mix, rotate, ensureContrast, contrastRatio } from './color';
    ```
 4. **Add `paletteToTokens`** directly **below the unchanged `paletteToChrome` function**. It maps each of the seven
-   roles from palette accents/text/muted, each clamped for contrast against `palette.bg`.
+   roles from palette accents/text/muted, each clamped to **4.5:1** against `palette.bg`.
    ```ts
    function paletteToTokens(palette: Palette): TokenColors {
-     const readable = (hex: string) => ensureContrast(hex, palette.bg, 3);
+     const readable = (hex: string) => ensureContrast(hex, palette.bg, 4.5);
      return {
        comments: readable(palette.textMuted),
        keywords: readable(palette.accent1),
@@ -112,6 +113,24 @@ specific *derivation math* (which accent maps where, the `rotate` degrees) is **
   ```
   Expected: an object with seven `#rrggbb` fields (`comments`, `keywords`, …), then `13 semantic types`. Every
   value is a valid 7-char hex string.
+- **The token readability floor, across every theme** — the token half of the sweep
+  [M4's gate](../MILESTONE_4_gallery-and-ux/05_verify.md) runs on the chrome half:
+  ```powershell
+  node -e "const {generate}=require('./out/engine/generate.js');const {contrastRatio}=require('./out/engine/color.js');const {COMBOS}=require('./out/engine/combos.js');const {PROFILES}=require('./out/engine/profiles.js');let low=99,lowId='',n=0,collapsed=0;for(const c of COMBOS)for(const p of PROFILES)for(const v of (p.variants&&p.variants.length?p.variants:[undefined])){n++;const t=generate(c,p,v),bg=t.chrome['editor.background'],toks=Object.values(t.tokens);const m=Math.min(...toks.map(x=>contrastRatio(x,bg)));if(m<low){low=m;lowId=c.id+'/'+p.id+(v?'/'+v:'')}if(new Set(toks).size<7)collapsed++}console.log('themes',n);console.log('lowest token',Math.round(low*100)/100,lowId);console.log('all AA',low>=4.5);console.log('themes with duplicate token colors',collapsed)"
+  ```
+  **Expected — exactly:**
+  ```
+  themes 85
+  lowest token 4.5 deep-sea/warm-sepia
+  all AA true
+  themes with duplicate token colors 17
+  ```
+  > 🧠 **Read the last line, don't panic at it.** `all AA true` is the assertion — every token color is legible on
+  > its background. The **17** is *not* a failure: `monochrome` and `game-boy` are deliberately limited-palette
+  > styles, so several roles landing on the same color is the style working, not the engine breaking. What the
+  > line buys you is a tripwire — if that number jumps after you touch `paletteToTokens`, a *colorful* profile has
+  > started collapsing, and the usual cause is `rotate()` being handed a near-grey (rotating the hue of a
+  > desaturated color changes nothing).
 
 ## If it breaks
 - **`node -e` prints `undefined` for `tokens`** → `generate()` isn't returning the new fields, or you compiled a
@@ -119,7 +138,7 @@ specific *derivation math* (which accent maps where, the `rotate` degrees) is **
 - **`Cannot find module './out/engine/...'`** → the compile hasn't run or `tsconfig` emits elsewhere; run
   `npm run compile` first and check `out/engine/generate.js` exists.
 - **A token color comes out as `#ffffff` or `#111111` unexpectedly** → that's `ensureContrast` clamping when the
-  derived color couldn't reach 3:1 against a very light/dark `bg`. Not a bug — it's the readability floor doing its
+  derived color couldn't reach 4.5:1 against a very light/dark `bg`. Not a bug — it's the readability floor doing its
   job. Change the profile/combo if you want a different look.
 
 ---

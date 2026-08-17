@@ -186,3 +186,35 @@
   find any other.
 - **Revisit if:** VS Code makes the two theme-customization settings resource-language-scoped (then the `[lang]`
   block returns and layering becomes free), or publishes a languageId→grammar-root mapping API that retires the map.
+
+## D12 — Every foreground is clamped against its own background, and the badge grades the weakest pair
+- **Date:** 2026-08-17
+- **Source:** field report (a reader applied a theme and could not read the sidebar, tabs or comments), measured
+  over all 85 combo × profile × variant themes; WCAG thresholds re-verified against
+  [Understanding SC 1.4.3](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) the same day.
+- **Decision:** the readability floor is **4.5:1**, not 3:1, and it is enforced **per pair**: `paletteToChrome`
+  clamps each text foreground against the background that key actually paints on, `paletteToTokens` clamps every
+  token against `palette.bg`, and `ensureContrast` tries both lightness directions before giving up. The panel's
+  badge reports `worstTextContrast(chrome)` — the weakest of the seven text pairs — instead of sampling
+  `text/bg`.
+- **Why:** 3:1 is WCAG's allowance for text at 18pt (or 14pt bold); editor code is normal-size text, so the guide
+  was quoting a real standard at the wrong threshold. The per-pair part matters more: a theme is not readable
+  because its editor text passes, and clamping everything against `editor.background` would have compiled,
+  looked right in the one place the reader was told to look, and left every panel illegible. Grading the badge on
+  the worst pair is what makes the guarantee checkable by eye instead of merely asserted — the old badge is what
+  let 66/85 broken themes ship looking green.
+- **Rules out / trade-off:** the graded half of the badge is now **AA (amber) on all 85 themes** — 0 of them
+  reach AAA on their weakest pair, because the clamp stops at 4.5:1 and rarely gets handed better (measured
+  span 4.50–6.22). A readout that never varies teaches nothing, and M4's ⭐ reality check depended on watching
+  it move, so `worstTextContrast` also returns the **editor** pair and the badge shows both:
+  `editor 15.87:1 · floor tab.inactive 4.56:1 AA`. The floor is the guarantee; the editor number is what swings
+  (4.88–18.19) and what a reader judges a style by. Also accepted: clamping raises some deliberately dim UI
+  text — an inactive tab label is still quieter than an active one, since it starts from `textMuted`, but it is
+  no longer *unreadable*, and "subtle" that cannot be read is broken.
+- **Explicitly not decided here:** **17/85 themes still render fewer than 7 distinct token colors.** All of them
+  are `monochrome` or `game-boy` — limited-palette styles where collapse is the identity, not a defect — so the
+  engine is left as is and the M5/02 gate prints the count as a **tripwire**: if it rises after someone touches
+  `paletteToTokens`, a colorful profile has started collapsing (the usual cause is `rotate()` handed a near-grey,
+  where rotating hue changes nothing).
+- **Revisit if:** the guide ever targets AAA (7:1) as its floor, or a reader reports a *colorful* style whose
+  token roles are indistinguishable — then `paletteToTokens` needs a distinctness pass, not just a contrast one.

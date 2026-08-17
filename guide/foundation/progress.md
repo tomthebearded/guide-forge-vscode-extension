@@ -16,8 +16,12 @@
 | `[!]` | executed, then **invalidated** by a later change to the guide — the row names the retrofit that repairs it |
 
 ## Current position
-- **Last executed:** M5 / `09_verify.md`.
-- **Next up:** M6 / `01_types-overrides.md`.
+- **Last executed:** M6 / `03_generate-overrides.md`.
+- **Next up:** M6 / `04_provider-overrides.md`.
+- ⚠️ **Re-work pending, ahead of nothing:** the 2026-08-17 report-issue pass changed engine code inside steps
+  already executed (M3/01, M3/06, M4/03, M4/04, M5/02, M6/03). Those rows stay `[x]` — they *were* executed — but
+  the project no longer matches the guide until the new `color.ts` / `generate.ts` / provider / `main.js` code is
+  re-applied and M3/08 + M4/05 + M5/02's readability gates re-run. See [`status.md`](status.md) § Drift log.
 
 ## MILESTONE_1 — Scaffold + sidebar panel
 - [x] `01_prerequisites.md` — Check your prerequisites · 2026-08-16
@@ -59,7 +63,7 @@
 ## MILESTONE_5 — Tokens and persistence
 - [x] `01_types-extend.md` — Extend the engine types (tokens + semantic) · 2026-08-16
 - [x] `02_generate-extend.md` — Widen `ThemeResult` and generate token + semantic colors · 2026-08-16
-- [!] `03_apply-extend.md` — Apply tokens + semantic, and scope tokens per language · 2026-08-16 — **invalidated by the 2026-08-16 amendment.** The `overrideInLanguage` route throws (neither token setting is language-overridable); the global apply is fine. **Retrofit:** *Before you continue — corrections* in `M6/01_types-overrides.md`
+- [x] `03_apply-extend.md` — Apply tokens + semantic, and scope tokens per language · 2026-08-16, retrofit applied 2026-08-17 — the M6/01 corrections were applied to `src/theme/apply.ts` (in-value scoping); the gate that proves it is M6/10 check 10, still unrun
 - [x] `04_history-extend.md` — History captures all three settings · 2026-08-16
 - [x] `05_storage.md` — Save named sets with `globalState` · 2026-08-16
 - [x] `06_provider-final.md` — The final provider (save / applySet / delete / import / export) · 2026-08-16
@@ -68,9 +72,9 @@
 - [!] `09_verify.md` — milestone gate · 2026-08-16 — **invalidated by the 2026-08-16 amendment.** Checks 1–4 passed; check 5 asserted a `"[typescript]"` block the Configuration API will not write. **Retrofit:** *Before you continue — corrections* in `M6/01_types-overrides.md`, then gate check 10 in `M6/10_verify.md`
 
 ## MILESTONE_6 — Per-role color editing
-- [ ] `01_types-overrides.md` — Add the `ThemeOverrides` type
-- [ ] `02_overrides-module.md` — `src/engine/overrides.ts` — validate a hex, merge a sparse patch
-- [ ] `03_generate-overrides.md` — Thread overrides through `generate()`
+- [x] `01_types-overrides.md` — Add the `ThemeOverrides` type · 2026-08-17 (including its *Before you continue — corrections* section)
+- [x] `02_overrides-module.md` — `src/engine/overrides.ts` — validate a hex, merge a sparse patch · 2026-08-17
+- [x] `03_generate-overrides.md` — Thread overrides through `generate()` · 2026-08-17 — ⚠️ **re-apply:** the 2026-08-17 report-issue pass changed this step's `generate.ts` import line and the clamping inside `paletteToChrome`
 - [ ] `04_provider-overrides.md` — The provider passes overrides through and echoes the effective colors back
 - [ ] `05_styles-editor.md` — Style the role rows
 - [ ] `06_webview-chrome-editor.md` — The webview holds overrides + effective colors, and edits the 8 chrome roles
