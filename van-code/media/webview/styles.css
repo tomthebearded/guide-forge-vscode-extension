@@ -78,3 +78,67 @@ h4 {
 .muted {
 	opacity: 0.6;
 }
+.roles {
+	display: grid;
+	grid-template-columns: 1fr auto auto auto;
+	gap: 4px 6px;
+	align-items: center;
+}
+.role {
+	font-size: 11px;
+	opacity: 0.8;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.role.pinned {
+	opacity: 1;
+	font-weight: 600;
+}
+input[type='color'] {
+	width: 26px;
+	height: 22px;
+	padding: 0;
+	cursor: pointer;
+	background: none;
+	border: 1px solid var(--vscode-input-border, #3c3c3c);
+	border-radius: 4px;
+}
+.hex {
+	width: 76px;
+	box-sizing: border-box;
+	padding: 2px 4px;
+	font-size: 11px;
+	font-family: var(--vscode-editor-font-family, monospace);
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	border: 1px solid var(--vscode-input-border, #3c3c3c);
+	border-radius: 4px;
+}
+.hex.invalid {
+	border-color: #b62324;
+}
+.clear {
+	font: inherit;
+	font-size: 12px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 2px 5px;
+	border: none;
+	border-radius: 4px;
+	background: none;
+	color: var(--vscode-foreground);
+	opacity: 0.35;
+}
+.clear.on {
+	opacity: 1;
+	background: var(--vscode-button-secondaryBackground, #2a2d2e);
+}
+details > summary {
+	cursor: pointer;
+	margin: 12px 0 6px;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	opacity: 0.8;
+}
