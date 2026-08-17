@@ -131,13 +131,12 @@
 		}
 		box.append(strip);
 		// WCAG contrast thresholds for normal-size text: AA needs 4.5:1, AAA needs 7:1.
-		const aaLevel = contrast >= 4.5,
-			aaaLevel = contrast >= 7;
+		const aaLevel = contrast.ratio >= 4.5,
+			aaaLevel = contrast.ratio >= 7;
 		box.append(
 			createElement('span', {
 				className: 'badge ' + (aaaLevel ? 'ok' : aaLevel ? 'warn' : 'bad'),
-				textContent:
-					'text/bg contrast ' + contrast + ':1 ' + (aaaLevel ? 'AAA' : aaLevel ? 'AA' : 'FAIL'),
+				textContent: `editor ${contrast.editor}:1 · floor ${contrast.pair} ${contrast.ratio}:1 ${aaaLevel ? 'AAA' : aaLevel ? 'AA' : 'FAIL'}`,
 			}),
 		);
 	}

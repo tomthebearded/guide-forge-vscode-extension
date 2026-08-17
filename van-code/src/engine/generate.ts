@@ -16,6 +16,9 @@ function paletteToChrome(palette: Palette): ChromeColors {
         'sideBar.background': palette.surface,
         'sideBar.foreground': on(palette.text, palette.surface),
         'sideBarSectionHeader.background': palette.surfaceAlt,
+        // Section headers sit on surfaceAlt, not on the sidebar background, so their text needs
+        // its own check — without this key VS Code would reuse sideBar.foreground unchecked.
+        'sideBarSectionHeader.foreground': on(palette.text, palette.surfaceAlt),
         'activityBar.background': palette.surfaceAlt,
         'activityBar.foreground': on(palette.accent1, palette.surfaceAlt),
         'activityBar.activeBorder': palette.accent1,
@@ -40,6 +43,7 @@ function paletteToChrome(palette: Palette): ChromeColors {
 const TEXT_PAIRS: Array<[string, string, string]> = [
     ['editor', 'editor.foreground', 'editor.background'],
     ['sideBar', 'sideBar.foreground', 'sideBar.background'],
+    ['sideBarSectionHeader', 'sideBarSectionHeader.foreground', 'sideBarSectionHeader.background'],
     ['activityBar', 'activityBar.foreground', 'activityBar.background'],
     ['statusBar', 'statusBar.foreground', 'statusBar.background'],
     ['titleBar', 'titleBar.activeForeground', 'titleBar.activeBackground'],
@@ -55,8 +59,10 @@ export function worstTextContrast(chrome: ChromeColors): { pair: string; ratio: 
     // Walk every pair and keep the lowest ratio seen so far.
     for (const [label, foreground, background] of TEXT_PAIRS) {
         const ratio = contrastRatio(chrome[foreground], chrome[background]);
-        if (ratio < worstRatio)
-             worstRatio = ratio; worstPair = label;
+        if (ratio < worstRatio){
+            worstRatio = ratio; 
+            worstPair = label;
+        }
     }
     // Report to two decimals; the raw ratios carry more precision than anyone needs to read.
     const round = (value: number) => Math.round(value * 100) / 100;
