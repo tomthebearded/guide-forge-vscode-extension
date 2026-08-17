@@ -1,7 +1,17 @@
 (function () {
 	const vscode = acquireVsCodeApi();
 	const app = document.getElementById('app');
-	const state = { combos: [], profiles: [], comboId: null, profileId: null, variant: null };
+	const state = {
+		combos: [],
+		profiles: [],
+		savedSets: [],
+		comboId: null,
+		profileId: null,
+		variant: null,
+		languageId: '',
+		overrides: { palette: {}, tokens: {}, semantic: {} },
+		effective: { palette: {}, tokens: {}, semantic: {} },
+	};
 	window.addEventListener('message', event => {
 		const data = event.data;
 		if (data.type === 'init') {
@@ -14,7 +24,11 @@
 
 			render();
 			apply();
-		} else if (data.type === 'applied') renderPreview(data.palette, data.contrast);
+		} else if (data.type === 'applied') {
+			state.effective = { palette: data.palette, tokens: data.tokens, semantic: data.semantic };
+			renderPreview(data.palette, data.contrast);
+			renderRoles();
+		}
 	});
 
 	function apply() {
@@ -24,6 +38,8 @@
 			comboId: state.comboId,
 			profileId: state.profileId,
 			variant: state.variant || undefined,
+			languageId: state.languageId || undefined,
+			overrides: state.overrides,
 		});
 	}
 
@@ -97,6 +113,7 @@
 		}
 
 		app.append(createElement('div', { id: 'preview', className: 'section' }));
+		app.append(createElement('div', { id: 'roles', className: 'section' }));
 
 		const actions = createElement('div', { className: 'row' });
 		const addButton = (label, type) => {
@@ -140,5 +157,66 @@
 			}),
 		);
 	}
+
+	const GROUPS = [{ key: 'palette', title: 'Fine-tune — chrome roles' }];
+
+	function renderRoles() {
+		const box = document.getElementById('roles');
+		if (!box) return;
+		box.innerHTML = '';
+		for (const group of GROUPS) {
+			const names = Object.keys(state.effective[group.key] || {});
+			if (!names.length) continue;
+			const grid = createElement('div', { className: 'roles' });
+			for (const name of names) grid.append(...roleRow(group.key, name));
+			box.append(section(group.title, grid));
+		}
+	}
+	function roleRow(group, name) {
+		const pinned = state.overrides[group][name];
+		const shown = pinned ?? state.effective[group][name];
+
+		const label = createElement('span', {
+			className: pinned ? 'role pinned' : 'role',
+			textContent: name,
+			title: name,
+		});
+
+		const swatch = createElement('input', { type: 'color', value: shown });
+		swatch.addEventListener('change', () => setRole(group, name, swatch.value));
+
+		const hex = createElement('input', {
+			type: 'text',
+			className: 'hex',
+			value: shown,
+			spellcheck: false,
+		});
+		hex.addEventListener('change', () => {
+			const typed = hex.value.trim().toLowerCase();
+			if (/^#[0-9a-f]{6}$/.test(typed)) setRole(group, name, typed);
+			else {
+				hex.classList.add('invalid');
+				hex.value = shown;
+			}
+		});
+
+		const clear = createElement('button', {
+			className: pinned ? 'clear on' : 'clear',
+			textContent: '↺',
+			title: pinned ? 'Back to the formula' : 'Not pinned',
+		});
+		clear.addEventListener('click', () => {
+			delete state.overrides[group][name];
+			apply();
+		});
+
+		return [label, swatch, hex, clear];
+	}
+
+	function setRole(group, name, hex) {
+		state.overrides[group][name] = hex;
+		apply();
+	}
+
 	vscode.postMessage({ type: 'ready' });
 })();
