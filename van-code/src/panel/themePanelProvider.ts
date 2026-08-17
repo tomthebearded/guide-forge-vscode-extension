@@ -5,13 +5,18 @@ import { PROFILES, profileById } from '../engine/profiles';
 import { SavedSet, deleteSet, exportSets, importSets, listSets, saveSet } from '../storage/sets';
 import { applyTheme } from '../theme/apply';
 import { ThemeHistory } from '../theme/history';
-
+import { ThemeOverrides } from '../engine/types';
 
 export class ThemePanelProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'vanCode.panel';
 
   private view?: vscode.WebviewView;
-  private last?: { comboId: string; profileId: string; variant?: string; };
+  private last?: {
+    comboId: string;
+    profileId: string;
+    variant?: string;
+    overrides?: ThemeOverrides;
+  };
 
   constructor(
     private readonly extensionUri: vscode.Uri,
@@ -48,13 +53,15 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
         this.last = {
           comboId: m.comboId,
           profileId: m.profileId,
-          variant: m.variant
+          variant: m.variant,
+          overrides: m.overrides
         };
-        const theme = generate(comboById(m.comboId), profileById(m.profileId), m.variant);
+        const theme = generate(comboById(m.comboId), profileById(m.profileId), m.variant, m.overrides);
         await this.history.apply(() => applyTheme(theme, m.languageId || undefined));
         this.post({
           type: 'applied',
           palette: theme.palette,
+          tokens: theme.tokens,
           contrast: worstTextContrast(theme.chrome),
         });
         break;
@@ -85,7 +92,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
       }
       case 'applySet': {
         const set = listSets(this.context).find((s) => s.name === m.name);
-        
+
         if (!set)
           return;
 
