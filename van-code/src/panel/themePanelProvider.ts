@@ -62,6 +62,7 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
           type: 'applied',
           palette: theme.palette,
           tokens: theme.tokens,
+          semantic: theme.semantic,
           contrast: worstTextContrast(theme.chrome),
         });
         break;
@@ -76,27 +77,65 @@ export class ThemePanelProvider implements vscode.WebviewViewProvider {
         if (!this.last || !m.name)
           return;
 
-        const theme = generate(comboById(this.last.comboId), profileById(this.last.profileId), this.last.variant);
+        const theme = generate(
+          comboById(this.last.comboId),
+          profileById(this.last.profileId),
+          this.last.variant,
+          this.last.overrides,
+        );
+
         const set: SavedSet = {
           name: m.name,
           comboId: this.last.comboId,
           profileId: this.last.profileId,
           variant: this.last.variant,
+          overrides: this.last.overrides,
           chrome: theme.chrome,
           tokens: theme.tokens,
           semantic: theme.semantic,
         };
+
         await saveSet(this.context, set);
-        this.post({ type: 'savedSets', savedSets: listSets(this.context).map((s) => s.name) });
+
+        this.post({
+          type: 'savedSets',
+          savedSets: listSets(this.context).map((s) => s.name)
+        });
+
         break;
       }
       case 'applySet': {
         const set = listSets(this.context).find((s) => s.name === m.name);
-
         if (!set)
           return;
 
+        this.last = {
+          comboId: set.comboId,
+          profileId: set.profileId,
+          variant: set.variant,
+          overrides: set.overrides
+        };
+
         await this.history.apply(() => applyTheme(set));
+
+        const theme = generate(comboById(set.comboId),
+          profileById(set.profileId),
+          set.variant,
+          set.overrides
+        );
+
+        this.post({
+          type: 'restore',
+          comboId: set.comboId,
+          profileId: set.profileId,
+          variant: set.variant,
+          overrides: set.overrides || {},
+          palette: theme.palette,
+          tokens: theme.tokens,
+          semantic: theme.semantic,
+          contrast: worstTextContrast(theme.chrome),
+        });
+        
         break;
       }
       case 'delete':

@@ -17,6 +17,7 @@
 		if (data.type === 'init') {
 			state.combos = data.combos;
 			state.profiles = data.profiles;
+			state.savedSets = data.savedSets || [];
 
 			if (!state.comboId && state.combos[0]) state.comboId = state.combos[0].id;
 
@@ -28,6 +29,17 @@
 			state.effective = { palette: data.palette, tokens: data.tokens, semantic: data.semantic };
 			renderPreview(data.palette, data.contrast);
 			renderRoles();
+		} else if (data.type === 'savedSets') {
+			state.savedSets = data.savedSets || [];
+			renderSaved();
+		} else if (data.type === 'restore') {
+			state.comboId = data.comboId;
+			state.profileId = data.profileId;
+			state.variant = data.variant || null;
+			state.overrides = { palette: {}, tokens: {}, semantic: {}, ...(data.overrides || {}) };
+			state.effective = { palette: data.palette, tokens: data.tokens, semantic: data.semantic };
+			render();
+			renderPreview(data.palette, data.contrast);
 		}
 	});
 
@@ -115,6 +127,18 @@
 		app.append(createElement('div', { id: 'preview', className: 'section' }));
 		app.append(createElement('div', { id: 'roles', className: 'section' }));
 
+		const lang = createElement('input', {
+			id: 'lang',
+			type: 'text',
+			placeholder: 'languageId e.g. typescript (blank = all)',
+			value: state.languageId,
+			className: 'text',
+		});
+		lang.addEventListener('change', () => {
+			state.languageId = lang.value.trim();
+		});
+		app.append(section('Per-language (tokens only)', lang));
+
 		const actions = createElement('div', { className: 'row' });
 		const addButton = (label, type) => {
 			const button = createElement('button', { textContent: label, className: 'btn' });
@@ -122,7 +146,25 @@
 			return button;
 		};
 		actions.append(addButton('Revert', 'revert'), addButton('Reset', 'reset'));
-		app.append(section('Actions', actions));
+
+		const saveButton = createElement('button', { textContent: 'Save set…', className: 'btn' });
+		saveButton.addEventListener('click', () => {
+			const name = document.getElementById('setname').value.trim();
+			if (name) vscode.postMessage({ type: 'save', name });
+		});
+		actions.append(addButton('Export', 'export'), addButton('Import', 'import'), saveButton);
+
+		const nameInput = createElement('input', {
+			id: 'setname',
+			type: 'text',
+			placeholder: 'set name',
+			className: 'text',
+		});
+		app.append(section('Actions', createElement('div', {}, nameInput, actions)));
+
+		app.append(createElement('div', { id: 'saved', className: 'section' }));
+		renderSaved();
+		renderRoles();
 	}
 
 	function renderPreview(palette, contrast) {
@@ -156,6 +198,26 @@
 				textContent: `editor ${contrast.editor}:1 · floor ${contrast.pair} ${contrast.ratio}:1 ${aaaLevel ? 'AAA' : aaLevel ? 'AA' : 'FAIL'}`,
 			}),
 		);
+	}
+
+	function renderSaved() {
+		const box = document.getElementById('saved');
+		if (!box) return;
+		box.innerHTML = '';
+		box.append(createElement('h4', { textContent: 'My sets' }));
+		if (!state.savedSets.length) {
+			box.append(createElement('p', { className: 'muted', textContent: 'No saved sets yet.' }));
+			return;
+		}
+		for (const name of state.savedSets) {
+			const row = createElement('div', { className: 'row' });
+			const applySet = createElement('button', { textContent: name, className: 'chip' });
+			applySet.addEventListener('click', () => vscode.postMessage({ type: 'applySet', name }));
+			const del = createElement('button', { textContent: '✕', className: 'chip' });
+			del.addEventListener('click', () => vscode.postMessage({ type: 'delete', name }));
+			row.append(applySet, del);
+			box.append(row);
+		}
 	}
 
 	const GROUPS = [

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { ChromeColors, SemanticColors, TokenColors } from '../engine/types';
+import { ChromeColors, TokenColors, SemanticColors, ThemeOverrides } from '../engine/types';
+
 
 export interface SavedSet {
     name: string;
@@ -9,6 +10,7 @@ export interface SavedSet {
     chrome: ChromeColors;
     tokens: TokenColors;
     semantic: SemanticColors;
+    overrides?: ThemeOverrides;
 }
 
 const KEY = 'vanCode.savedSets';

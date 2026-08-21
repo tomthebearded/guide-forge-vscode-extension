@@ -11,11 +11,9 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 // Turn a CSS hex string like "#3aa" or "#33aaaa" into its three RGB numbers.
 export function hexToRgb(hex: string): Rgb {
     const digits = hex.replace('#', '');
-    let sixDigits: string;
-
-    sixDigits = digits.length === 3
+    const sixDigits = digits.length === 3
         // Shorthand hex repeats each digit: "#3aa" means exactly the same as "#33aaaa".
-        ? sixDigits = digits.split('').map((digit) => digit + digit).join('')
+        ? digits.split('').map((digit) => digit + digit).join('')
         : digits;
 
     // Each channel is two hex digits, i.e. a base-16 number from 00 (none) to ff (255, full).
