@@ -158,8 +158,11 @@
 		);
 	}
 
-	const GROUPS = [{ key: 'palette', title: 'Fine-tune — chrome roles' }];
-
+	const GROUPS = [
+		{ key: 'palette', title: 'Fine-tune — chrome roles' },
+		{ key: 'tokens', title: 'Fine-tune — syntax token roles' },
+		{ key: 'semantic', title: 'Semantic token types', collapsed: true },
+	];
 	function renderRoles() {
 		const box = document.getElementById('roles');
 		if (!box) return;
@@ -169,7 +172,16 @@
 			if (!names.length) continue;
 			const grid = createElement('div', { className: 'roles' });
 			for (const name of names) grid.append(...roleRow(group.key, name));
-			box.append(section(group.title, grid));
+			box.append(
+				group.collapsed
+					? createElement(
+							'details',
+							{},
+							createElement('summary', { textContent: group.title }),
+							grid,
+						)
+					: section(group.title, grid),
+			);
 		}
 	}
 	function roleRow(group, name) {
