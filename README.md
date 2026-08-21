@@ -90,4 +90,4 @@ and color concept is defined on first use.
 
 ## License
 
-[MIT](LICENSE) © Tommaso Mastroberardino
+[MIT](LICENSE)
