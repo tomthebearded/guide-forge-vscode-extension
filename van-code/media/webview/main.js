@@ -183,7 +183,36 @@
 					: section(group.title, grid),
 			);
 		}
+
+		const pinned = countPinned();
+		const footer = createElement('div', { className: 'row' });
+		footer.append(
+			createElement('span', {
+				className: pinned ? 'badge warn' : 'badge muted',
+				textContent: pinned + ' pinned',
+			}),
+		);
+		const clearAll = createElement('button', {
+			className: 'btn',
+			textContent: 'Clear all overrides',
+			disabled: !pinned,
+		});
+		clearAll.addEventListener('click', () => {
+			state.overrides = { palette: {}, tokens: {}, semantic: {} };
+			apply();
+		});
+
+		footer.append(clearAll);
+		box.append(footer);
 	}
+
+	function countPinned() {
+		return Object.keys(state.overrides).reduce(
+			(total, group) => total + Object.keys(state.overrides[group]).length,
+			0,
+		);
+	}
+
 	function roleRow(group, name) {
 		const pinned = state.overrides[group][name];
 		const shown = pinned ?? state.effective[group][name];
